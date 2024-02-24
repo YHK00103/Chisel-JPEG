@@ -1,4 +1,5 @@
 package jpeg
+import scala.math.ceil
 
 class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int){
     
@@ -88,5 +89,14 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
             result
         }
     }
+
+    def quantization(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Seq[Seq[Int]] = {
+        data.zip(quantTable).map { case (dataRow, quantRow) =>
+                dataRow.zip(quantRow).map { case (d, q) =>
+                ceil(d.toDouble / q.toDouble).toInt
+            }
+        }
+    }
+
 
 }

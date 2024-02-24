@@ -5,17 +5,17 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 
 object ZigZagParseData {
-    val in2x2 = Seq(Seq(1,2),
-                    Seq(3,4))
+    val in2x2 = Seq(Seq(1, 2),
+                    Seq(3, 4))
 
-    val in3x3 = Seq(Seq(1,2,6),
-                    Seq(3,5,7),
-                    Seq(4,8,9))
+    val in3x3 = Seq(Seq(1, 2, 6),
+                    Seq(3, 5, 7),
+                    Seq(4, 8, 9))
     
-    val in4x4 = Seq(Seq(10,11,12,13),
-                    Seq(14,15,16,17),
-                    Seq(18,19,20,21),
-                    Seq(22,23,24,25))
+    val in4x4 = Seq(Seq(10, 11, 12, 13),
+                    Seq(14, 15, 16, 17),
+                    Seq(18, 19, 20, 21),
+                    Seq(22, 23, 24, 25))
 
     val in8x8 = Seq(Seq(10, 11, 12, 13, 14, 15, 16, 17),
                     Seq(18, 19, 20, 21, 22, 23, 24, 25),
@@ -56,6 +56,47 @@ object deltaData {
     val out3 = Seq(5, 0, 0, 0)
     val out4 = Seq.empty[Int]
     val out5 = Seq(100)
+
+}
+
+object QuantizationTables {
+    val qt1 = Seq(Seq(16, 11, 10, 16, 24, 40, 51, 61),
+                  Seq(12, 12, 14, 19, 26, 58, 60, 55),
+                  Seq(14, 13, 16, 24, 40, 57, 69, 56),
+                  Seq(14, 17, 22, 29, 51, 87, 80, 62),
+                  Seq(18, 22, 37, 56, 68, 109, 103, 77),
+                  Seq(24, 35, 55, 64, 81, 104, 113, 92),
+                  Seq(49, 64, 78, 87, 103, 121, 120, 101),
+                  Seq(72, 992, 95, 98, 112, 100, 103, 99))
+
+    val qt2 = Seq(Seq(17, 18, 24, 47, 99, 99, 99, 99),
+                  Seq(18, 21, 26, 66, 99, 99, 99, 99),
+                  Seq(24, 26, 56, 99, 99, 99, 99, 99),
+                  Seq(47, 66, 99, 99, 99, 99, 99, 99),
+                  Seq(99, 99, 99, 99, 99, 99, 99, 99),
+                  Seq(99, 99, 99, 99, 99, 99, 99, 99),
+                  Seq(99, 99, 99, 99, 99, 99, 99, 99),
+                  Seq(99, 99, 99, 99, 99, 99, 99, 99))
+}
+
+object QuantizationData {
+    val in1 = Seq(Seq(-415, -33, -58, 35, 58, -51, -15, -12),
+                  Seq(5, -34, 49, 18, 27, 1, -5, 3),
+                  Seq(-46, 14, 80, -35, -50, 19, 7, -18),
+                  Seq(-53, 21, 34, -20, 2, 34, 36, 12),
+                  Seq(9, -2, 9, -5, -32, -15, 45, 37),
+                  Seq(-8, 15, -16, 7, -8, 11, 4, 7),
+                  Seq(19, -28, -2, -26, -2, 7, -44, -21),
+                  Seq(18, 25, -12, -44, 35, 48, -37, -3))
+
+    val out1 = Seq(Seq(-26, -3, 6, 2, 2, -1, 0, 0),
+                  Seq(0, -3, 4, 1, 1, 0, 0, 0),
+                  Seq(-3, 1, 5, -1, -1, 0, 0, 0),
+                  Seq(-4, 1, 2, -1, 0, 0, 0, 0),
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0))
 
 }
 
@@ -130,4 +171,12 @@ class deltaTester extends AnyFlatSpec with ChiselScalatestTester {
         assert(jpegEncoder.delta(deltaData.in5) == deltaData.out5)
     }
 
+}
+
+class quantizationTester extends AnyFlatSpec with ChiselScalatestTester {
+    it should "quant test 1" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt1) == QuantizationData.out1)
+    }
+    
 }
