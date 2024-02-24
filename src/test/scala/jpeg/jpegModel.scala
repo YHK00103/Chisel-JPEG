@@ -74,7 +74,8 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     def delta(data: Seq[Int]): Seq[Int] = {
         if (data.isEmpty) {
             Seq.empty[Int] 
-        } else {
+        } 
+        else {
             var result = Seq(data.head)
             var prev = data.head 
 
