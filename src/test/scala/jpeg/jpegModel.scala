@@ -14,21 +14,26 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
                 if (j == matrix.length - 1) {
                     i += 1
                     isUp = false
-                } else if (i == 0) {
+                } 
+                else if (i == 0) {
                     j += 1
                     isUp = false
-                } else {
+                } 
+                else {
                     i -= 1
                     j += 1
                 }
-            } else {
+            } 
+            else {
                 if (i == matrix.length - 1) {
                     j += 1
                     isUp = true
-                } else if (j == 0) {
+                } 
+                else if (j == 0) {
                     i += 1
                     isUp = true
-                } else {
+                } 
+                else {
                     i += 1
                     j -= 1
                 }
@@ -38,9 +43,32 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     }
 
 
-    def DCT(p: jpegParams, matrix: List[List[Int]]): List[List[Int]] = {
+    def DCT(matrix: List[List[Int]]): List[List[Int]] = {
         // Implement Discrete Cosine Transform algorithm here
         ???
+    }
+
+    def RLE(data: Seq[Int]): Seq[Int] = {
+        var result = Seq[Int]()
+        var current = data.head
+        var count = 1
+        
+        for (i <- 1 until data.length) {
+            if (data(i) == current) {
+                count += 1
+            } 
+            else {
+                result :+= count
+                result :+= current
+                current = data(i)
+                count = 1
+            }
+        }
+        
+        result :+= count
+        result :+= current
+        
+        result
     }
 
 }
