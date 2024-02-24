@@ -71,4 +71,21 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         result
     }
 
+    def delta(data: Seq[Int]): Seq[Int] = {
+        if (data.isEmpty) {
+            Seq.empty[Int] 
+        } else {
+            var result = Seq(data.head)
+            var prev = data.head 
+
+            for (i <- 1 until data.length) {
+                val diff = data(i) - prev
+                result :+= diff
+                prev = data(i)
+            }
+
+            result
+        }
+    }
+
 }
