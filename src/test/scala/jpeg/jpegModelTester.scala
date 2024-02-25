@@ -3,6 +3,8 @@ package jpeg
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
+import java.beans.beancontext.BeanContextChildSupport
+import scala.collection.Seq
 
 object ZigZagParseData {
     val in2x2 = Seq(Seq(1, 2),
@@ -100,46 +102,60 @@ object QuantizationData {
 
 }
 
+object DCTData {
+    val in1 = Seq(Seq(231, 32, 233, 161, 24, 71, 140, 245),
+                Seq(247, 40, 248, 245, 124, 204, 36, 107),
+                Seq(234, 202, 245, 167, 9, 217, 239, 173),
+                Seq(193, 190, 100, 167, 43, 180, 8, 70),
+                Seq(11, 24, 210, 177, 81, 243, 8, 112),
+                Seq(97, 195, 203, 47, 125, 114, 165, 181),
+                Seq(193, 70, 174, 167, 41, 30, 127, 245),
+                Seq(87, 149, 57, 192, 65, 129, 178, 228))
+    
+    // val expectedOut1 = 
+    
+}
+
 class ZigZagParseTester extends AnyFlatSpec with ChiselScalatestTester {
     it should "Zig Zag 2x2" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val jpegEncoder = new jpegEncode(false, Seq.empty, 0)
         assert(jpegEncoder.zigzagParse(ZigZagParseData.in2x2) == ZigZagParseData.out2x2)
     }
 
     it should "Zig Zag 3x3" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val jpegEncoder = new jpegEncode(false, Seq.empty, 0)
         assert(jpegEncoder.zigzagParse(ZigZagParseData.in3x3) == ZigZagParseData.out3x3)
     }
 
     it should "Zig Zag 4x4" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val jpegEncoder = new jpegEncode(false, Seq.empty, 0)
         assert(jpegEncoder.zigzagParse(ZigZagParseData.in4x4) == ZigZagParseData.out4x4)
     }
 
     it should "Zig Zag 8x8" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val jpegEncoder = new jpegEncode(false, Seq.empty, 0)
         assert(jpegEncoder.zigzagParse(ZigZagParseData.in8x8) == ZigZagParseData.out8x8)
     }
 }
 
 class RLETester extends AnyFlatSpec with ChiselScalatestTester {
     it should "RLE test 1" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val jpegEncoder = new jpegEncode(false, Seq.empty, 0)
         assert(jpegEncoder.RLE(RLEData.in1) == RLEData.out1)
     }
 
     it should "RLE test 2" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val jpegEncoder = new jpegEncode(false, Seq.empty, 0)
         assert(jpegEncoder.RLE(RLEData.in2) == RLEData.out2)
     }
 
     it should "RLE test 3" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val jpegEncoder = new jpegEncode(false, Seq.empty, 0)
         assert(jpegEncoder.RLE(RLEData.in3) == RLEData.out3)
     }
 
     it should "RLE test no dupes" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val jpegEncoder = new jpegEncode(false, Seq.empty, 0)
         assert(jpegEncoder.RLE(RLEData.in4) == RLEData.out4)
     }
 
@@ -147,27 +163,27 @@ class RLETester extends AnyFlatSpec with ChiselScalatestTester {
 
 class deltaTester extends AnyFlatSpec with ChiselScalatestTester {
     it should "delta test 1" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val jpegEncoder = new jpegEncode(false, Seq.empty, 0)
         assert(jpegEncoder.delta(deltaData.in1) == deltaData.out1)
     }
 
     it should "delta test 2" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val jpegEncoder = new jpegEncode(false, Seq.empty, 0)
         assert(jpegEncoder.delta(deltaData.in2) == deltaData.out2)
     }
 
     it should "delta test 3" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val jpegEncoder = new jpegEncode(false, Seq.empty, 0)
         assert(jpegEncoder.delta(deltaData.in3) == deltaData.out3)
     }
 
     it should "delta test empty" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val jpegEncoder = new jpegEncode(false, Seq.empty, 0)
         assert(jpegEncoder.delta(deltaData.in4) == deltaData.out4)
     }
 
     it should "delta test single elem" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val jpegEncoder = new jpegEncode(false, Seq.empty, 0)
         assert(jpegEncoder.delta(deltaData.in5) == deltaData.out5)
     }
 
@@ -175,8 +191,20 @@ class deltaTester extends AnyFlatSpec with ChiselScalatestTester {
 
 class quantizationTester extends AnyFlatSpec with ChiselScalatestTester {
     it should "quant test 1" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val jpegEncoder = new jpegEncode(false, Seq.empty, 0)
         assert(jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt1) == QuantizationData.out1)
     }
     
+}
+
+
+class dctTester extends AnyFlatSpec with ChiselScalatestTester {
+    it should "dct test 1" in {
+        val jpegEncode = new jpegEncode(false, Seq.empty, 0)
+        //assert(jpegEncode.dct())
+        // jpegEncode.printMatrix(jpegEncode.DCT(DCTData.in1))
+        jpegEncode.DCT(DCTData.in1)
+    }
+
+
 }
