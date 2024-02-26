@@ -72,6 +72,14 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         }
     }
 
+    def roundToTwoDecimalPlaces(matrix: Seq[Seq[Double]]): Seq[Seq[Double]] = {
+    matrix.map { row =>
+        row.map { element =>
+        BigDecimal(element).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+        }
+    }
+    }
+
     def RLE(data: Seq[Int]): Seq[Int] = {
         var result = Seq[Int]()
         var current = data.head

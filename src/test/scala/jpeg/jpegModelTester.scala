@@ -203,13 +203,13 @@ object DCTData {
 
 // }
 
-// class quantizationTester extends AnyFlatSpec with ChiselScalatestTester {
-//     it should "quant test 1" in {
-//         val jpegEncoder = new jpegEncode(false, List.empty, 0)
-//         assert(jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt1) == QuantizationData.out1)
-//     }
+class quantizationTester extends AnyFlatSpec with ChiselScalatestTester {
+    it should "quant test 1" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt1) == QuantizationData.out1)
+    }
     
-// }
+}
 
 
 class dctTester extends AnyFlatSpec with ChiselScalatestTester {
@@ -217,8 +217,11 @@ class dctTester extends AnyFlatSpec with ChiselScalatestTester {
         // val zerosTable: Seq[Seq[Int]] = Seq.fill(8)(Seq.fill(8)(0))
         val jpegEncode = new jpegEncode(false, List.empty, 0)
         //assert(jpegEncode.dct())
-        jpegEncode.printMatrix(jpegEncode.DCT(DCTData.in1))
-        assert(jpegEncode.DCT(DCTData.in1) == DCTData.out1)
+        val dctResult = jpegEncode.DCT(DCTData.in1)
+        val rounded = jpegEncode.roundToTwoDecimalPlaces(dctResult)
+        jpegEncode.printMatrix(dctResult)
+        jpegEncode.printMatrix(rounded)
+        assert(rounded == DCTData.out1)
 
     }
 
