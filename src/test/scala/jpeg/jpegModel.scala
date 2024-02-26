@@ -4,7 +4,7 @@ import scala.math.round
 import scala.math.{cos, Pi}
 import scala.math
 
-class jpegEncode(decompress: Boolean, quantTable: Seq[Seq[Int]], encoding: Int){
+class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int){
     
     def zigzagParse(matrix: Seq[Seq[Int]]): Seq[Int] = {
         var result: Seq[Int] = Seq.empty
@@ -47,23 +47,26 @@ class jpegEncode(decompress: Boolean, quantTable: Seq[Seq[Int]], encoding: Int){
     }
 
 
-    def DCT(matrix: Seq[Seq[Int]]): Seq[Seq[Int]] = {
+    def DCT(matrix: Seq[Seq[Int]]): Seq[Seq[Double]] = {
         // Implement Discrete Cosine Transform algorithm here
-        // val dctMatrix = Seq.ofDim[Double](8, 8)
-        val dctMatrix = Array.tabulate(8, 8) { (_, _) => 0 }
-        for (u <- 0 until 8; v <- 0 until 8) {
-            var sum = 0.0
-            for (i <- 0 until 8; j <- 0 until 8) {
-                sum += matrix(i)(j) * cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16)
+        val dctMatrix = matrix.indices.map { u =>
+            matrix.indices.map { v =>
+            val sum = matrix.indices.foldLeft(0.0) { (accI, i) =>
+                matrix.indices.foldLeft(accI) { (accJ, j) =>
+                val pixelValue = matrix(i)(j).toDouble
+                val tempSum = accJ + pixelValue * cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16)
+                tempSum
+                }
             }
             val alphaU = if (u == 0) 1 else math.sqrt(2) / 2
             val alphaV = if (v == 0) 1 else math.sqrt(2) / 2
-            dctMatrix(u)(v) = (alphaU * alphaV * sum / 4).toInt
+            (alphaU * alphaV * sum / 4).toDouble
+            }
         }
-        dctMatrix.map(_.map(_.toInt))
+        dctMatrix
     }
 
-    def printMatrix(matrix: Seq[Seq[Int]]): Unit = {
+    def printMatrix(matrix: Seq[Seq[Double]]): Unit = {
         for (row <- matrix) {
             println(row.mkString(" "))
         }
