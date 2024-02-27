@@ -1,6 +1,8 @@
 package jpeg
 import scala.math.ceil
 import scala.math.round
+import scala.math.{cos, Pi}
+import scala.math
 
 class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int){
     
@@ -45,9 +47,37 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     }
 
 
-    def DCT(matrix: List[List[Int]]): List[List[Int]] = {
+    def DCT(matrix: Seq[Seq[Int]]): Seq[Seq[Double]] = {
         // Implement Discrete Cosine Transform algorithm here
-        ???
+        val dctMatrix = matrix.indices.map { u =>
+            matrix.indices.map { v =>
+            val sum = matrix.indices.foldLeft(0.0) { (accI, i) =>
+                matrix.indices.foldLeft(accI) { (accJ, j) =>
+                val pixelValue = matrix(i)(j).toDouble
+                val tempSum = accJ + pixelValue * cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16)
+                tempSum
+                }
+            }
+            val alphaU = if (u == 0) 1 else math.sqrt(2) / 2
+            val alphaV = if (v == 0) 1 else math.sqrt(2) / 2
+            (alphaU * alphaV * sum / 4).toDouble
+            }
+        }
+        dctMatrix
+    }
+
+    def printMatrix(matrix: Seq[Seq[Double]]): Unit = {
+        for (row <- matrix) {
+            println(row.mkString(" "))
+        }
+    }
+
+    def roundToTwoDecimalPlaces(matrix: Seq[Seq[Double]]): Seq[Seq[Double]] = {
+    matrix.map { row =>
+        row.map { element =>
+        BigDecimal(element).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+        }
+    }
     }
 
     def RLE(data: Seq[Int]): Seq[Int] = {

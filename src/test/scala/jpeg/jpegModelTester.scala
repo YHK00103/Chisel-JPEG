@@ -3,6 +3,7 @@ package jpeg
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
+import java.beans.beancontext.BeanContextChildSupport
 
 object ZigZagParseData {
     val in2x2 = Seq(Seq(1, 2),
@@ -60,6 +61,15 @@ object deltaData {
 }
 
 object QuantizationTables {
+    val qEmpty = Seq(Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0))
+
     val qt1 = Seq(Seq(16, 11, 10, 16, 24, 40, 51, 61),
                   Seq(12, 12, 14, 19, 26, 58, 60, 55),
                   Seq(14, 13, 16, 24, 40, 57, 69, 56),
@@ -162,6 +172,26 @@ object QuantizationData {
                       Seq(0, 0, 0, 0, 0, 0, 0, 0))
 }
 
+object DCTData {
+    val in1 = Seq(Seq(231, 32, 233, 161, 24, 71, 140, 245),
+                Seq(247, 40, 248, 245, 124, 204, 36, 107),
+                Seq(234, 202, 245, 167, 9, 217, 239, 173),
+                Seq(193, 190, 100, 167, 43, 180, 8, 70),
+                Seq(11, 24, 210, 177, 81, 243, 8, 112),
+                Seq(97, 195, 203, 47, 125, 114, 165, 181),
+                Seq(193, 70, 174, 167, 41, 30, 127, 245),
+                Seq(87, 149, 57, 192, 65, 129, 178, 228))
+    
+    val out1 = Seq(Seq(2237.50, 44.02, 75.92, -138.57, 3.50, 122.08, 195.04, -101.60),
+                Seq(77.19, 57.43, -10.90, 20.68, 4.39, 49.54, 69.09, 5.45),
+                Seq(44.84, -31.38, 55.81, -38.19, 62.21, 47.80, -19.91, 29.26),
+                Seq(-69.98, -20.12, -11.75, -38.37, 13.32, -18.42, 33.09, 62.71),
+                Seq(-109.00, -21.67, -27.77, 4.09, 15.12, -14.33, 1.22, -47.07),
+                Seq(-5.39, 28.32, 86.51, -17.71, 16.19, 16.73, -29.06, 9.51),
+                Seq(78.84, -32.30, 59.34, -7.55, -68.66, -15.31, -52.56, 19.91),
+                Seq(19.79, -39.09, 0.49, -36.17, -10.79, 40.65, 31.86, 2.95))
+}
+
 class ZigZagParseTester extends AnyFlatSpec with ChiselScalatestTester {
     it should "Zig Zag 2x2" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
@@ -240,7 +270,7 @@ class quantizationTester extends AnyFlatSpec with ChiselScalatestTester {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         assert(jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt1) == QuantizationData.out1qt1)
     }
-
+  
     it should "in1 / quant table 2" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         assert(jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt2) == QuantizationData.out1qt2)
@@ -265,5 +295,20 @@ class quantizationTester extends AnyFlatSpec with ChiselScalatestTester {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         assert(jpegEncoder.quantization(QuantizationData.in3, QuantizationTables.qt2) == QuantizationData.out3qt2)
     }
-
 }
+
+
+class dctTester extends AnyFlatSpec with ChiselScalatestTester {
+    it should "dct test 1" in {
+        // val zerosTable: Seq[Seq[Int]] = Seq.fill(8)(Seq.fill(8)(0))
+        val jpegEncode = new jpegEncode(false, List.empty, 0)
+        //assert(jpegEncode.dct())
+        val dctResult = jpegEncode.DCT(DCTData.in1)
+        val rounded = jpegEncode.roundToTwoDecimalPlaces(dctResult)
+        jpegEncode.printMatrix(dctResult)
+        jpegEncode.printMatrix(rounded)
+        assert(rounded == DCTData.out1)
+
+    }
+}
+
