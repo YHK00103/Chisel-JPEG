@@ -300,13 +300,10 @@ class quantizationTester extends AnyFlatSpec with ChiselScalatestTester {
 
 class dctTester extends AnyFlatSpec with ChiselScalatestTester {
     it should "dct test 1" in {
-        // val zerosTable: Seq[Seq[Int]] = Seq.fill(8)(Seq.fill(8)(0))
         val jpegEncode = new jpegEncode(false, List.empty, 0)
-        //assert(jpegEncode.dct())
         val dctResult = jpegEncode.DCT(DCTData.in1)
         val rounded = jpegEncode.roundToTwoDecimalPlaces(dctResult)
-        jpegEncode.printMatrix(dctResult)
-        jpegEncode.printMatrix(rounded)
+
         assert(rounded == DCTData.out1)
 
     }
