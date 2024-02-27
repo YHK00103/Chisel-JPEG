@@ -94,7 +94,8 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     def quantization(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Seq[Seq[Int]] = {
         data.zip(quantTable).map { case (dataRow, quantRow) =>
                 dataRow.zip(quantRow).map { case (d, q) =>
-                round(d.toDouble / q.toDouble).toInt
+                val result = d.toDouble / q.toDouble
+                if (result < 0) (round(-result) * -1).toInt else round(result).toInt
             }
         }
     }

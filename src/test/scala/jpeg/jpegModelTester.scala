@@ -89,15 +89,77 @@ object QuantizationData {
                   Seq(19, -28, -2, -26, -2, 7, -44, -21),
                   Seq(18, 25, -12, -44, 35, 48, -37, -3))
 
-    val out1 = Seq(Seq(-26, -3, -6, 2, 2, -1, 0, 0),
-                  Seq(0, -3, 4, 1, 1, 0, 0, 0),
-                  Seq(-3, 1, 5, -1, -1, 0, 0, 0),
-                  Seq(-4, 1, 2, -1, 0, 0, 0, 0),
-                  Seq(1, 0, 0, 0, 0, 0, 0, 0),
-                  Seq(0, 0, 0, 0, 0, 0, 0, 0),
-                  Seq(0, 0, 0, 0, 0, 0, 0, 0),
-                  Seq(0, 0, 0, 0, 0, 0, 0, 0))
+    val in2 = Seq(Seq(100, -33, -58, 35, 58, -51, -15, -12),
+                  Seq(5, -34, 49, 18, 27, 1, -5, 3),
+                  Seq(-46, 14, 80, -35, -50, 19, 7, -18),
+                  Seq(-53, 21, 34, -20, 2, 34, 36, 12),
+                  Seq(9, -2, 9, -5, -32, -15, 45, 37),
+                  Seq(-8, 15, -16, 7, -8, 11, 4, 7),
+                  Seq(19, -28, -2, -26, -2, 7, -44, -21),
+                  Seq(18, 25, -12, -44, 35, 48, -37, -3))
 
+    val in3 = Seq(Seq(120, -40, 80, 60, 90, -50, -30, 45),
+                  Seq(10, -30, 45, 25, 35, 15, -20, 30),
+                  Seq(-25, 35, 55, -15, 20, 40, 50, -10),
+                  Seq(5, -20, 30, 40, 25, 10, -15, 20),
+                  Seq(-10, 15, 20, 10, -5, 25, 30, -10),
+                  Seq(60, -30, -35, 20, 10, 15, -25, 35),
+                  Seq(30, -25, 40, 15, -10, 20, 25, -20),
+                  Seq(25, 15, -10, -20, 30, 45, -35, -15))
+                  
+    val out1qt1 = Seq(Seq(-26, -3, -6, 2, 2, -1, 0, 0),
+                      Seq(0, -3, 4, 1, 1, 0, 0, 0),
+                      Seq(-3, 1, 5, -1, -1, 0, 0, 0),
+                      Seq(-4, 1, 2, -1, 0, 0, 0, 0),
+                      Seq(1, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0))
+
+    val out1qt2 = Seq(Seq(-24, -2, -2, 1, 1, -1, 0, 0),
+                      Seq(0, -2, 2, 0, 0, 0, 0, 0),
+                      Seq(-2, 1, 1, 0, -1, 0, 0, 0),
+                      Seq(-1, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0))
+
+    val out2qt1 = Seq(Seq(6, -3, -6, 2, 2, -1, 0, 0),
+                     Seq(0, -3, 4, 1, 1, 0, 0, 0),
+                     Seq(-3, 1, 5, -1, -1, 0, 0, 0),
+                     Seq(-4, 1, 2, -1, 0, 0, 0, 0),
+                     Seq(1, 0, 0, 0, 0, 0, 0, 0),
+                     Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                     Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                     Seq(0, 0, 0, 0, 0, 0, 0, 0))
+
+    val out2qt2 = Seq(Seq(6, -2, -2, 1, 1, -1, 0, 0),
+                      Seq(0, -2, 2, 0, 0, 0, 0, 0),
+                      Seq(-2, 1, 1, 0, -1, 0, 0, 0),
+                      Seq(-1, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0))
+
+    val out3qt1 = Seq(Seq(8, -4, 8, 4, 4, -1, -1, 1),
+                      Seq(1, -3, 3, 1, 1, 0, 0, 1),
+                      Seq(-2, 3, 3, -1, 1, 1, 1, 0),
+                      Seq(0, -1, 1, 1, 0, 0, 0, 0),
+                      Seq(-1, 1, 1, 0, 0, 0, 0, 0),
+                      Seq(3, -1, -1, 0, 0, 0, 0, 0),
+                      Seq(1, 0, 1, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0))
+
+    val out3qt2 = Seq(Seq(7, -2, 3, 1, 1, -1, 0, 0),
+                      Seq(1, -1, 2, 0, 0, 0, 0, 0),
+                      Seq(-1, 1, 1, 0, 0, 0, 1, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(1, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0),
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0))
 }
 
 class ZigZagParseTester extends AnyFlatSpec with ChiselScalatestTester {
@@ -174,9 +236,34 @@ class deltaTester extends AnyFlatSpec with ChiselScalatestTester {
 }
 
 class quantizationTester extends AnyFlatSpec with ChiselScalatestTester {
-    it should "quant test 1" in {
+    it should "in1 / quant table 1" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
-        assert(jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt1) == QuantizationData.out1)
+        assert(jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt1) == QuantizationData.out1qt1)
     }
-    
+
+    it should "in1 / quant table 2" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt2) == QuantizationData.out1qt2)
+    }
+
+    it should "in2 / quant table 1" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.quantization(QuantizationData.in2, QuantizationTables.qt1) == QuantizationData.out2qt1)
+    }
+
+    it should "in2 / quant table 2" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.quantization(QuantizationData.in2, QuantizationTables.qt2) == QuantizationData.out2qt2)
+    }
+
+    it should "in3 / quant table 1" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.quantization(QuantizationData.in3, QuantizationTables.qt1) == QuantizationData.out3qt1)
+    }
+
+    it should "in3 / quant table 2" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.quantization(QuantizationData.in3, QuantizationTables.qt2) == QuantizationData.out3qt2)
+    }
+
 }
