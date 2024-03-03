@@ -34,9 +34,12 @@ class Delta extends Module{
     })
     
     val stateReg = RegInit(DeltaState.idle)
+
+    // Initialize to all zeros
+    val dataReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W))))
     
-    val dataReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W)))) // Initialize to all zeros
-    val outputReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W)))) // Initialize output register
+    // Initialize output register
+    val outputReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W)))) 
     val dataIndex = RegInit(1.U(log2Ceil(64+1).W))
 
     io.state := stateReg
@@ -54,9 +57,9 @@ class Delta extends Module{
 
         is(DeltaState.encode){
             outputReg(0) := dataReg(0)
-            val diff = dataReg(dataIndex) - dataReg(dataIndex - 1.U)
-            outputReg(dataIndex) := diff
             when (dataIndex < 64.U) {
+                val diff = dataReg(dataIndex) - dataReg(dataIndex - 1.U)
+                outputReg(dataIndex) := diff
                 dataIndex := dataIndex + 1.U
             }
             .otherwise{
@@ -67,31 +70,3 @@ class Delta extends Module{
     }
 
 }
-
-// object Delta {
-//     def apply(data: Vec[SInt], result: Vec[SInt]) = {
-//         val mod = Module(new Delta)
-//         mod.io.data := data
-//         result := mod.io.result
-//         mod
-//     }
-// }
-// class Delta extends Module {
-//     val io = IO(new Bundle{
-//         val data = Input(Vec(64, SInt(8.W)))
-//         val result = Output(Vec(64, SInt(8.W)))
-//     })
-
-//     val result = Wire(Vec(64, SInt(8.W)))
-//     val prev = RegInit(0.S(8.W))
-
-//     result(0) := io.data.head
-//     for (i <- 1 until 64) {
-//         val diff = io.data(i) - prev
-//         result(i) := diff
-//         prev := io.data(i)
-//     }
-
-//     io.result := result
-
-// }
