@@ -13,8 +13,8 @@ class RLE extends Module{
         val in = Flipped(Decoupled(new Bundle{
             val data = Vec(64, SInt(8.W))
         }))
-        val out = Valid(Vec(64, SInt(8.W)))
-        val length = Valid(SInt())
+        val out = Valid(Vec(128, SInt(8.W)))
+        val length = Valid(UInt())
         val state = Output(EncodingState())
     })
     
@@ -24,14 +24,14 @@ class RLE extends Module{
     val dataReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W))))
     
     // Initialize output register
-    val outputReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W)))) 
+    val outputReg = RegInit(VecInit(Seq.fill(128)(0.S(8.W)))) 
     val dataIndex = RegInit(1.U(log2Ceil(64+1).W))
 
     val consecutiveCounter = RegInit(0.U(log2Ceil(64+1).W))
     val valueCounter = RegInit(1.U(log2Ceil(64+1).W))
     val consecutive = RegInit(1.S(log2Ceil(64+1).W))
 
-    val lenCounter = RegInit(0.S(log2Ceil(64+1).W))
+    val lenCounter = RegInit(0.U(log2Ceil(128+1).W))
 
     val current = RegInit(0.S(8.W))
 
@@ -66,14 +66,14 @@ class RLE extends Module{
                     valueCounter := valueCounter + 2.U
                     current := dataReg(dataIndex)
                     consecutive := 1.S
-                    lenCounter := lenCounter + 2.S
+                    lenCounter := lenCounter + 2.U
                 }
                 dataIndex := dataIndex + 1.U
             }
             .otherwise{
                 outputReg(consecutiveCounter) := consecutive
                 outputReg(valueCounter) := current
-                lenCounter := lenCounter + 2.S
+                lenCounter := lenCounter + 2.U
                 io.out.valid := true.B
                 io.length.valid := true.B
                 stateReg := EncodingState.idle
