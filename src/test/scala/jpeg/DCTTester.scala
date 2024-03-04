@@ -56,7 +56,7 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
       // Compare DUT output with expected out
       for (i <- 0 until 8) {
         for (j <- 0 until 8) {
-          dut.io.dctOut(i)(j).expect(shiftedBlock(i)(j))
+          dut.io.shiftedOut(i)(j).expect(shiftedBlock(i)(j))
         }
       }
     }
