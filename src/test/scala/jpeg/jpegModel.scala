@@ -48,7 +48,6 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
 
 
     def DCT(matrix: Seq[Seq[Int]]): Seq[Seq[Double]] = {
-        // Implement Discrete Cosine Transform algorithm here
         val dctMatrix = matrix.indices.map { u =>
             matrix.indices.map { v =>
             val sum = matrix.indices.foldLeft(0.0) { (accI, i) =>
@@ -73,11 +72,11 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     }
 
     def roundToTwoDecimalPlaces(matrix: Seq[Seq[Double]]): Seq[Seq[Double]] = {
-    matrix.map { row =>
-        row.map { element =>
-        BigDecimal(element).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+        matrix.map { row =>
+            row.map { element =>
+             BigDecimal(element).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+            }
         }
-    }
     }
 
     def RLE(data: Seq[Int]): Seq[Int] = {
