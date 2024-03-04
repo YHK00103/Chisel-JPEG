@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.internal.firrtl.Width
 import chisel3.util._
 import java.rmi.dgc.DGC
+import scala.math.round
 // import chisel3.experimental._
 // import scala.math.cos
 // import scala.math.Pi 
@@ -63,10 +64,12 @@ class DCTChisel extends Module {
                         val pixelValue = matrix(i)(j) //.toDouble //.asFixedPoint(8.BP)
                         //val cosI = cos((2 * i + 1).toDouble * u.toDouble * Pi1 / 16.0)
                         //val cosJ = cos((2 * j + 1).toDouble * v.toDouble * Pi1 / 16.0)
-                        val cosI = cosLUT((2 * i + 1) * u * (3 / 16).toInt)
-                        val cosJ = cosLUT((2 * j + 1) * v * (3 / 16).toInt)
+                        var lutIndexI = round((2 * i + 1) * u * (3 / 16)) //.toInt
+                        var lutIndexJ = round((2 * j + 1) * v * (3 / 16)) //.toInt
+                        val cosI = cosLUT(lutIndexI.toInt)
+                        val cosJ = cosLUT(lutIndexJ.toInt)
                         
-                        sum = sum + pixelValue * (cosI * cosJ).toInt
+                        sum = sum + pixelValue.S * (cosI * cosJ).S//.toInt
                     }
                 }
                 val alphaU = if (u == 0) 1.S else 1.S/ math.sqrt(2)
