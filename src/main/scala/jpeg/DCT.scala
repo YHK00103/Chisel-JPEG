@@ -6,17 +6,19 @@ import chisel3.util._
 
 class DCTChisel extends Module {
     val io = IO(new Bundle {
-        val matrixIn = Input(Vec(8, Vec(8, SInt(8.W))))
-        val dctOut = Output(Vec(8, Vec(8, FixedPoint(16.W, 8.BP))))
+        val matrixIn = Input(Vec(8, Vec(8, SInt(9.W))))
+        val dctOut = Output(Vec(8, Vec(8, SInt(9.W)))) //FixedPoint(16.W, 8.BP))))
     })
 
-    val shiftedBlock = Vec(8, Vec(8, SInt(8.W)))
+    val shiftedBlock = Reg(Vec(8, Vec(8, SInt(9.W))))
 
     for (i <- 0 until 8) {
         for (j <- 0 until 8) {
-            shiftedBlock = io.matrixIn(i)(j) -& 128.
+            shiftedBlock(i)(j) := io.matrixIn(i)(j) -& 128.S
         }
     }
+
+    io.dctOut := shiftedBlock
 
 
     // def DCT(matrix: Vec[Vec[SInt]], width: Int, height: Int): Vec[Vec[FixedPoint]] = {
