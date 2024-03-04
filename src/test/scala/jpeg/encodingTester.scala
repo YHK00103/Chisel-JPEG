@@ -61,7 +61,7 @@ class RLETest extends AnyFlatSpec with ChiselScalatestTester {
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 
             20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 
             37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 
-            54, 55, 56, 57, 58, 59, 60, 61, 62, 62, 63, 64
+            54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64
         )
         doRLETest(test)
     }
@@ -98,7 +98,7 @@ class DeltaTest extends AnyFlatSpec with ChiselScalatestTester {
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 
             19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 
             35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 
-            51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 62, 63, 64
+            51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64
         )
         doDeltaTest(test)
     }
@@ -113,9 +113,9 @@ class DeltaTest extends AnyFlatSpec with ChiselScalatestTester {
     }
 
     it should "encode 64 of the same int(10 and 0)" in {
-        val test = Seq.fill(64)(10)
-        doDeltaTest(test)
-        val test = Seq.fill(64)(0)
-        doDeltaTest(test)
+        val test1 = Seq.fill(64)(10)
+        doDeltaTest(test1)
+        val test2 = Seq.fill(64)(0)
+        doDeltaTest(test2)
     }
 }
