@@ -192,7 +192,7 @@ object DCTData {
                 Seq(19.79, -39.09, 0.49, -36.17, -10.79, 40.65, 31.86, 2.95))
 }
 
-class ZigZagParseTester extends AnyFlatSpec with ChiselScalatestTester {
+class ZigZagParseModelTester extends AnyFlatSpec with ChiselScalatestTester {
     it should "Zig Zag 2x2" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         assert(jpegEncoder.zigzagParse(ZigZagParseData.in2x2) == ZigZagParseData.out2x2)
@@ -214,7 +214,7 @@ class ZigZagParseTester extends AnyFlatSpec with ChiselScalatestTester {
     }
 }
 
-class RLETester extends AnyFlatSpec with ChiselScalatestTester {
+class RLEModelTester extends AnyFlatSpec with ChiselScalatestTester {
     it should "RLE test 1" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         assert(jpegEncoder.RLE(RLEData.in1) == RLEData.out1)
@@ -237,7 +237,7 @@ class RLETester extends AnyFlatSpec with ChiselScalatestTester {
 
 }
 
-class deltaTester extends AnyFlatSpec with ChiselScalatestTester {
+class deltaModelTester extends AnyFlatSpec with ChiselScalatestTester {
     it should "delta test 1" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         assert(jpegEncoder.delta(deltaData.in1) == deltaData.out1)
@@ -265,7 +265,7 @@ class deltaTester extends AnyFlatSpec with ChiselScalatestTester {
 
 }
 
-class quantizationTester extends AnyFlatSpec with ChiselScalatestTester {
+class quantizationModelTester extends AnyFlatSpec with ChiselScalatestTester {
     it should "in1 / quant table 1" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         assert(jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt1) == QuantizationData.out1qt1)
@@ -298,8 +298,8 @@ class quantizationTester extends AnyFlatSpec with ChiselScalatestTester {
 }
 
 
-class dctTester extends AnyFlatSpec with ChiselScalatestTester {
-    it should "dct test 1" in {
+class DCTModelTester extends AnyFlatSpec with ChiselScalatestTester {
+    it should "DCT test 1" in {
         val jpegEncode = new jpegEncode(false, List.empty, 0)
         val dctResult = jpegEncode.DCT(DCTData.in1)
         val rounded = jpegEncode.roundToTwoDecimalPlaces(dctResult)
