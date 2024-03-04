@@ -18,7 +18,7 @@ object DCTDataChisel {
     
 }
 
-class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
+// class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
   // it should "dct Chisel test" in {
   //   test(new jpegEncodeChisel) { dut =>
 
@@ -42,4 +42,4 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
   //     }
   //   }
   // }
-}
+// }
