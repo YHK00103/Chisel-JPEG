@@ -4,9 +4,26 @@ import chisel3._
 import chisel3.internal.firrtl.Width
 import chisel3.util._
 import java.rmi.dgc.DGC
-import chisel3.experimental._
-import scala.math.cos
+// import chisel3.experimental._
+// import scala.math.cos
 // import scala.math.Pi 
+
+
+class CosineLUT(val period: Int, val amplitude: Int) {
+  require(period > 0)
+
+  private val B: Double = (2.0 * math.Pi) / period.toDouble
+
+  def apply(index: Int): Int = (amplitude.toDouble * math.cos(B * index)).toInt
+
+  def printTable(): Unit = {
+    println("cosine lookup table:")
+    for (i <- 0 until period) {
+      val value = apply(i)
+      println(s"Index $i: $value")
+    }
+  }
+}
 
 class DCTChisel extends Module {
     val io = IO(new Bundle {
@@ -14,60 +31,55 @@ class DCTChisel extends Module {
             val matrixIn = Input(Vec(8, Vec(8, SInt(9.W))))
         }))
         val shiftedOut = Output(Vec(8, Vec(8, SInt(9.W))))
-        val dctOut = Valid(Vec(8, Vec(8, FixedPoint(16.W, 8.BP))))
+        val dctOut = Valid(Vec(8, Vec(8, SInt(9.W))))//FixedPoint(16.W, 8.BP))))
     })
+
+
 
     object DCTState extends ChiselEnum { val loading, shifting, calculating, waiting = Value }
     val matrixInput  = Reg(Vec(8, Vec(8, SInt(9.W))))
     val shiftedBlock = Reg(Vec(8, Vec(8, SInt(9.W))))
-    val matrixOutput = Reg(Vec(8, Vec(8, FixedPoint(16.W, 8.BP))))
+    val matrixOutput = Reg(Vec(8, Vec(8, SInt(9.W))))//FixedPoint(16.W, 8.BP))))
     val readyIn   = RegInit(true.B) 
     val validOut  = RegInit(false.B)
 
-    
 
     io.in.ready  := readyIn
     io.dctOut.valid := validOut
 
     io.dctOut.bits := matrixOutput
 
-    def DCT(matrix: Vec[Vec[SInt]]): Vec[Vec[FixedPoint]] = {
-        val dctMatrix = Wire(Vec(8, Vec(8, FixedPoint(16.W, 8.BP))))
-        val Pi1 = scala.math.Pi.toDouble //F(16.BP)
+    def DCT(matrix: Vec[Vec[SInt]]): Vec[Vec[SInt]] = {
+        val dctMatrix = Wire(Vec(8, Vec(8, SInt(9.W)))) //FixedPoint(16.W, 8.BP))))
+        // val Pi1 = scala.math.Pi.SInt//.toDouble //F(16.BP)
 
-        // for (u <- 0 until 8) {
-        //     for (v <- 0 until 8) {
-        //         val sum = (0 until 8).foldLeft(0.0.F(16.BP)) { (accI, i) =>
-        //             (0 until 8).foldLeft(accI) { (accJ, j) =>
-        //                 val pixelValue = matrix(i)(j).asFixedPoint(8.BP)
-        //                 val tempSum = accJ + pixelValue * cos((2 * i + 1) * u * Pi.F(16.BP) / 16) * cos((2 * j + 1) * v * Pi.F(16.BP) / 16)
-        //                 tempSum
-        //             }
-        //         }
-        //         val alphaU = if (u == 0) 1.0.F(16.BP) else math.sqrt(2).F(16.BP) / 2.0.F(16.BP)
-        //         val alphaV = if (v == 0) 1.0.F(16.BP) else math.sqrt(2).F(16.BP) / 2.0.F(16.BP)
-        //         dctMatrix(u)(v) := (alphaU * alphaV * sum / 4.0.F(16.BP))//.toDouble
-        //     }
-        // }
-        // dctMatrix
+        val cosLUT = new CosineLUT(16, 1)
+  
         for (u <- 0 until 8) {
             for (v <- 0 until 8) {
-                var sum = 0.F(16.BP)
+                var sum = 0.S//F(16.BP)
                 for (i <- 0 until 8) {
                     for (j <- 0 until 8) {
-                        val pixelValue = matrix(i)(j).asFixedPoint(8.BP)
-                        val cosI = cos((2 * i + 1).toDouble * u.toDouble * Pi1 / 16.0)
-                        val cosJ = cos((2 * j + 1).toDouble * v.toDouble * Pi1 / 16.0)
-                        sum = sum + pixelValue * cosI * cosJ
+                        val pixelValue = matrix(i)(j) //.toDouble //.asFixedPoint(8.BP)
+                        //val cosI = cos((2 * i + 1).toDouble * u.toDouble * Pi1 / 16.0)
+                        //val cosJ = cos((2 * j + 1).toDouble * v.toDouble * Pi1 / 16.0)
+                        val cosI = cosLUT((2 * i + 1) * u * (3 / 16).toInt)
+                        val cosJ = cosLUT((2 * j + 1) * v * (3 / 16).toInt)
+                        
+                        sum = sum + pixelValue * (cosI * cosJ).toInt
                     }
                 }
-                val alphaU = if (u == 0) 1.0.F(16.BP) else 1.0.F(16.BP) / math.sqrt(2).F(16.BP)
-                val alphaV = if (v == 0) 1.0.F(16.BP) else 1.0.F(16.BP) / math.sqrt(2).F(16.BP)
-                dctMatrix(u)(v) := (alphaU * alphaV * sum / 4.0.F(16.BP))
+                val alphaU = if (u == 0) 1.S else 1.S/ math.sqrt(2)
+                val alphaV = if (v == 0) 1.S else 1.S / math.sqrt(2)
+                dctMatrix(u)(v) := (alphaU * alphaV * sum / 4.0.U)
             }
         }
         dctMatrix
     }
+
+
+
+
 
     val state = RegInit(DCTState.waiting)
     when(state === DCTState.waiting) {
