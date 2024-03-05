@@ -35,6 +35,7 @@ class QuantizationTest extends AnyFlatSpec with ChiselScalatestTester {
             /* 
                 For Testing purposes, prints out both the expected and actual results
              */
+            println("scala expected:")
             val expectedArray: Seq[Seq[Int]] = expected
             for {
             row <- expectedArray
@@ -43,6 +44,7 @@ class QuantizationTest extends AnyFlatSpec with ChiselScalatestTester {
             println(rowString)
             }
 
+            println("Chisel actual:")
             val bitsArray: Vec[Vec[SInt]] = dut.io.out.bits
             for {
             row <- bitsArray
