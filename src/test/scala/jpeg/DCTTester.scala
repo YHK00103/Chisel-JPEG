@@ -44,13 +44,19 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
       val inputMatrix = DCTDataChisel.inputMatrix
       val shiftedBlock = DCTDataChisel.shifted
 
+      dut.io.in.valid.poke(true.B)
+      dut.io.in.ready.expect(true.B)
       // load in input matrix
       for (i <- 0 until 8) {
         for (j <- 0 until 8) {
-          dut.io.matrixIn(i)(j).poke(inputMatrix(i)(j))
+          dut.io.in.bits.matrixIn(i)(j).poke(inputMatrix(i)(j))
         }
       }
 
+      // Take step to load in matrix
+      dut.clock.step()
+
+      // Take step to load shifted block/go to calc state
       dut.clock.step()
 
       // Compare DUT output with expected out
@@ -59,6 +65,12 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
           dut.io.shiftedOut(i)(j).expect(shiftedBlock(i)(j))
         }
       }
+
+      // Take step to go to waiting/load calculation
+      dut.clock.step()
+      // Take step to go to waiting/load calculation
+      dut.clock.step()
+      dut.clock.step()
     }
   }
 

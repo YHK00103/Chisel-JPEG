@@ -52,22 +52,22 @@ class DCTChisel extends Module {
         val in = Flipped(Decoupled(new Bundle {
             val matrixIn = Input(Vec(8, Vec(8, SInt(9.W))))
         }))
-        val shiftedOut = Output(Vec(8, Vec(8, SInt(9.W))))
-        val dctOut = Valid(Vec(8, Vec(8, FixedPoint(16.W, 8.BP))))
+        val shiftedOut = Output(Vec(8, Vec(8, SInt(9.W)))) // Test output to check shiftedblock
+        val dctOut = Valid(Vec(8, Vec(8, SInt(9.W))))//FixedPoint(16.W, 8.BP))))
     })
+
 
     val tableSize = 30
     val cosTable = Seq.tabulate(tableSize) { i =>
         val value = (math.cos(2 * math.Pi * i / tableSize) * (1 << 8)).toDouble
-        FixedPoint.fromDouble(value, 16.W, 8.BP)
+        FixedPoint.fromDouble(value, 18.W, 8.BP)
     }
     val rom = VecInit(cosTable)
-
 
     object DCTState extends ChiselEnum { val loading, shifting, calculating, waiting = Value }
     val matrixInput  = Reg(Vec(8, Vec(8, SInt(9.W))))
     val shiftedBlock = Reg(Vec(8, Vec(8, SInt(9.W))))
-    val matrixOutput = Reg(Vec(8, Vec(8, FixedPoint(16.W, 8.BP)))) //SInt(9.W))))//
+    val matrixOutput = Reg(Vec(8, Vec(8, SInt(9.W))))//FixedPoint(16.W, 8.BP)))) //SInt(9.W))))//
     val readyIn   = RegInit(true.B) 
     val validOut  = RegInit(false.B)
 
@@ -76,6 +76,7 @@ class DCTChisel extends Module {
     io.dctOut.valid := validOut
 
     io.dctOut.bits := matrixOutput
+    io.shiftedOut := DontCare
 
     def DCT(matrix: Vec[Vec[SInt]]): Vec[Vec[SInt]] = {
         val dctMatrix = Wire(Vec(8, Vec(8, SInt(9.W)))) //FixedPoint(16.W, 8.BP))))
@@ -91,28 +92,31 @@ class DCTChisel extends Module {
                 for (i <- 0 until 8) {
                     for (j <- 0 until 8) {
                         val pixelValue = matrix(i)(j)//.asFixedPoint(8.BP)
+                        // println(s"pixelValue: $pixelValue\n")
+                        // printf("Pixel value at (%d, %d): %d\n", i.U, j.U, matrix(i)(j))
+                        // printf("pixelValue: %d\n", pixelValue)
                         //val cosI = cos((2 * i + 1).toDouble * u.toDouble * Pi1 / 16.0)
                         //val cosJ = cos((2 * j + 1).toDouble * v.toDouble * Pi1 / 16.0)
                         var lutIndexI = round((2 * i + 1) * u * (3 / 16)) //.toInt
                         var lutIndexJ = round((2 * j + 1) * v * (3 / 16)) //.toInt
+                        // printf("indexI: %d, indexJ: %d\n", lutIndexI.asUInt, lutIndexJ.asUInt)
                         // val cosI = cosLUT(lutIndexI.toInt).asFixedPoint(8.BP)
                         // val cosJ = cosLUT(lutIndexJ.toInt).asFixedPoint(8.BP)
                         val cosI = rom(lutIndexI.asUInt)
-                        val cosJ = rom(lutIndexJ.asUInt).asSInt
+                        val cosJ = rom(lutIndexJ.asUInt)
+                        // printf("cosI: %d, cosJ: $%d\n", cosI, cosJ)
                         
                         sum = sum.asSInt + pixelValue.asSInt * cosI.asSInt * cosJ.asSInt//.toInt
+                        // printf("sum: %d\n", sum)
                     }
                 }
-                val alphaU = if (u == 0) 1.S else 1.S/ math.sqrt(2)
-                val alphaV = if (v == 0) 1.S else 1.S / math.sqrt(2)
-                dctMatrix(u)(v) := (alphaU * alphaV * sum / 4.0.U)
+                val alphaU = if (u == 0) 1.S else 1.S/ FixedPoint.fromDouble(math.sqrt(2), 16.W, 8.BP).asSInt
+                val alphaV = if (v == 0) 1.S else 1.S / FixedPoint.fromDouble(math.sqrt(2), 16.W, 8.BP).asSInt
+                dctMatrix(u)(v) := (alphaU * alphaV * sum) >> 2 /// 4.U)
             }
         }
         dctMatrix
     }
-
-
-
 
 
     val state = RegInit(DCTState.waiting)
@@ -133,7 +137,17 @@ class DCTChisel extends Module {
         state := DCTState.calculating
     } .elsewhen (state === DCTState.calculating) {
        matrixOutput := DCT(shiftedBlock)
-       state := DCTState.waiting
+       //state := DCTState.waiting
+
+        // Print content of matrixOutput when it's in the waiting state
+        printf("Content of matrixOutput in waiting state:\n")
+        for (i <- 0 until 8) {
+            for (j <- 0 until 8) {
+                printf("%d ", matrixOutput(i)(j))
+            }
+            printf("\n")
+        }
+
     } //.elsewhen (state === DCTState.waiting)
 
 }
