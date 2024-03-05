@@ -3,38 +3,57 @@ package jpeg
 import chisel3._
 import chisel3.util._
 
-object Quantization {
-    def apply(data: Vec[Vec[SInt]], quantTable: Vec[Vec[SInt]], result: Vec[Vec[SInt]]) = {
-        val mod = Module(new Quantization)
-        mod.io.data := data
-        mod.io.quantTable := quantTable
-        result := mod.io.result
-        mod
-    }
+object QuantState extends ChiselEnum {
+    val idle, quant = Value
 }
 
 class Quantization extends Module {
-    val io = IO(new Bundle{
-        val data = Input(Vec(8, Vec(8, SInt(8.W))))
-        val quantTable = Input(Vec(8, Vec(8, SInt(8.W))))
-        val result = Output(Vec(8, Vec(8, SInt(8.W))))
+    val io = IO(new Bundle {
+        val in = Flipped(Decoupled(new Bundle{
+            val data = Input(Vec(8, Vec(8, SInt(12.W))))
+            val quantTable = Input(Vec(8, Vec(8, SInt(12.W))))
+        }))
+        val out = Valid(Vec(8, Vec(8, SInt(8.W))))
+        val state = Output(QuantState())
     })
 
-    
+    // registers to hold io
+    val outputReg = RegInit(VecInit(Seq.fill(8)(VecInit(Seq.fill(8)(0.S(12.W))))))
+    val dataReg = RegInit(VecInit(Seq.fill(8)(VecInit(Seq.fill(8)(0.S(12.W))))))
+    val quantTabReg = RegInit(VecInit(Seq.fill(8)(VecInit(Seq.fill(8)(0.S(12.W))))))
+
+    val stateReg = RegInit(QuantState.idle)
+    io.in.ready := stateReg === QuantState.idle
+    io.out.valid := false.B
+    io.state := stateReg
+    io.out.bits := outputReg
+
+    // row and col counters
+    val rCounter = Counter(8)
+    val cCounter = Counter(8)
+
+    switch(stateReg){
+        is(QuantState.idle){
+            when(io.in.fire){
+                dataReg := io.in.bits.data
+                quantTabReg := io.in.bits.quantTable
+                stateReg := QuantState.quant
+            }
+        }
+
+        is(QuantState.quant){
+            outputReg(rCounter.value)(cCounter.value) := dataReg(rCounter.value)(cCounter.value) / quantTabReg(rCounter.value)(cCounter.value)
+
+            when(cCounter.inc()) {
+                rCounter.inc()
+            }
+
+            when(rCounter.value === 7.U && cCounter.value === 7.U) {
+                io.out.valid := true.B
+                stateReg := QuantState.idle
+            }
+        }
+    }
 
 }
-// object Quantization {
-//   def quantization(data: Vec[Vec[SInt]], quantTable: Vec[Vec[SInt]]): Vec[Vec[SInt]] = {
-//     val result = Wire(Vec(8, Vec(8, SInt(data(0)(0).getWidth.W))))
 
-//     for (i <- 0 until 8) {
-//       for (j <- 0 until 8) { 
-//         val resultValue = data(i)(j) / quantTable(i)(j)
-//         val rounded = (resultValue + (resultValue >= 0.S).asSInt) / 2.S
-//         result(i)(j) := rounded
-//       }
-//     }
-
-//     result
-//   }
-// }
