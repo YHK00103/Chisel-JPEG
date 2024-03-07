@@ -81,7 +81,7 @@ class decodeDelta extends Module {
         val in = Flipped(Decoupled(new Bundle {
             val data = Vec(64, SInt(8.W))
         }))
-        val out = Valid(Vec(64, SInt(8.W)))
+        val out = Valid(Vec(64, SInt(16.W))) // had to change bit width to 16 to pass tests
         val state = Output(DecodingState())
     })
 
@@ -91,7 +91,7 @@ class decodeDelta extends Module {
     val dataReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W))))
     
     // Initialize output register
-    val outputReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W)))) 
+    val outputReg = RegInit(VecInit(Seq.fill(64)(0.S(16.W)))) 
     val dataIndex = RegInit(1.U(log2Ceil(64+1).W))
 
     io.state := stateReg

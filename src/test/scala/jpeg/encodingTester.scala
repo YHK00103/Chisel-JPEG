@@ -28,7 +28,8 @@ class RLETest extends AnyFlatSpec with ChiselScalatestTester {
             }
             dut.io.state.expect(EncodingState.idle)
 
-            // // Printing each element of the array
+            // Testing purposes
+            // Printing each element of the array
             // val bitsArray: Vec[SInt] = dut.io.out.bits
             // for (element <- bitsArray) {
             //     println(element.peek())
