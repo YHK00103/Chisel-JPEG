@@ -264,6 +264,33 @@ class deltaModelTester extends AnyFlatSpec with ChiselScalatestTester {
     }
 
 }
+class deltaDecodeModelTester extends AnyFlatSpec with ChiselScalatestTester {
+    it should "delta decode test 1" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.decodeDelta(deltaData.out1) == deltaData.in1)
+    }
+
+    it should "delta decode test 2" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.decodeDelta(deltaData.out2) == deltaData.in2)
+    }
+
+    it should "delta decode test 3" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.decodeDelta(deltaData.out3) == deltaData.in3)
+    }
+
+    it should "delta decode test empty" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.decodeDelta(deltaData.out4) == deltaData.in4)
+    }
+
+    it should "delta decode test single elem" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.decodeDelta(deltaData.out5) == deltaData.in5)
+    }
+
+}
 
 class quantizationModelTester extends AnyFlatSpec with ChiselScalatestTester {
     it should "in1 / quant table 1" in {
