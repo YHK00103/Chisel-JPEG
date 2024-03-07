@@ -93,26 +93,33 @@ class DCTChisel extends Module {
                     for (j <- 0 until 8) {
                         val pixelValue = matrix(i)(j)//.asFixedPoint(8.BP)
                         // println(s"pixelValue: $pixelValue\n")
-                        // printf("Pixel value at (%d, %d): %d\n", i.U, j.U, matrix(i)(j))
+                        printf("Pixel value at (%d, %d): %d\n", i.U, j.U, matrix(i)(j))
                         // printf("pixelValue: %d\n", pixelValue)
                         //val cosI = cos((2 * i + 1).toDouble * u.toDouble * Pi1 / 16.0)
                         //val cosJ = cos((2 * j + 1).toDouble * v.toDouble * Pi1 / 16.0)
-                        var lutIndexI = round((2 * i + 1) * u * (3 / 16)) //.toInt
-                        var lutIndexJ = round((2 * j + 1) * v * (3 / 16)) //.toInt
+                       
+                        // var lutIndexI = round((2 * i + 1) * u * (3 / 16)) //.toInt
+                        // var lutIndexJ = round((2 * j + 1) * v * (3 / 16)) //.toInt
+                       
                         // printf("indexI: %d, indexJ: %d\n", lutIndexI.asUInt, lutIndexJ.asUInt)
                         // val cosI = cosLUT(lutIndexI.toInt).asFixedPoint(8.BP)
                         // val cosJ = cosLUT(lutIndexJ.toInt).asFixedPoint(8.BP)
-                        val cosI = rom(lutIndexI.asUInt)
-                        val cosJ = rom(lutIndexJ.asUInt)
+                       
+                        // val cosI = rom(lutIndexI.asUInt)
+                        // val cosJ = rom(lutIndexJ.asUInt)
                         // printf("cosI: %d, cosJ: $%d\n", cosI, cosJ)
                         
-                        sum = sum.asSInt + pixelValue.asSInt * cosI.asSInt * cosJ.asSInt//.toInt
+                        // sum = sum.asSInt + pixelValue.asSInt * cosI.asSInt * cosJ.asSInt//.toInt
                         // printf("sum: %d\n", sum)
+                        // println(s"sum: $sum\n")
                     }
                 }
-                val alphaU = if (u == 0) 1.S else 1.S/ FixedPoint.fromDouble(math.sqrt(2), 16.W, 8.BP).asSInt
-                val alphaV = if (v == 0) 1.S else 1.S / FixedPoint.fromDouble(math.sqrt(2), 16.W, 8.BP).asSInt
-                dctMatrix(u)(v) := (alphaU * alphaV * sum) >> 2 /// 4.U)
+                // val alphaU = if (u == 0) 1.S else 1.S/ FixedPoint.fromDouble(math.sqrt(2), 16.W, 8.BP).asSInt
+                // val alphaV = if (v == 0) 1.S else 1.S / FixedPoint.fromDouble(math.sqrt(2), 16.W, 8.BP).asSInt
+                // var calc = (alphaU * alphaV * sum) 
+                // printf("calc: %d\n", calc)
+
+                dctMatrix(u)(v) := 1.S//calc >> 2 /// 4.U)
             }
         }
         dctMatrix
@@ -121,6 +128,16 @@ class DCTChisel extends Module {
 
     val state = RegInit(DCTState.waiting)
     when(state === DCTState.waiting) {
+
+        // Print content of matrixOutput when it's in the waiting state
+        printf("Content of matrixOutput in waiting state:\n")
+        for (i <- 0 until 8) {
+            for (j <- 0 until 8) {
+                printf("%d ", matrixOutput(i)(j))
+            }
+            printf("\n")
+        }
+
         when (io.in.fire) {
             matrixInput := io.in.bits.matrixIn
             state := DCTState.shifting
@@ -137,16 +154,7 @@ class DCTChisel extends Module {
         state := DCTState.calculating
     } .elsewhen (state === DCTState.calculating) {
        matrixOutput := DCT(shiftedBlock)
-       //state := DCTState.waiting
-
-        // Print content of matrixOutput when it's in the waiting state
-        printf("Content of matrixOutput in waiting state:\n")
-        for (i <- 0 until 8) {
-            for (j <- 0 until 8) {
-                printf("%d ", matrixOutput(i)(j))
-            }
-            printf("\n")
-        }
+       state := DCTState.waiting
 
     } //.elsewhen (state === DCTState.waiting)
 
