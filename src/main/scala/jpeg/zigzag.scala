@@ -5,12 +5,18 @@ import chisel3.internal.firrtl.Width
 import chisel3.util._
 import java.util.zip.ZipFile
 
+// Defines the stateRegs
+object ZigZagState extends ChiselEnum {
+    val idle, processing = Value
+}
+
 class ZigZagChisel extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Decoupled(new Bundle {
-            val matrixIn = Input(Vec(8, Vec(8, SInt(9.W))))
+            val matrixIn = Vec(8, Vec(8, SInt(9.W)))
         }))
         val zigzagOut = Valid(Vec(64, SInt(9.W)))
+        val state = Output(ZigZagState())
     })
 
     val inMatrix = Reg(Vec(8, Vec(8, SInt(9.W))))
@@ -24,29 +30,14 @@ class ZigZagChisel extends Module {
     val readyIn   = RegInit(true.B) 
     val validOut  = RegInit(false.B)
     
-    // Defines the states
-    object ZigZagState extends ChiselEnum {
-        val idle, processing = Value
-    }
-
     // FSM
-    val state = RegInit(ZigZagState.idle)
-    switch(state) {
+    val stateReg = RegInit(ZigZagState.idle)
+    io.state := stateReg
+
+    switch(stateReg) {
         is(ZigZagState.idle) {
-            printf("Output Matrix:\n")
-            for (i <- 0 until 64) {
-                    printf("%d ", outReg(i))
-            }
-            printf("\n")
             when (io.in.fire) {
-                printf("Input matrix:\n")
-                for (i <- 0 until 8) {
-                    for (j <- 0 until 8) {
-                        printf("%d ", io.in.bits.matrixIn(i)(j))
-                    }
-                    printf("\n")
-                }
-                state := ZigZagState.processing
+                stateReg := ZigZagState.processing
                 inMatrix := io.in.bits.matrixIn
                 validOut := false.B
                 readyIn := false.B
@@ -58,7 +49,6 @@ class ZigZagChisel extends Module {
 
             when(count < 64.U) {
                 outReg(count) := inMatrix(row)(col)
-
                 when(isUp) {
                     when(col === 7.U) {
                         row := row + 1.U
@@ -85,7 +75,7 @@ class ZigZagChisel extends Module {
             } 
             
             when (count === 63.U) {
-                state := ZigZagState.idle
+                stateReg := ZigZagState.idle
                 count := 0.U
                 validOut := true.B
                 readyIn := true.B
