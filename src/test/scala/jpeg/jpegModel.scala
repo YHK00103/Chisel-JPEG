@@ -121,6 +121,23 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         }
     }
 
+    def decodeDelta(data: Seq[Int]): Seq[Int] = {
+        if (data.isEmpty) {
+            Seq.empty[Int]
+        } else {
+            var result = Seq(data.head)
+            var prev = data.head
+
+            for (i <- 1 until data.length) {
+                val original = data(i) + prev
+                result :+= original
+                prev = original
+            }
+
+            result
+        }
+    }
+
     def quantization(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Seq[Seq[Int]] = {
         data.zip(quantTable).map { case (dataRow, quantRow) =>
                 dataRow.zip(quantRow).map { case (d, q) =>
