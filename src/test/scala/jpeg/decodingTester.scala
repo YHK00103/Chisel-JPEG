@@ -6,25 +6,44 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import scala.language.experimental
 
-// class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
-//     def doDecodeRLETest(data: Seq[Int]): Unit = {
-//         test(new decodeRLE).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-//             dut.io.in.valid.poke(true.B)
-//             dut.io.in.ready.expect(true.B)
-//             dut.io.state.expect(DecodingState.idle)
-//         }
-//     }
-//     behavior of "DecodeRLEChisel"
-//     it should "decode 5:3, 6:2, 7:5, 8:4, 9:3, 10:2, 11:3, 12:5, 13:4, 14:4, 15:3, 16:5, 17:6, 18:7, 19:5, 20:3" in {
-//         val test = Seq(
-//             5, 5, 5, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 10, 10, 11, 
-//             11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 14, 15, 
-//             15, 15, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 18, 18, 18, 
-//             18, 18, 18, 18, 19, 19, 19, 19, 19, 20, 20, 20
-//         )
-//         doDecodeRLETest(test)
-//     }
-// }
+class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
+    def doDecodeRLETest(data: Seq[Int]): Unit = {
+        test(new decodeRLE).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            dut.io.in.valid.poke(true.B)
+            dut.io.in.ready.expect(true.B)
+            dut.io.state.expect(RLEDecodingState.idle)
+
+            val length = data.length
+            dut.io.in.bits.length.poke(length)
+            for (i <- 0 until length) {
+                dut.io.in.bits.data(i).poke(data(i).S)
+            }
+            dut.clock.step()
+            dut.io.state.expect(RLEDecodingState.decode)
+            dut.io.in.ready.expect(false.B)
+            dut.clock.step(999)
+            // Testing purposes
+            // Printing each element of the array
+            val bitsArray: Vec[SInt] = dut.io.out.bits
+            for (element <- bitsArray) {
+                println(element.peek())
+            }
+            dut.io.state.expect(RLEDecodingState.idle)
+        }
+
+    }
+    behavior of "DecodeRLEChisel"
+    it should "decode 5:3, 6:2, 7:5, 8:4, 9:3, 10:2, 11:3, 12:5, 13:4, 14:4, 15:3, 16:5, 17:6, 18:7, 19:5, 20:3" in {
+        val test = Seq(1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 1, 8, 1, 9, 1, 10, 1, 11, 1, 
+        12, 1, 13, 1, 14, 1, 15, 1, 16, 1, 17, 1, 18, 1, 19, 1, 20, 1, 21, 
+        1, 22, 1, 23, 1, 24, 1, 25, 1, 26, 1, 27, 1, 28, 1, 29, 1, 30, 1, 31, 
+        1, 32, 1, 33, 1, 34, 1, 35, 1, 36, 1, 37, 1, 38, 1, 39, 1, 40, 1, 41, 
+        1, 42, 1, 43, 1, 44, 1, 45, 1, 46, 1, 47, 1, 48, 1, 49, 1, 50, 1, 51, 
+        1, 52, 1, 53, 1, 54, 1, 55, 1, 56, 1, 57, 1, 58, 1, 59, 1, 60, 1, 61, 
+        1, 62, 1, 63, 1, 64)
+        doDecodeRLETest(test)
+    }
+}
 
 class DecodeDeltaTest extends AnyFlatSpec with ChiselScalatestTester {
     def doDecodeDeltaTest(data: Seq[Int]): Unit = {

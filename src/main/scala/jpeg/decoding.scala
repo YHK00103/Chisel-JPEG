@@ -3,73 +3,73 @@ package jpeg
 import chisel3._
 import chisel3.util._
 
-// object DecodingState extends ChiselEnum {
-//     val idle, load, decode = Value
-// }
+object RLEDecodingState extends ChiselEnum {
+    val idle, decode = Value
+}
 
-// class decodeRLE extends Module {
-//     val io = IO(new Bundle {
-//         val in = Flipped(Decoupled(new Bundle {
-//             val data = Vec(128, SInt(8.W))
-//             val length = UInt(8.W)
-//         }))
-//         val out = Valid(Vec(64, SInt(8.W)))
-//         val state = Output(DecodingState())
-//     })
+class decodeRLE extends Module {
+    val io = IO(new Bundle {
+        val in = Flipped(Decoupled(new Bundle {
+            val data = Vec(128, SInt(8.W))
+            val length = UInt(8.W)
+        }))
+        val out = Valid(Vec(64, SInt(8.W)))
+        val state = Output(RLEDecodingState())
+    })
 
-//     val stateReg = RegInit(DecodingState.idle)
+    val stateReg = RegInit(RLEDecodingState.idle)
 
-//     // Initialize to all zeros
-//     val dataReg = RegInit(VecInit(Seq.fill(128)(0.S(8.W))))
+    // Initialize to all zeros
+    val dataReg = RegInit(VecInit(Seq.fill(128)(0.S(8.W))))
     
-//     // Initialize output register
-//     val outputReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W))))
+    // Initialize output register
+    val outputReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W))))
+    val outputIndexCounter = RegInit(0.U(log2Ceil(64+1).W))
 
-//     // to keep track of the values from io.in.bits.data
-//     val freq = RegInit(0.U(8.W))
-//     val value = RegInit(0.S(8.W))
+    // to keep track of the values from io.in.bits.data
+    val freq = RegInit(0.S(8.W))
+    val value = RegInit(0.S(8.W))
 
-//     val freqCounter = RegInit(0.U(log2Ceil(64+1).W))
-//     val valueCounter = RegInit(1.U(log2Ceil(64+1).W))
+    // counters for indexing dataReg
+    val freqIndex = RegInit(0.U(log2Ceil(128+1).W))
+    val valueIndex = RegInit(1.U(log2Ceil(128+1).W))
 
-//     val consecutiveCounter = RegInit(0.U(log2Ceil(64+1).W))
-//     val outputIndexCounter = RegInit(0.U(log2Ceil(64+1).W))
+    val freqCounter = RegInit(0.S(log2Ceil(64+1).W))
 
-//     switch(stateReg){
-//         is(DecodingState.idle){
-//             when(io.in.fire){
-//                 // current := io.in.bits.data(0)
-//                 dataReg := io.in.bits.data
-//                 stateReg := DecodingState.load
-//             }
-//         }
+    io.state := stateReg
+    io.out.valid := false.B
+    io.out.bits := outputReg
+    io.in.ready := stateReg === RLEDecodingState.idle
 
-//         is(DecodingState.load){
-//             when(freqCounter < 64.U && valueCounter < 64.U){
-//                 freq := dataReg(freqCounter)
-//                 value := dataReg(valueCounter)
-//                 freqCounter := freqCounter + 2.U
-//                 valueCounter := valueCounter + 2.U
-//                 stateReg := DecodingState.decode
-//                 consecutiveCounter := 0.U
-//             }
-//         }
+    switch(stateReg){
+        is(RLEDecodingState.idle){
+            when(io.in.fire){
+                dataReg := io.in.bits.data
+                freq := io.in.bits.data(freqIndex)
+                value := io.in.bits.data(valueIndex)
+                stateReg := RLEDecodingState.decode
+            }
+        }
 
-//         is(DecodingState.decode){
-//             when(consecutiveCounter =/= (freq - 1.U)){
-//                 outputReg(outputIndexCounter) := value
-//                 consecutiveCounter := consecutiveCounter + 1.U
-//                 outputIndexCounter := outputIndexCounter + 1.U
-//             }
-//             .elsewhen(consecutiveCounter === (freq - 1.U) && valueCounter < 64.U){
-//                 stateReg := DecodingState.load
-//             }
-//             .otherwise {
-//                 stateReg := DecodingState.idle
-//             }
-//         }
-//     }
-// }
+        is(RLEDecodingState.decode){
+            when(freqCounter < (freq - 1.S)){
+                outputReg(outputIndexCounter) := value
+                outputIndexCounter := outputIndexCounter + 1.U
+                freqCounter := freqCounter + 1.S
+            }
+            .elsewhen(freqCounter === (freq - 1.S)){
+                freqCounter := 0.S
+                freqIndex := freqIndex + 2.U
+                valueIndex := valueIndex + 2.U
+                freq := dataReg(freqIndex)
+                value := dataReg(valueIndex)
+            }
+            .otherwise{
+                stateReg := RLEDecodingState.idle
+            }
+        }
+    }
+}
 
 
 object DecodingState extends ChiselEnum {
