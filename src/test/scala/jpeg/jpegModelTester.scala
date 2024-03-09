@@ -192,6 +192,28 @@ object DCTData {
                 Seq(19.79, -39.09, 0.49, -36.17, -10.79, 40.65, 31.86, 2.95))
 }
 
+class ZigZagDecodeModelTester extends AnyFlatSpec with ChiselScalatestTester {
+    it should "Produce out 2x2" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.zigzagDecode(ZigZagParseData.out2x2) == ZigZagParseData.in2x2)
+    }
+
+    it should "Produce out 3x3" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.zigzagDecode(ZigZagParseData.out3x3) == ZigZagParseData.in3x3)
+    }
+
+    it should "Produce out 4x4" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.zigzagDecode(ZigZagParseData.out4x4) == ZigZagParseData.in4x4)
+    }
+
+    it should "Produce out 8x8" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.zigzagDecode(ZigZagParseData.out8x8) == ZigZagParseData.in8x8)
+    }
+}
+
 class ZigZagParseModelTester extends AnyFlatSpec with ChiselScalatestTester {
     it should "Zig Zag 2x2" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
@@ -213,6 +235,7 @@ class ZigZagParseModelTester extends AnyFlatSpec with ChiselScalatestTester {
         assert(jpegEncoder.zigzagParse(ZigZagParseData.in8x8) == ZigZagParseData.out8x8)
     }
 }
+
 
 class RLEModelTester extends AnyFlatSpec with ChiselScalatestTester {
     it should "RLE test 1" in {

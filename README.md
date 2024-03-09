@@ -25,15 +25,29 @@ You should see a whole bunch of output that ends with something like the followi
     - [x] Model
     - [x] Model test
     - [ ] Hardware
-         - [ ] Discrete Cosine Transform (DCT)
-         - [ ] DCT Tests
-         - [ ] Quantization
-         - [ ] Quantization Tests
-         - [ ] Zig Zag Parsing
-         - [ ] Zig Zag Parsing Tests
-         - [x] Run length Encoding (RLE)
-         - [x] RLE Tests
-         - [x] Delta Encoding
-         - [x] Delta Encoding Tests
          - [ ] Top module
          - [ ] Top modle test
+    - [x] Hardware Encoding
+         - [ ] Discrete Cosine Transform (DCT)
+         - [ ] DCT Tests
+         - [x] Zig Zag Parsing
+         - [x] Zig Zag Parsing Tests
+         - [x] Run length Encoding (RLE)
+         - [x] RLE Encoding Tests
+         - [x] Delta Encoding
+         - [x] Delta Encoding Tests
+         - [ ] Quantization
+         - [ ] Quantization Encoding Tests
+    - [x] Hardware Decoding
+         - [ ] Discrete Cosine Transform (DCT)
+         - [ ] DCT decoding Tests
+         - [x] Zig Zag Reverse
+         - [x] Zig Zag Reverse Tests
+         - [] Run length Decoding (RLE)
+         - [] RLE Decoding Tests
+         - [x] Delta Decoding
+         - [x] Delta Decoding Tests
+         - [ ] Quantization
+         - [ ] Quantization Decoding Tests
+         
+
