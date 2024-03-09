@@ -14,7 +14,7 @@ class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
             dut.io.state.expect(RLEDecodingState.idle)
 
             val length = data.length
-            dut.io.in.bits.length.poke(length)
+            // dut.io.in.bits.length.poke(length)
             for (i <- 0 until length) {
                 dut.io.in.bits.data(i).poke(data(i).S)
             }
@@ -23,8 +23,16 @@ class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
             dut.io.state.expect(RLEDecodingState.decode)
             dut.io.in.ready.expect(false.B)
             dut.io.in.valid.poke(false.B)
-            val sum = data.zipWithIndex.filter(_._2 % 2 == 0).map(_._1).sum
-            dut.clock.step(sum + 7)
+            var sum = 0
+            for (i <- 0 until length){
+                if(i % 2 == 0){
+                    sum += data(i)
+                    dut.clock.step(data(i))
+                }
+            }
+            println(sum)
+            dut.clock.step(7)
+
             dut.io.state.expect(RLEDecodingState.idle)
             // Testing purposes
             // Printing each element of the array
@@ -33,7 +41,7 @@ class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
                 println(element.peek())
             }
             println("---")
-            dut.io.state.expect(RLEDecodingState.idle)
+            // dut.io.state.expect(RLEDecodingState.idle)
         }
 
     }
@@ -42,10 +50,39 @@ class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
         val test = Seq(4, 1, 4, 2, 4, 3, 4, 4, 4, 5, 5, 6)
         doDecodeRLETest(test)
     }
-    it should "decode" in {
+    it should "decode 3:1, 5:2, 2:3, 6:4, 1:5, 8:6" in {
         val test = Seq(3, 1, 5, 2, 2, 3, 6, 4, 1, 5, 8, 6)
         doDecodeRLETest(test)
     }
+
+    // it should "decode 4:1, 4:2, 4:3, 4:4, 4:5, 5:6, 5:7, 3:8, 2:9, 5:10" in {
+    //     val test = Seq(
+    //         4, 1, 
+    //         4, 2, 
+    //         4, 3, 
+    //         4, 4, 
+    //         4, 5, 
+    //         5, 6, 
+    //         5, 7, 
+    //         3, 8, 
+    //         2, 9, 
+    //         5, 10)
+    //     doDecodeRLETest(test)
+    // }
+    // it should "decode 3:1, 5:2, 2:3, 6:4, 1:5, 8:6, 2:8, 1:10, 5:4, 7:3" in {
+    //     val test = Seq(
+    //         3, 1, 
+    //         5, 2, 
+    //         2, 3, 
+    //         6, 4, 
+    //         1, 5, 
+    //         8, 6, 
+    //         2, 8, 
+    //         1, 10, 
+    //         5, 4, 
+    //         7, 3)
+    //     doDecodeRLETest(test)
+    // }
 
 }
 
