@@ -32,7 +32,24 @@ class ZigZagChiselTester extends AnyFlatSpec with ChiselScalatestTester {
         }
     }
 
+    behavior of "ZigZagChisel"
+    it should "zig zag encode ZigZagParseData.in8x8" in {
+        val test = jpeg.ZigZagParseData.in8x8
+        doZigZagChiselEncodeTest(test)
+    }
 
+    it should "zig zag encode QuantizationData.in2" in {
+        val test = jpeg.QuantizationData.in2
+        doZigZagChiselEncodeTest(test)
+    }
+
+    it should "zig zag encode QuantizationData.in3" in {
+        val test = jpeg.QuantizationData.in3
+        doZigZagChiselEncodeTest(test)
+    }
+}
+
+class ZigZagChiselDecodeTester extends AnyFlatSpec with ChiselScalatestTester {
     def doZigZagChiselDecodeTest(data: Seq[Int]): Unit = {
         test(new ZigZagDecodeChisel).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
@@ -57,41 +74,20 @@ class ZigZagChiselTester extends AnyFlatSpec with ChiselScalatestTester {
             dut.io.state.expect(ZigZagState.idle)
         }
     }
-
-
-    behavior of "ZigZagChisel"
-    it should "zig zag 8x8 test 1" in {
-        val test = jpeg.ZigZagParseData.in8x8
-        doZigZagChiselEncodeTest(test)
-    }
-
-    it should "zig zag 8x8 test 2" in {
-        val test = jpeg.QuantizationData.in2
-        doZigZagChiselEncodeTest(test)
-    }
-
-    it should "zig zag 8x8 test 3" in {
-        val test = jpeg.QuantizationData.in3
-        doZigZagChiselEncodeTest(test)
-    }
-
-
-    behavior of "ZigZagChisel"
-    it should "zig zag out8x8" in {
+    behavior of "ZigZagDecodeChisel"
+    it should "zig zag decode out8x8" in {
         val test = jpeg.ZigZagParseData.out8x8
         doZigZagChiselDecodeTest(test)
     }
 
-    it should "zig zag out2x2" in {
-        val test = jpeg.ZigZagParseData.out2x2
+    it should "zig zag decode QuantizationData.in2" in {
+        val test = jpeg.QuantizationData.in2.flatten
         doZigZagChiselDecodeTest(test)
     }
 
-    it should "zig zag out3x3" in {
-        val test = jpeg.ZigZagParseData.out3x3
+    it should "zig zag decode QuantizationData.in3" in {
+        val test = jpeg.QuantizationData.in3.flatten
         doZigZagChiselDecodeTest(test)
     }
-
-
 }
 
