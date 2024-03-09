@@ -19,24 +19,34 @@ class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
                 dut.io.in.bits.data(i).poke(data(i).S)
             }
             dut.clock.step()
+            dut.io.in.ready.expect(false.B)
             dut.io.state.expect(RLEDecodingState.decode)
             dut.io.in.ready.expect(false.B)
-            dut.clock.step(24)
+            dut.io.in.valid.poke(false.B)
+            val sum = data.zipWithIndex.filter(_._2 % 2 == 0).map(_._1).sum
+            dut.clock.step(sum + 7)
+            dut.io.state.expect(RLEDecodingState.idle)
             // Testing purposes
             // Printing each element of the array
             val bitsArray: Vec[SInt] = dut.io.out.bits
             for (element <- bitsArray) {
                 println(element.peek())
             }
+            println("---")
             dut.io.state.expect(RLEDecodingState.idle)
         }
 
     }
     behavior of "DecodeRLEChisel"
-    it should "decode 5:3, 6:2, 7:5, 8:4, 9:3, 10:2, 11:3, 12:5, 13:4, 14:4, 15:3, 16:5, 17:6, 18:7, 19:5, 20:3" in {
-        val test = Seq(4, 1, 4, 2, 4, 3, 4, 4, 4, 5)
+    it should "decode 4:1, 4:2, 4:3, 4:4, 4:5, 5:6" in {
+        val test = Seq(4, 1, 4, 2, 4, 3, 4, 4, 4, 5, 5, 6)
         doDecodeRLETest(test)
     }
+    it should "decode" in {
+        val test = Seq(3, 1, 5, 2, 2, 3, 6, 4, 1, 5, 8, 6)
+        doDecodeRLETest(test)
+    }
+
 }
 
 class DecodeDeltaTest extends AnyFlatSpec with ChiselScalatestTester {

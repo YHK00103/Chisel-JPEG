@@ -10,37 +10,39 @@ object RLEDecodingState extends ChiselEnum {
 class decodeRLE extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Decoupled(new Bundle {
-            val data = Vec(10, SInt(8.W))
+            val data = Vec(12, SInt(8.W))
             val length = UInt(8.W)
         }))
-        val out = Valid(Vec(20, SInt(8.W)))
+        val out = Valid(Vec(25, SInt(8.W)))
         val state = Output(RLEDecodingState())
     })
 
     val stateReg = RegInit(RLEDecodingState.idle)
 
     // Initialize to all zeros
-    val dataReg = RegInit(VecInit(Seq.fill(10)(0.S(8.W))))
+    val dataReg = RegInit(VecInit(Seq.fill(12)(0.S(8.W))))
     
     // Initialize output register
-    val outputReg = RegInit(VecInit(Seq.fill(20)(0.S(8.W))))
-    val outputIndexCounter = RegInit(0.U(log2Ceil(20+1).W))
+    val outputReg = RegInit(VecInit(Seq.fill(25)(0.S(8.W))))
+    val outputIndexCounter = RegInit(0.U(log2Ceil(25+1).W))
 
     // to keep track of the values from io.in.bits.data
     val freq = RegInit(0.S(8.W))
     val value = RegInit(0.S(8.W))
 
     // counters for indexing dataReg
-    val freqIndex = RegInit(0.U(log2Ceil(10+1).W))
-    val valueIndex = RegInit(1.U(log2Ceil(10+1).W))
+    val freqIndex = RegInit(0.U(log2Ceil(12+1).W))
+    val valueIndex = RegInit(1.U(log2Ceil(12+1).W))
 
-    val freqCounter = RegInit(0.S(log2Ceil(20+1).W))
+    val freqCounter = RegInit(0.S(log2Ceil(25+1).W))
 
     io.state := stateReg
     io.out.valid := false.B
     io.out.bits := outputReg
     io.in.ready := stateReg === RLEDecodingState.idle
 
+    val pair = RegInit(0.U(log2Ceil(12+1).W))
+    val numPairs = RegInit(6.U(log2Ceil(12+1).W))
     switch(stateReg){
         is(RLEDecodingState.idle){
             when(io.in.fire){
@@ -58,13 +60,14 @@ class decodeRLE extends Module {
                 freqCounter := freqCounter + 1.S
             }
             .elsewhen(freqCounter === freq){
+                pair := pair + 1.U
                 freqCounter := 0.S
                 freqIndex := freqIndex + 2.U
                 valueIndex := valueIndex + 2.U
                 freq := dataReg(freqIndex + 2.U)
                 value := dataReg(valueIndex + 2.U)
             }
-            .otherwise{
+            when(pair === numPairs) {
                 stateReg := RLEDecodingState.idle
             }
         }
