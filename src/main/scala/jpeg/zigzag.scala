@@ -19,8 +19,8 @@ class ZigZagChisel extends Module {
         val state = Output(ZigZagState())
     })
 
-    val inMatrix = Reg(Vec(8, Vec(8, SInt(9.W))))
-    val outReg = Reg(Vec(64, SInt(9.W)))
+    val inMatrix = RegInit(VecInit(Seq.fill(8)(VecInit(Seq.fill(8)(0.S(9.W))))))
+    val outReg = RegInit(VecInit(Seq.fill(64)(0.S(9.W))))
     val count = RegInit(0.U(6.W)) // Keeps track of how many elements are processed
     val row   = RegInit(0.U(3.W)) 
     val col   = RegInit(0.U(3.W))
@@ -101,8 +101,8 @@ class ZigZagDecodeChisel extends Module {
         val state = Output(ZigZagState())
     })
 
-    val inData = Reg(Vec(64, SInt(9.W)))
-    val outMatrix = Reg(Vec(8, Vec(8, SInt(9.W))))
+    val inData = RegInit(VecInit(Seq.fill(64)(0.S(9.W))))
+    val outMatrix = RegInit(VecInit(Seq.fill(8)(VecInit(Seq.fill(8)(0.S(9.W))))))
     val count = RegInit(0.U(6.W)) // Keeps track of how many elements are processed
     val row   = RegInit(0.U(3.W)) 
     val col   = RegInit(0.U(3.W))
