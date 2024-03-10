@@ -42,8 +42,27 @@ class Quantization extends Module {
         }
 
         is(QuantState.quant){
-            outputReg(rCounter.value)(cCounter.value) := dataReg(rCounter.value)(cCounter.value) / quantTabReg(rCounter.value)(cCounter.value)
-
+            // outputReg(rCounter.value)(cCounter.value) := dataReg(rCounter.value)(cCounter.value) / quantTabReg(rCounter.value)(cCounter.value)
+            // val quantResult = dataReg(rCounter.value)(cCounter.value) / quantTabReg(rCounter.value)(cCounter.value)
+            when(dataReg(rCounter.value)(cCounter.value) < 0.S){
+                val remainder = dataReg(rCounter.value)(cCounter.value) % quantTabReg(rCounter.value)(cCounter.value)
+                when(remainder <= (quantTabReg(rCounter.value)(cCounter.value) / -2.S)){
+                    outputReg(rCounter.value)(cCounter.value) := (dataReg(rCounter.value)(cCounter.value) / quantTabReg(rCounter.value)(cCounter.value)) - 1.S
+                    
+                }
+                .otherwise{
+                    outputReg(rCounter.value)(cCounter.value) := dataReg(rCounter.value)(cCounter.value) / quantTabReg(rCounter.value)(cCounter.value)
+                }
+            }
+            .otherwise{
+                val remainder = dataReg(rCounter.value)(cCounter.value) % quantTabReg(rCounter.value)(cCounter.value)
+                when(remainder >= (quantTabReg(rCounter.value)(cCounter.value) / 2.S)){
+                    outputReg(rCounter.value)(cCounter.value) := (dataReg(rCounter.value)(cCounter.value) / quantTabReg(rCounter.value)(cCounter.value)) + 1.S
+                }
+                .otherwise{
+                    outputReg(rCounter.value)(cCounter.value) := dataReg(rCounter.value)(cCounter.value) / quantTabReg(rCounter.value)(cCounter.value)
+                }
+            }
             when(cCounter.inc()) {
                 rCounter.inc()
             }
