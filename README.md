@@ -36,8 +36,8 @@ You should see a whole bunch of output that ends with something like the followi
          - [x] RLE Encoding Tests
          - [x] Delta Encoding
          - [x] Delta Encoding Tests
-         - [ ] Quantization
-         - [ ] Quantization Encoding Tests
+         - [x] Quantization
+         - [x] Quantization Encoding Tests
     - [x] Hardware Decoding
          - [ ] Discrete Cosine Transform (DCT)
          - [ ] DCT decoding Tests

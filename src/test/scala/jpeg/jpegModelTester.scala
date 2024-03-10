@@ -172,6 +172,64 @@ object QuantizationData {
                       Seq(0, 0, 0, 0, 0, 0, 0, 0))
 }
 
+object QuantizationDecodeData {
+    val out1qt1 = Seq(Seq(-416, -33, -60, 32, 48, -40, 0, 0), 
+                      Seq(0, -36, 56, 19, 26, 0, 0, 0), 
+                      Seq(-42, 13, 80, -24, -40, 0, 0, 0), 
+                      Seq(-56, 17, 44, -29, 0, 0, 0, 0), 
+                      Seq(18, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0))
+
+    val out1qt2 = Seq(Seq(-408, -36, -48, 47, 99, -99, 0, 0), 
+                      Seq(0, -42, 52, 0, 0, 0, 0, 0), 
+                      Seq(-48, 26, 56, 0, -99, 0, 0, 0), 
+                      Seq(-47, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0))
+
+    val out2qt1 = Seq(Seq(96, -33, -60, 32, 48, -40, 0, 0), 
+                      Seq(0, -36, 56, 19, 26, 0, 0, 0), 
+                      Seq(-42, 13, 80, -24, -40, 0, 0, 0), 
+                      Seq(-56, 17, 44, -29, 0, 0, 0, 0),
+                      Seq(18, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0))
+
+    val out2qt2 = Seq(Seq(102, -36, -48, 47, 99, -99, 0, 0), 
+                      Seq(0, -42, 52, 0, 0, 0, 0, 0), 
+                      Seq(-48, 26, 56, 0, -99, 0, 0, 0), 
+                      Seq(-47, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0))
+
+    val out3qt1 = Seq(Seq(128, -44, 80, 64, 96, -40, -51, 61), 
+                      Seq(12, -36, 42, 19, 26, 0, 0, 55), 
+                      Seq(-28, 39, 48, -24, 40, 57, 69, 0), 
+                      Seq(0, -17, 22, 29, 51, 0, 0, 0), 
+                      Seq(-18, 22, 37, 0, 0, 0, 0, 0), 
+                      Seq(72, -35, -55, 0, 0, 0, 0, 0), 
+                      Seq(49, 0, 78, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0))
+
+    val out3qt2 = Seq(Seq(119, -36, 72, 47, 99, -99, 0, 0), 
+                      Seq(18, -21, 52, 0, 0, 0, 0, 0), 
+                      Seq(-24, 26, 56, 0, 0, 0, 99, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(99, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                      Seq(0, 0, 0, 0, 0, 0, 0, 0))
+
+}
+
+
 object DCTData {
     val in1 = Seq(Seq(231, 32, 233, 161, 24, 71, 140, 245),
                 Seq(247, 40, 248, 245, 124, 204, 36, 107),
@@ -347,6 +405,43 @@ class quantizationModelTester extends AnyFlatSpec with ChiselScalatestTester {
     }
 }
 
+class quantizationDecodeModelTester extends AnyFlatSpec with ChiselScalatestTester {
+    it should "in1 / qt1 * qt1" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val data = jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt1)
+        assert(jpegEncoder.quantizationDecode(data, QuantizationTables.qt1) == QuantizationDecodeData.out1qt1)
+    }
+  
+    it should "in1 / qt2 * qt2" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val data = jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt2)
+        assert(jpegEncoder.quantizationDecode(data, QuantizationTables.qt2) == QuantizationDecodeData.out1qt2)
+    }
+
+    it should "in2 / qt1 * qt1" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val data = jpegEncoder.quantization(QuantizationData.in2, QuantizationTables.qt1)
+        assert(jpegEncoder.quantizationDecode(data, QuantizationTables.qt1) == QuantizationDecodeData.out2qt1)
+    }
+
+    it should "in2 / qt2 * qt2" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val data = jpegEncoder.quantization(QuantizationData.in2, QuantizationTables.qt2)
+        assert(jpegEncoder.quantizationDecode(data, QuantizationTables.qt2) == QuantizationDecodeData.out2qt2)
+    }
+
+    it should "in3 / qt1 * qt1" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val data = jpegEncoder.quantization(QuantizationData.in3, QuantizationTables.qt1)
+        assert(jpegEncoder.quantizationDecode(data, QuantizationTables.qt1) == QuantizationDecodeData.out3qt1)
+    }
+
+    it should "in3 / qt2 * qt2" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        val data = jpegEncoder.quantization(QuantizationData.in3, QuantizationTables.qt2)
+        assert(jpegEncoder.quantizationDecode(data, QuantizationTables.qt2) == QuantizationDecodeData.out3qt2)
+    }
+}
 
 class DCTModelTester extends AnyFlatSpec with ChiselScalatestTester {
     it should "DCT test 1" in {

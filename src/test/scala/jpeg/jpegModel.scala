@@ -163,5 +163,12 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         }
     }
 
+    def quantizationDecode(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Seq[Seq[Int]] = {
+        data.zip(quantTable).map { case (dataRow, quantRow) =>
+            dataRow.zip(quantRow).map { case (d, q) =>
+                (d.toDouble * q.toDouble).toInt
+            }
+        }
+    }
 
 }
