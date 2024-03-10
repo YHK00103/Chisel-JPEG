@@ -42,8 +42,6 @@ class Quantization extends Module {
         }
 
         is(QuantState.quant){
-            // outputReg(rCounter.value)(cCounter.value) := dataReg(rCounter.value)(cCounter.value) / quantTabReg(rCounter.value)(cCounter.value)
-            // val quantResult = dataReg(rCounter.value)(cCounter.value) / quantTabReg(rCounter.value)(cCounter.value)
             when(dataReg(rCounter.value)(cCounter.value) < 0.S){
                 val remainder = dataReg(rCounter.value)(cCounter.value) % quantTabReg(rCounter.value)(cCounter.value)
                 when(remainder <= (quantTabReg(rCounter.value)(cCounter.value) / -2.S)){
