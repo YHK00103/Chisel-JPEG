@@ -173,6 +173,33 @@ object QuantizationData {
 }
 
 object QuantizationDecodeData {
+    val in1 = Seq(Seq(-26, -3, -6, 2, 2, -1, 0, 0), 
+                  Seq(0, -3, 4, 1, 1, 0, 0, 0), 
+                  Seq(-3, 1, 5, -1, -1, 0, 0, 0), 
+                  Seq(-4, 1, 2, -1, 0, 0, 0, 0), 
+                  Seq(1, 0, 0, 0, 0, 0, 0, 0), 
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0))
+                  
+    val in2 = Seq(Seq(6, -3, -6, 2, 2, -1, 0, 0), 
+                  Seq(0, -3, 4, 1, 1, 0, 0, 0), 
+                  Seq(-3, 1, 5, -1, -1, 0, 0, 0), 
+                  Seq(-4, 1, 2, -1, 0, 0, 0, 0), 
+                  Seq(1, 0, 0, 0, 0, 0, 0, 0), 
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0), 
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0))
+
+    val in3 = Seq(Seq(8, -4, 8, 4, 4, -1, -1, 1), 
+                  Seq(1, -3, 3, 1, 1, 0, 0, 1), 
+                  Seq(-2, 3, 3, -1, 1, 1, 1, 0), 
+                  Seq(0, -1, 1, 1, 1, 0, 0, 0), 
+                  Seq(-1, 1, 1, 0, 0, 0, 0, 0), 
+                  Seq(3, -1, -1, 0, 0, 0, 0, 0), 
+                  Seq(1, 0, 1, 0, 0, 0, 0, 0), 
+                  Seq(0, 0, 0, 0, 0, 0, 0, 0))
+
     val out1qt1 = Seq(Seq(-416, -33, -60, 32, 48, -40, 0, 0), 
                       Seq(0, -36, 56, 19, 26, 0, 0, 0), 
                       Seq(-42, 13, 80, -24, -40, 0, 0, 0), 
@@ -226,9 +253,7 @@ object QuantizationDecodeData {
                       Seq(99, 0, 0, 0, 0, 0, 0, 0), 
                       Seq(0, 0, 0, 0, 0, 0, 0, 0), 
                       Seq(0, 0, 0, 0, 0, 0, 0, 0))
-
 }
-
 
 object DCTData {
     val in1 = Seq(Seq(231, 32, 233, 161, 24, 71, 140, 245),
@@ -415,6 +440,7 @@ class quantizationDecodeModelTester extends AnyFlatSpec with ChiselScalatestTest
     it should "in1 / qt2 * qt2" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         val data = jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt2)
+
         assert(jpegEncoder.quantizationDecode(data, QuantizationTables.qt2) == QuantizationDecodeData.out1qt2)
     }
 

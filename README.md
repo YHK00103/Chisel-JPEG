@@ -47,7 +47,7 @@ You should see a whole bunch of output that ends with something like the followi
          - [] RLE Decoding Tests
          - [x] Delta Decoding
          - [x] Delta Decoding Tests
-         - [ ] Quantization
-         - [ ] Quantization Decoding Tests
+         - [x] Quantization
+         - [x] Quantization Decoding Tests
          
 
