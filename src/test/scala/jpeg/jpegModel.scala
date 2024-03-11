@@ -2,49 +2,65 @@ package jpeg
 import scala.math.ceil
 import scala.math.round
 import scala.math.{cos, Pi}
-import scala.math
+import scala.math._
 
 class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int){
     
+    // Helper func for ZigZag to calculate indicies
+    def updateIndices(n: Int, isUp: Boolean, i: Int, j: Int): (Int, Int, Boolean) = {
+        if (isUp) {
+            if (j == n - 1) {
+                (i + 1, j, false)
+            } else if (i == 0) {
+                (i, j + 1, false)
+            } else {
+                (i - 1, j + 1, isUp)
+            }
+        } else {
+            if (i == n - 1) {
+                (i, j + 1, true)
+            } else if (j == 0) {
+                (i + 1, j, true)
+            } else {
+                (i + 1, j - 1, isUp)
+            }
+        }
+    }
+
     def zigzagParse(matrix: Seq[Seq[Int]]): Seq[Int] = {
         var result: Seq[Int] = Seq.empty
         var i = 0
         var j = 0
         var isUp = true
+        val matSize = matrix.length
 
-        for (_ <- 0 until matrix.length * matrix.length) {
+        for (num <- 0 until matSize * matSize) {
             result = result :+ matrix(i)(j)
-            if (isUp) {
-                if (j == matrix.length - 1) {
-                    i += 1
-                    isUp = false
-                } 
-                else if (i == 0) {
-                    j += 1
-                    isUp = false
-                } 
-                else {
-                    i -= 1
-                    j += 1
-                }
-            } 
-            else {
-                if (i == matrix.length - 1) {
-                    j += 1
-                    isUp = true
-                } 
-                else if (j == 0) {
-                    i += 1
-                    isUp = true
-                } 
-                else {
-                    i += 1
-                    j -= 1
-                }
-            }
+            val (newI, newJ, newIsUp) = updateIndices(matSize, isUp, i, j)
+            i = newI
+            j = newJ
+            isUp = newIsUp
         }
         result
     }
+
+    def zigzagDecode(data: Seq[Int]): Seq[Seq[Int]] = {
+        var i = 0
+        var j = 0
+        var isUp = true
+        val matSize = sqrt(data.length).toInt
+        var result = Array.ofDim[Int](matSize, matSize)
+
+        for (elem <- 0 until matSize * matSize) {
+            result(i)(j) = data(elem)
+            val (newI, newJ, newIsUp) = updateIndices(matSize, isUp, i, j)
+            i = newI
+            j = newJ
+            isUp = newIsUp
+        }
+        result.map(_.toSeq).toSeq
+    }
+
 
     def DCT(matrix: Seq[Seq[Int]]): Seq[Seq[Double]] = {
         val rows = matrix.length
@@ -97,7 +113,7 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     def roundToTwoDecimalPlaces(matrix: Seq[Seq[Double]]): Seq[Seq[Double]] = {
         matrix.map { row =>
             row.map { element =>
-             BigDecimal(element).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+              BigDecimal(element).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
             }
         }
     }
@@ -109,6 +125,7 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
             }
         }
     }    
+
 
     def RLE(data: Seq[Int]): Seq[Int] = {
         var result = Seq[Int]()
@@ -151,6 +168,23 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         }
     }
 
+    def decodeDelta(data: Seq[Int]): Seq[Int] = {
+        if (data.isEmpty) {
+            Seq.empty[Int]
+        } else {
+            var result = Seq(data.head)
+            var prev = data.head
+
+            for (i <- 1 until data.length) {
+                val original = data(i) + prev
+                result :+= original
+                prev = original
+            }
+
+            result
+        }
+    }
+
     def quantization(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Seq[Seq[Int]] = {
         data.zip(quantTable).map { case (dataRow, quantRow) =>
                 dataRow.zip(quantRow).map { case (d, q) =>
@@ -160,5 +194,12 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         }
     }
 
+    def quantizationDecode(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Seq[Seq[Int]] = {
+        data.zip(quantTable).map { case (dataRow, quantRow) =>
+            dataRow.zip(quantRow).map { case (d, q) =>
+                (d.toDouble * q.toDouble).toInt
+            }
+        }
+    }
 
 }
