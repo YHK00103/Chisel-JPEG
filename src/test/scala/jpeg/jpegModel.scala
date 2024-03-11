@@ -46,47 +46,6 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         result
     }
 
-
-    // def DCT(matrix: Seq[Seq[Int]]): Seq[Seq[Double]] = {
-    //     val dctMatrix = matrix.indices.map { u =>
-    //         matrix.indices.map { v =>
-    //         val sum = matrix.indices.foldLeft(0.0) { (accI, i) =>
-    //             matrix.indices.foldLeft(accI) { (accJ, j) =>
-    //             val pixelValue = matrix(i)(j).toDouble
-    //             if (i == 2 && j == 2 && u == 1 && v == 2) {
-    //                 println("cos:", cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100)
-
-    //             }
-                
-    //             val tempSum = accJ + pixelValue * ((cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16)))
-    //             if (u == 1 && v == 2) {
-    //                 // println("alphaU: V:", alphaU, alphaV)
-    //                 println("sum:", tempSum, pixelValue)
-    //             }
-
-
-    //             tempSum
-
-    //             }
-
-    //         }
-    //         val alphaU = if (u == 0) 1 else math.sqrt(2) / 2
-    //         val alphaV = if (v == 0) 1 else math.sqrt(2) / 2
-    //         if (u == 1 && v == 2) {
-    //             println("alphaU: V:", alphaU, alphaV)
-    //             println("sum:", sum)
-    //         }
-                
-    //         (alphaU * alphaV * sum / 4).toDouble
-    //         }
-    //     }
-    //     println("DCT Matrix:")
-    //     dctMatrix.foreach(row => println(row.map(_.formatted("%.2f")).mkString(" ")))
-        
-    //     dctMatrix
-    // }
-
-
     def DCT(matrix: Seq[Seq[Int]]): Seq[Seq[Double]] = {
         val rows = matrix.length
         val cols = matrix.headOption.map(_.length).getOrElse(0)
@@ -101,18 +60,31 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
                 for (i <- 0 until 8) {
                     for (j <- 0 until 8) {
                         val pixelValue = matrix(i)(j)
-                        val cosVal = cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16)
+                        if (i == 2 && j == 2 && u == 1 && v == 2) {
+                            println("cos:", cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100)
+                        }
+
+                        val cosVal = cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100
                         sum += pixelValue * cosVal
+                        if (u == 1 && v == 2) {
+                            // println("alphaU: V:", alphaU, alphaV)
+                            println("sum:", sum, pixelValue)
+                        }
                     }
                 }
                 val alphaU = if (u == 0) 1.0 / math.sqrt(2) else 1.0
                 val alphaV = if (v == 0) 1.0 / math.sqrt(2) else 1.0
+                // if (u == 1 && v == 2) {
+                //     println("alphaU: V:", alphaU, alphaV)
+                //     println("sum:", sum)
+                // }
+
                 dctMatrix(u)(v) = alphaU * alphaV * sum / 4
             }
         }
 
-        println("DCT Matrix:")
-        dctMatrix.foreach(row => println(row.map(_.formatted("%.2f")).mkString(" ")))
+        // println("DCT Matrix:")
+        // dctMatrix.foreach(row => println(row.map(_.formatted("%.2f")).mkString(" ")))
         dctMatrix.map(_.toSeq).toSeq
     }
 
@@ -133,7 +105,7 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     def roundToInt(matrix: Seq[Seq[Double]]): Seq[Seq[Double]] = {
         matrix.map { row =>
             row.map { element =>
-                Math.round(element)
+                Math.round(element).toDouble
             }
         }
     }    
