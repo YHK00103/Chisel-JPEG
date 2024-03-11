@@ -3,6 +3,7 @@ package jpeg
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
+import scala.math.round
 
 
 object DCTDataChisel {
@@ -35,6 +36,17 @@ object DCTDataChisel {
         Seq(-0.48, 3.19, -1.43, 0.2, -1.06, -1.48, -1.13, 0.9),
         Seq(4.41, 2.28, -1.74, -1.57, 1.09, -2.74, 1.08, -1.41),
         Seq(-10.19, -1.82, 5.91, -0.42, 0.3, 0.42, -0.98, 0.0))
+
+      val dctOutputRounded = Seq(
+        Seq(-370, -30, -3, -2, -1, -4, -1, 0),
+        Seq(-231, 45, 24, 0, 9, 4, 4, -1),
+        Seq(63, 9, -8, -3, 0, 0, 1, -1),
+        Seq(12, -15, -3, -3, 2, -1, 3, 0),
+        Seq(-5, -4, 1, 4, 0, 5, 1, 0),
+        Seq(0, 3, -1, 0, -1, -1, -1, 1),
+        Seq(4, 2, -2, -2, 1, -3, 1, -1),
+        Seq(-10, -2, 6, 0, 0, 0, -1, 0)
+      )
 }
 
 class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
@@ -43,6 +55,7 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
     test(new DCTChisel) { dut =>
       val inputMatrix = DCTDataChisel.inputMatrix
       val shiftedBlock = DCTDataChisel.shifted
+      val dctOut = DCTDataChisel.dctOutput
 
       dut.io.in.valid.poke(true.B)
       dut.io.in.ready.expect(true.B)
@@ -71,6 +84,11 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
       // Take step to go to waiting/load calculation
       dut.clock.step()
       dut.clock.step()
+      for (i <- 0 until 8) {
+        for (j <- 0 until 8) {
+          dut.io.dctOut.bits(i)(j).expect(round(dctOut(i)(j)))
+        }
+      }
     }
   }
   // it should "compute DCT correctly" in {

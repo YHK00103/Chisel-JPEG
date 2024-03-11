@@ -53,12 +53,21 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
             val sum = matrix.indices.foldLeft(0.0) { (accI, i) =>
                 matrix.indices.foldLeft(accI) { (accJ, j) =>
                 val pixelValue = matrix(i)(j).toDouble
-                val tempSum = accJ + pixelValue * cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16)
+                if (i == 2 && j == 2 && u == 1 && v == 2) {
+                    println("cos:", cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100)
+
+                }
+                
+                val tempSum = accJ + pixelValue * (cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16))*100
                 tempSum
                 }
+
             }
             val alphaU = if (u == 0) 1 else math.sqrt(2) / 2
             val alphaV = if (v == 0) 1 else math.sqrt(2) / 2
+
+            //println("alphaU: V:", alphaU, alphaV)
+            //println("sum:", sum)
             (alphaU * alphaV * sum / 4).toDouble
             }
         }
