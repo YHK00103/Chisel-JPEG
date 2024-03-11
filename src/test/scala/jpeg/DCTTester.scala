@@ -73,6 +73,51 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
       dut.clock.step()
     }
   }
+  // it should "compute DCT correctly" in {
+  //   test(new DCT) { dut =>
+  //     val inputMatrix = Seq(
+  //       Seq(139.S, 144.S, 149.S, 153.S, 155.S, 155.S, 155.S, 155.S),
+  //       Seq(144.S, 151.S, 153.S, 156.S, 159.S, 156.S, 156.S, 156.S),
+  //       Seq(150.S, 155.S, 160.S, 163.S, 158.S, 156.S, 156.S, 156.S),
+  //       Seq(159.S, 161.S, 162.S, 160.S, 160.S, 159.S, 159.S, 159.S),
+  //       Seq(159.S, 160.S, 161.S, 162.S, 162.S, 155.S, 155.S, 155.S),
+  //       Seq(161.S, 161.S, 161.S, 161.S, 160.S, 157.S, 157.S, 157.S),
+  //       Seq(162.S, 162.S, 161.S, 163.S, 162.S, 157.S, 157.S, 157.S),
+  //       Seq(162.S, 162.S, 161.S, 161.S, 163.S, 158.S, 158.S, 158.S)
+  //     )
+
+  //     // Load input matrix
+  //     for (i <- 0 until 8) {
+  //       for (j <- 0 until 8) {
+  //         dut.io.input(i)(j).poke(inputMatrix(i)(j))
+  //       }
+  //     }
+
+  //     dut.clock.step()
+
+  //     // Output matrix after DCT computation
+  //     val expectedDCT = Seq(
+  //       Seq(1837.S, 197.S, 150.S, -3.S, -28.S, -1.S, -3.S, 3.S),
+  //       Seq(-89.S, -24.S, -3.S, 1.S, 2.S, -6.S, -1.S, -1.S),
+  //       Seq(7.S, 6.S, 2.S, -5.S, -1.S, 1.S, -2.S, -1.S),
+  //       Seq(-12.S, 1.S, -3.S, 3.S, 1.S, -3.S, 1.S, -2.S),
+  //       Seq(-1.S, 3.S, -3.S, -1.S, -1.S, -2.S, 2.S, 1.S),
+  //       Seq(0.S, -2.S, -1.S, -3.S, -1.S, -2.S, -2.S, -1.S),
+  //       Seq(0.S, 2.S, -2.S, -1.S, -1.S, -1.S, -1.S, -1.S),
+  //       Seq(0.S, 0.S, -1.S, 0.S, -1.S, 0.S, 0.S, -1.S)
+  //     )
+
+  //     // Compare DUT output with expected DCT
+  //     for (i <- 0 until 8) {
+  //       for (j <- 0 until 8) {
+  //         dut.io.output(i)(j).expect(expectedDCT(i)(j))
+  //       }
+  //     }
+  //   }
+  // }
+
+
+}
 
 
   // it should "dct Chisel test" in {
@@ -98,4 +143,4 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
   //     }
   //   }
   // }
-}
+
