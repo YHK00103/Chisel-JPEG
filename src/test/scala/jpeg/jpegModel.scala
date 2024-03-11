@@ -44,7 +44,6 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         result
     }
 
-
     def zigzagDecode(data: Seq[Int]): Seq[Seq[Int]] = {
         var i = 0
         var j = 0
@@ -64,22 +63,45 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
 
 
     def DCT(matrix: Seq[Seq[Int]]): Seq[Seq[Double]] = {
-        // Implement Discrete Cosine Transform algorithm here
-        val dctMatrix = matrix.indices.map { u =>
-            matrix.indices.map { v =>
-            val sum = matrix.indices.foldLeft(0.0) { (accI, i) =>
-                matrix.indices.foldLeft(accI) { (accJ, j) =>
-                val pixelValue = matrix(i)(j).toDouble
-                val tempSum = accJ + pixelValue * cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16)
-                tempSum
+        val rows = matrix.length
+        val cols = matrix.headOption.map(_.length).getOrElse(0)
+
+        require(rows == 8 && cols == 8, "Input matrix must be 8x8")
+
+        val dctMatrix = Array.ofDim[Double](8, 8)
+
+        for (u <- 0 until 8) {
+            for (v <- 0 until 8) {
+                var sum = 0.0
+                for (i <- 0 until 8) {
+                    for (j <- 0 until 8) {
+                        val pixelValue = matrix(i)(j)
+                        if (i == 2 && j == 2 && u == 1 && v == 2) {
+                            println("cos:", cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100)
+                        }
+
+                        val cosVal = cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100
+                        sum += pixelValue * cosVal
+                        if (u == 1 && v == 2) {
+                            // println("alphaU: V:", alphaU, alphaV)
+                            println("sum:", sum, pixelValue)
+                        }
+                    }
                 }
-            }
-            val alphaU = if (u == 0) 1 else math.sqrt(2) / 2
-            val alphaV = if (v == 0) 1 else math.sqrt(2) / 2
-            (alphaU * alphaV * sum / 4).toDouble
+                val alphaU = if (u == 0) 1.0 / math.sqrt(2) else 1.0
+                val alphaV = if (v == 0) 1.0 / math.sqrt(2) else 1.0
+                // if (u == 1 && v == 2) {
+                //     println("alphaU: V:", alphaU, alphaV)
+                //     println("sum:", sum)
+                // }
+
+                dctMatrix(u)(v) = alphaU * alphaV * sum / 4
             }
         }
-        dctMatrix
+
+        // println("DCT Matrix:")
+        // dctMatrix.foreach(row => println(row.map(_.formatted("%.2f")).mkString(" ")))
+        dctMatrix.map(_.toSeq).toSeq
     }
 
     def printMatrix(matrix: Seq[Seq[Double]]): Unit = {
@@ -91,10 +113,19 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     def roundToTwoDecimalPlaces(matrix: Seq[Seq[Double]]): Seq[Seq[Double]] = {
         matrix.map { row =>
             row.map { element =>
-            BigDecimal(element).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+              BigDecimal(element).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
             }
         }
     }
+
+    def roundToInt(matrix: Seq[Seq[Double]]): Seq[Seq[Double]] = {
+        matrix.map { row =>
+            row.map { element =>
+                Math.round(element).toDouble
+            }
+        }
+    }    
+
 
     def RLE(data: Seq[Int]): Seq[Int] = {
         var result = Seq[Int]()
