@@ -47,31 +47,73 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     }
 
 
-    def DCT(matrix: Seq[Seq[Int]]): Seq[Seq[Double]] = {
-        val dctMatrix = matrix.indices.map { u =>
-            matrix.indices.map { v =>
-            val sum = matrix.indices.foldLeft(0.0) { (accI, i) =>
-                matrix.indices.foldLeft(accI) { (accJ, j) =>
-                val pixelValue = matrix(i)(j).toDouble
-                if (i == 2 && j == 2 && u == 1 && v == 2) {
-                    println("cos:", cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100)
+    // def DCT(matrix: Seq[Seq[Int]]): Seq[Seq[Double]] = {
+    //     val dctMatrix = matrix.indices.map { u =>
+    //         matrix.indices.map { v =>
+    //         val sum = matrix.indices.foldLeft(0.0) { (accI, i) =>
+    //             matrix.indices.foldLeft(accI) { (accJ, j) =>
+    //             val pixelValue = matrix(i)(j).toDouble
+    //             if (i == 2 && j == 2 && u == 1 && v == 2) {
+    //                 println("cos:", cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100)
 
-                }
+    //             }
                 
-                val tempSum = accJ + pixelValue * (cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16))*100
-                tempSum
+    //             val tempSum = accJ + pixelValue * ((cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16)))
+    //             if (u == 1 && v == 2) {
+    //                 // println("alphaU: V:", alphaU, alphaV)
+    //                 println("sum:", tempSum, pixelValue)
+    //             }
+
+
+    //             tempSum
+
+    //             }
+
+    //         }
+    //         val alphaU = if (u == 0) 1 else math.sqrt(2) / 2
+    //         val alphaV = if (v == 0) 1 else math.sqrt(2) / 2
+    //         if (u == 1 && v == 2) {
+    //             println("alphaU: V:", alphaU, alphaV)
+    //             println("sum:", sum)
+    //         }
+                
+    //         (alphaU * alphaV * sum / 4).toDouble
+    //         }
+    //     }
+    //     println("DCT Matrix:")
+    //     dctMatrix.foreach(row => println(row.map(_.formatted("%.2f")).mkString(" ")))
+        
+    //     dctMatrix
+    // }
+
+
+    def DCT(matrix: Seq[Seq[Int]]): Seq[Seq[Double]] = {
+        val rows = matrix.length
+        val cols = matrix.headOption.map(_.length).getOrElse(0)
+
+        require(rows == 8 && cols == 8, "Input matrix must be 8x8")
+
+        val dctMatrix = Array.ofDim[Double](8, 8)
+
+        for (u <- 0 until 8) {
+            for (v <- 0 until 8) {
+                var sum = 0.0
+                for (i <- 0 until 8) {
+                    for (j <- 0 until 8) {
+                        val pixelValue = matrix(i)(j)
+                        val cosVal = cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16)
+                        sum += pixelValue * cosVal
+                    }
                 }
-
-            }
-            val alphaU = if (u == 0) 1 else math.sqrt(2) / 2
-            val alphaV = if (v == 0) 1 else math.sqrt(2) / 2
-
-            //println("alphaU: V:", alphaU, alphaV)
-            //println("sum:", sum)
-            (alphaU * alphaV * sum / 4).toDouble
+                val alphaU = if (u == 0) 1.0 / math.sqrt(2) else 1.0
+                val alphaV = if (v == 0) 1.0 / math.sqrt(2) else 1.0
+                dctMatrix(u)(v) = alphaU * alphaV * sum / 4
             }
         }
-        dctMatrix
+
+        println("DCT Matrix:")
+        dctMatrix.foreach(row => println(row.map(_.formatted("%.2f")).mkString(" ")))
+        dctMatrix.map(_.toSeq).toSeq
     }
 
     def printMatrix(matrix: Seq[Seq[Double]]): Unit = {
@@ -87,6 +129,14 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
             }
         }
     }
+
+    def roundToInt(matrix: Seq[Seq[Double]]): Seq[Seq[Double]] = {
+        matrix.map { row =>
+            row.map { element =>
+                Math.round(element)
+            }
+        }
+    }    
 
     def RLE(data: Seq[Int]): Seq[Int] = {
         var result = Seq[Int]()

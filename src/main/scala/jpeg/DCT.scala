@@ -161,14 +161,26 @@ def DCT(matrix: Vec[Vec[SInt]]): Vec[Vec[SInt]] = {
             //printf("cosval: %f", (math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100))//.toInt.S
             //printf("cosval: %d.%02d", (math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100).toInt, ((math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100) * 100).toInt % 100.U)
             //printf("cosval: ")
-            println("cosval: ", cosVal, i, j, u, v)
+            println("cosval: ", cosVal, i, j, u, v, i, j)
           }
 
-          sum += pixelValue * cosVal
+          if ((u == 1) && (v == 2)) {
+            //printf("cosval: %f", (math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100))//.toInt.S
+            //printf("cosval: %d.%02d", (math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100).toInt, ((math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100) * 100).toInt % 100.U)
+            //printf("cosval: ")
+            printf("sum: %d u: %d, v: %d pixelval: %d\n", sum, u.S, v.S, pixelValue)
+          }
+
+          sum = sum + pixelValue * cosVal
         }
       }
       val alphaU = if (u == 0) 1 else math.sqrt(2) / 2
       val alphaV = if (v == 0) 1 else math.sqrt(2) / 2
+    //   if (u == 1 && v == 2) {
+    //     println("alphaU: V:", alphaU, alphaV)
+    //     // println("sum:", sum)
+    //     printf("sum: %d\n", sum)
+    //   }
       val scaledSum = (alphaU.toInt.S * alphaV.toInt.S * sum / 4.S)
       dctMatrix(u)(v) := scaledSum
 
