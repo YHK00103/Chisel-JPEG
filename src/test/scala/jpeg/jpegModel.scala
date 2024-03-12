@@ -76,31 +76,15 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
                 for (i <- 0 until 8) {
                     for (j <- 0 until 8) {
                         val pixelValue = matrix(i)(j)
-                        if (i == 2 && j == 2 && u == 1 && v == 2) {
-                            println("cos:", cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100)
-                        }
-
                         val cosVal = cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100
                         sum += pixelValue * cosVal
-                        if (u == 1 && v == 2) {
-                            // println("alphaU: V:", alphaU, alphaV)
-                            println("sum:", sum, pixelValue)
-                        }
                     }
                 }
-                val alphaU = if (u == 0) 1.0 / math.sqrt(2) else 1.0
-                val alphaV = if (v == 0) 1.0 / math.sqrt(2) else 1.0
-                // if (u == 1 && v == 2) {
-                //     println("alphaU: V:", alphaU, alphaV)
-                //     println("sum:", sum)
-                // }
-
+                val alphaU = if (u == 0) (1.0 / math.sqrt(2)) * 100 else 1.0
+                val alphaV = if (v == 0) (1.0 / math.sqrt(2)) * 100 else 1.0
                 dctMatrix(u)(v) = alphaU * alphaV * sum / 4
             }
         }
-
-        // println("DCT Matrix:")
-        // dctMatrix.foreach(row => println(row.map(_.formatted("%.2f")).mkString(" ")))
         dctMatrix.map(_.toSeq).toSeq
     }
 

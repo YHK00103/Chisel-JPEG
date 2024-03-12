@@ -236,14 +236,14 @@ object DCTData {
                 Seq(193, 70, 174, 167, 41, 30, 127, 245),
                 Seq(87, 149, 57, 192, 65, 129, 178, 228))
     
-    // val out1 = Seq(Seq(2237.50, 44.02, 75.92, -138.57, 3.50, 122.08, 195.04, -101.60),
-    //             Seq(77.19, 57.43, -10.90, 20.68, 4.39, 49.54, 69.09, 5.45),
-    //             Seq(44.84, -31.38, 55.81, -38.19, 62.21, 47.80, -19.91, 29.26),
-    //             Seq(-69.98, -20.12, -11.75, -38.37, 13.32, -18.42, 33.09, 62.71),
-    //             Seq(-109.00, -21.67, -27.77, 4.09, 15.12, -14.33, 1.22, -47.07),
-    //             Seq(-5.39, 28.32, 86.51, -17.71, 16.19, 16.73, -29.06, 9.51),
-    //             Seq(78.84, -32.30, 59.34, -7.55, -68.66, -15.31, -52.56, 19.91),
-    //             Seq(19.79, -39.09, 0.49, -36.17, -10.79, 40.65, 31.86, 2.95))
+    val out1 = Seq(Seq(2237.50, 44.02, 75.92, -138.57, 3.50, 122.08, 195.04, -101.60),
+                Seq(77.19, 57.43, -10.90, 20.68, 4.39, 49.54, 69.09, 5.45),
+                Seq(44.84, -31.38, 55.81, -38.19, 62.21, 47.80, -19.91, 29.26),
+                Seq(-69.98, -20.12, -11.75, -38.37, 13.32, -18.42, 33.09, 62.71),
+                Seq(-109.00, -21.67, -27.77, 4.09, 15.12, -14.33, 1.22, -47.07),
+                Seq(-5.39, 28.32, 86.51, -17.71, 16.19, 16.73, -29.06, 9.51),
+                Seq(78.84, -32.30, 59.34, -7.55, -68.66, -15.31, -52.56, 19.91),
+                Seq(19.79, -39.09, 0.49, -36.17, -10.79, 40.65, 31.86, 2.95))
 
     val out1 = Seq(
             Seq(1119,   44,   76, -139,    3,  122,  195, -102),
@@ -473,14 +473,14 @@ class quantizationDecodeModelTester extends AnyFlatSpec with ChiselScalatestTest
 }
 
 class dctModelTester extends AnyFlatSpec with ChiselScalatestTester {
-    // it should "dct test 1" in {
-    //     val jpegEncode = new jpegEncode(false, List.empty, 0)
-    //     val dctResult = jpegEncode.DCT(DCTData.in1)
-    //     val rounded = jpegEncode.roundToInt(dctResult)
+    it should "dct test 1" in {
+        val jpegEncode = new jpegEncode(false, List.empty, 0)
+        val dctResult = jpegEncode.DCT(DCTData.in1)
+        val rounded = jpegEncode.roundToInt(dctResult)
 
-    //     assert(rounded == DCTData.out1)
+        assert(rounded == DCTData.out1)
 
-    // }
+    }
 
     it should "dct test 2" in {
         val jpegEncode = new jpegEncode(false, List.empty, 0)
