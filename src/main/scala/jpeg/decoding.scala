@@ -79,23 +79,23 @@ object DecodingState extends ChiselEnum {
     val idle, decode = Value
 }
 
-class decodeDelta extends Module {
+class decodeDelta(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Decoupled(new Bundle {
-            val data = Vec(64, SInt(8.W))
+            val data = Vec(p.totalElements, SInt(p.w8))
         }))
-        val out = Valid(Vec(64, SInt(16.W))) // had to change bit width to 16 to pass tests
+        val out = Valid(Vec(p.totalElements, SInt(p.w16))) // had to change bit width to 16 to pass tests
         val state = Output(DecodingState())
     })
 
     val stateReg = RegInit(DecodingState.idle)
 
     // Initialize to all zeros
-    val dataReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W))))
+    val dataReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(p.w8))))
     
     // Initialize output register
-    val outputReg = RegInit(VecInit(Seq.fill(64)(0.S(16.W)))) 
-    val dataIndex = RegInit(1.U(log2Ceil(64+1).W))
+    val outputReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(p.w16)))) 
+    val dataIndex = RegInit(1.U(log2Ceil(p.totalElements+1).W))
 
     io.state := stateReg
     io.out.valid := false.B
@@ -113,7 +113,7 @@ class decodeDelta extends Module {
 
         is(DecodingState.decode){
             
-            when (dataIndex < 64.U) {
+            when (dataIndex < p.totalElements.U) {
                 outputReg(dataIndex) := outputReg(dataIndex - 1.U) + dataReg(dataIndex)
                 dataIndex := dataIndex + 1.U
             }

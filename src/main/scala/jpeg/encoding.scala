@@ -7,13 +7,12 @@ import chisel3.util._
 object EncodingState extends ChiselEnum {
     val idle, encode = Value
 }
-
-class RLE extends Module{
+class RLE(p: JpegParams) extends Module{
     val io = IO(new Bundle {
         val in = Flipped(Decoupled(new Bundle{
-            val data = Vec(64, SInt(8.W))
+            val data = Vec(p.totalElements, SInt(p.w8))
         }))
-        val out = Valid(Vec(128, SInt(8.W)))
+        val out = Valid(Vec(p.maxOutRLE, SInt(p.w8)))
         val length = Valid(UInt())
         val state = Output(EncodingState())
     })
@@ -21,19 +20,19 @@ class RLE extends Module{
     val stateReg = RegInit(EncodingState.idle)
 
     // Initialize to all zeros
-    val dataReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W))))
+    val dataReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(p.w8))))
     
     // Initialize output register
-    val outputReg = RegInit(VecInit(Seq.fill(128)(0.S(8.W)))) 
-    val dataIndex = RegInit(1.U(log2Ceil(64+1).W))
+    val outputReg = RegInit(VecInit(Seq.fill(128)(0.S(p.w8)))) 
+    val dataIndex = RegInit(1.U(log2Ceil(p.totalElements+1).W))
 
-    val consecutiveCounter = RegInit(0.U(log2Ceil(64+1).W))
-    val valueCounter = RegInit(1.U(log2Ceil(64+1).W))
-    val consecutive = RegInit(1.S(log2Ceil(64+1).W))
+    val consecutiveCounter = RegInit(0.U(log2Ceil(p.totalElements+1).W))
+    val valueCounter = RegInit(1.U(log2Ceil(p.totalElements+1).W))
+    val consecutive = RegInit(1.S(log2Ceil(p.totalElements+1).W))
 
-    val lenCounter = RegInit(0.U(log2Ceil(128+1).W))
+    val lenCounter = RegInit(0.U(log2Ceil(p.maxOutRLE+1).W))
 
-    val current = RegInit(0.S(8.W))
+    val current = RegInit(0.S(p.w8))
 
     io.out.valid := false.B
     io.out.bits := outputReg
@@ -55,7 +54,7 @@ class RLE extends Module{
         }
 
         is(EncodingState.encode){
-            when (dataIndex < 64.U) {
+            when (dataIndex < p.totalElements.U) {
                 when(dataReg(dataIndex) === current){
                     consecutive := consecutive + 1.S
                 }
@@ -82,23 +81,23 @@ class RLE extends Module{
     }
 }
 
-class Delta extends Module{
+class Delta(p: JpegParams) extends Module{
     val io = IO(new Bundle {
         val in = Flipped(Decoupled(new Bundle{
-            val data = Vec(64, SInt(8.W))
+            val data = Vec(p.totalElements, SInt(p.w8))
         }))
-        val out = Valid(Vec(64, SInt(8.W)))
+        val out = Valid(Vec(p.totalElements, SInt(p.w8)))
         val state = Output(EncodingState())
     })
     
     val stateReg = RegInit(EncodingState.idle)
 
     // Initialize to all zeros
-    val dataReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W))))
+    val dataReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(p.w8))))
     
     // Initialize output register
-    val outputReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W)))) 
-    val dataIndex = RegInit(1.U(log2Ceil(64+1).W))
+    val outputReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(p.w8)))) 
+    val dataIndex = RegInit(1.U(log2Ceil(p.totalElements+1).W))
 
     io.state := stateReg
     io.out.valid := false.B
@@ -115,7 +114,7 @@ class Delta extends Module{
 
         is(EncodingState.encode){
             outputReg(0) := dataReg(0)
-            when (dataIndex < 64.U) {
+            when (dataIndex < p.totalElements.U) {
                 val diff = dataReg(dataIndex) - dataReg(dataIndex - 1.U)
                 outputReg(dataIndex) := diff
                 dataIndex := dataIndex + 1.U

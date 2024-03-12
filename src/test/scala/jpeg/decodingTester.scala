@@ -36,12 +36,12 @@ class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
             dut.io.state.expect(RLEDecodingState.idle)
             // Testing purposes
             // Printing each element of the array
-            val bitsArray: Vec[SInt] = dut.io.out.bits
-            for (element <- bitsArray) {
-                println(element.peek())
-            }
-            println("---")
-            // dut.io.state.expect(RLEDecodingState.idle)
+            // val bitsArray: Vec[SInt] = dut.io.out.bits
+            // for (element <- bitsArray) {
+            //     println(element.peek())
+            // }
+            // println("---")
+            dut.io.state.expect(RLEDecodingState.idle)
         }
 
     }
@@ -88,19 +88,20 @@ class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
 
 class DecodeDeltaTest extends AnyFlatSpec with ChiselScalatestTester {
     def doDecodeDeltaTest(data: Seq[Int]): Unit = {
-        test(new decodeDelta).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+        val p = JpegParams(8, 8, 0)
+        test(new decodeDelta(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
             dut.io.in.ready.expect(true.B)
             dut.io.state.expect(DecodingState.idle)
 
-            for (i <- 0 until 64) {
+            for (i <- 0 until p.totalElements) {
                 dut.io.in.bits.data(i).poke(data(i).S)
             }
 
             dut.clock.step()
             dut.io.state.expect(DecodingState.decode)
             dut.io.in.ready.expect(false.B)
-            dut.clock.step(64)
+            dut.clock.step(p.totalElements)
 
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
             val expected = jpegEncoder.decodeDelta(data)
@@ -112,7 +113,7 @@ class DecodeDeltaTest extends AnyFlatSpec with ChiselScalatestTester {
             //     println(element.peek())
             // }
 
-            for( i <- 0 until 64){
+            for( i <- 0 until p.totalElements){
                 dut.io.out.bits(i).expect(expected(i).S)
             }
             dut.io.state.expect(DecodingState.idle)

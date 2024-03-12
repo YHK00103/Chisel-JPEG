@@ -10,17 +10,17 @@ object ZigZagState extends ChiselEnum {
     val idle, processing = Value
 }
 
-class ZigZagChisel extends Module {
+class ZigZagChisel(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Decoupled(new Bundle {
-            val matrixIn = Vec(8, Vec(8, SInt(9.W)))
+            val matrixIn = Vec(p.numRows, Vec(p.numCols, SInt(9.W)))
         }))
-        val zigzagOut = Valid(Vec(64, SInt(9.W)))
+        val zigzagOut = Valid(Vec(p.totalElements, SInt(9.W)))
         val state = Output(ZigZagState())
     })
 
-    val inMatrix = RegInit(VecInit(Seq.fill(8)(VecInit(Seq.fill(8)(0.S(9.W))))))
-    val outReg = RegInit(VecInit(Seq.fill(64)(0.S(9.W))))
+    val inMatrix = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(9.W))))))
+    val outReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(9.W))))
     val count = RegInit(0.U(6.W)) // Keeps track of how many elements are processed
     val row   = RegInit(0.U(3.W)) 
     val col   = RegInit(0.U(3.W))
@@ -47,7 +47,7 @@ class ZigZagChisel extends Module {
         is(ZigZagState.processing) {
             count := count + 1.U
 
-            when(count < 64.U) {
+            when(count < p.totalElements.U) {
                 outReg(count) := inMatrix(row)(col)
                 when(isUp) {
                     when(col === 7.U) {
@@ -74,7 +74,7 @@ class ZigZagChisel extends Module {
                 }
             } 
             
-            when (count === 63.U) {
+            when (count === (p.totalElements.U - 1.U)) {
                 stateReg := ZigZagState.idle
                 count := 0.U
                 validOut := true.B
@@ -92,17 +92,17 @@ class ZigZagChisel extends Module {
 
 
 
-class ZigZagDecodeChisel extends Module {
+class ZigZagDecodeChisel(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Decoupled(new Bundle {
-            val zigzagIn = Input(Vec(64, SInt(9.W)))
+            val zigzagIn = Input(Vec(p.totalElements, SInt(9.W)))
         }))
-        val matrixOut = Valid(Vec(8, Vec(8, SInt(9.W))))
+        val matrixOut = Valid(Vec(p.numRows, Vec(p.numCols, SInt(9.W))))
         val state = Output(ZigZagState())
     })
 
-    val inData = RegInit(VecInit(Seq.fill(64)(0.S(9.W))))
-    val outMatrix = RegInit(VecInit(Seq.fill(8)(VecInit(Seq.fill(8)(0.S(9.W))))))
+    val inData = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(9.W))))
+    val outMatrix = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(9.W))))))
     val count = RegInit(0.U(6.W)) // Keeps track of how many elements are processed
     val row   = RegInit(0.U(3.W)) 
     val col   = RegInit(0.U(3.W))
@@ -129,7 +129,7 @@ class ZigZagDecodeChisel extends Module {
         is(ZigZagState.processing) {
             count := count + 1.U
 
-            when(count < 64.U) {
+            when(count < p.totalElements.U) {
                 outMatrix(row)(col) := inData(count)
                 when(isUp) {
                     when(col === 7.U) {
@@ -156,7 +156,7 @@ class ZigZagDecodeChisel extends Module {
                 }
             } 
             
-            when (count === 63.U) {
+            when (count === (p.totalElements.U - 1.U)) {
                 stateReg := ZigZagState.idle
                 count := 0.U
                 validOut := true.B

@@ -6,20 +6,22 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 
 class QuantizationTest extends AnyFlatSpec with ChiselScalatestTester {
-    def doQuantizationTest(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Unit = {
-        test(new Quantization).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+    def doQuantizationTest(data: Seq[Seq[Int]], qt: Int): Unit = {
+        val p = JpegParams(8, 8, qt)
+        val quantTable = p.getQuantTable
+        test(new Quantization(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
             dut.io.in.ready.expect(true.B)
             dut.io.state.expect(QuantState.idle)
 
-            for (r <- 0 until 8) {
-                for (c <- 0 until 8) {
+            for (r <- 0 until p.numRows) {
+                for (c <- 0 until p.numCols) {
                     dut.io.in.bits.data(r)(c).poke(data(r)(c).S)
                 }
             } 
 
-            for (r <- 0 until 8) {
-                for (c <- 0 until 8) {
+            for (r <- 0 until p.numRows) {
+                for (c <- 0 until p.numCols) {
                     dut.io.in.bits.quantTable(r)(c).poke(quantTable(r)(c).S)
                 }
             }
@@ -54,8 +56,8 @@ class QuantizationTest extends AnyFlatSpec with ChiselScalatestTester {
             // }
 
 
-            for (r <- 0 until 8) {
-                for (c <- 0 until 8) {
+            for (r <- 0 until p.numRows) {
+                for (c <- 0 until p.numCols) {
                     dut.io.out.bits(r)(c).expect(expected(r)(c).S)
                 }
             }
@@ -64,59 +66,61 @@ class QuantizationTest extends AnyFlatSpec with ChiselScalatestTester {
     }
 
     behavior of "Quantization"
-
+    
     it should "correctly quantize in1 with qt1" in {
         val data = jpeg.QuantizationData.in1
-        val quantTable = jpeg.QuantizationTables.qt1
-        doQuantizationTest(data, quantTable)
+        val qtChoice = 1
+        doQuantizationTest(data, qtChoice)
     }
 
     it should "correctly quantize in1 with qt2" in {
         val data = jpeg.QuantizationData.in1
-        val quantTable = jpeg.QuantizationTables.qt2
-        doQuantizationTest(data, quantTable)
+        val qtChoice = 2
+        doQuantizationTest(data, qtChoice)
     }
 
     it should "correctly quantize in2 with qt1" in {
         val data = jpeg.QuantizationData.in2
-        val quantTable = jpeg.QuantizationTables.qt1
-        doQuantizationTest(data, quantTable)
+        val qtChoice = 1
+        doQuantizationTest(data, qtChoice)
     }
 
     it should "correctly quantize in2 with qt2" in {
         val data = jpeg.QuantizationData.in2
-        val quantTable = jpeg.QuantizationTables.qt2
-        doQuantizationTest(data, quantTable)
+        val qtChoice = 2
+        doQuantizationTest(data, qtChoice)
     }
 
     it should "correctly quantize in3 with qt1" in {
         val data = jpeg.QuantizationData.in3
-        val quantTable = jpeg.QuantizationTables.qt1
-        doQuantizationTest(data, quantTable)
+        val qtChoice = 1
+        doQuantizationTest(data, qtChoice)
     }
 
     it should "correctly quantize in3 with qt2" in {
         val data = jpeg.QuantizationData.in3
-        val quantTable = jpeg.QuantizationTables.qt2
-        doQuantizationTest(data, quantTable)
+        val qtChoice = 2
+        doQuantizationTest(data, qtChoice)
     }
 }
 
 class QuantizationDecodeTest extends AnyFlatSpec with ChiselScalatestTester {
-    def doQuantizationDecodeTest(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Unit = {
-        test(new QuantizationDecode).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+    def doQuantizationDecodeTest(data: Seq[Seq[Int]], qt: Int): Unit = {
+        val p = JpegParams(8, 8, qt)
+        val quantTable = p.getQuantTable
+        test(new QuantizationDecode(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
             dut.io.in.ready.expect(true.B)
             dut.io.state.expect(QuantState.idle)
 
-            for (r <- 0 until 8) {
-                for (c <- 0 until 8) {
+            for (r <- 0 until p.numRows) {
+                for (c <- 0 until p.numCols) {
                     dut.io.in.bits.data(r)(c).poke(data(r)(c).S)
                 }
             } 
 
-            for (r <- 0 until 8) {
-                for (c <- 0 until 8) {
+            for (r <- 0 until p.numRows) {
+                for (c <- 0 until p.numCols) {
                     dut.io.in.bits.quantTable(r)(c).poke(quantTable(r)(c).S)
                 }
             }
@@ -151,8 +155,8 @@ class QuantizationDecodeTest extends AnyFlatSpec with ChiselScalatestTester {
             // }
 
 
-            for (r <- 0 until 8) {
-                for (c <- 0 until 8) {
+            for (r <- 0 until p.numRows) {
+                for (c <- 0 until p.numCols) {
                     dut.io.out.bits(r)(c).expect(expected(r)(c).S)
                 }
             }
@@ -164,38 +168,38 @@ class QuantizationDecodeTest extends AnyFlatSpec with ChiselScalatestTester {
 
     it should "correctly undo quantize in1 with qt1" in {
         val data = jpeg.QuantizationDecodeData.in1
-        val quantTable = jpeg.QuantizationTables.qt1
-        doQuantizationDecodeTest(data, quantTable)
+        val qtChoice = 1
+        doQuantizationDecodeTest(data, qtChoice)
     }
 
     it should "correctly undo quantize in1 with qt2" in {
         val data = jpeg.QuantizationDecodeData.in1
-        val quantTable = jpeg.QuantizationTables.qt2
-        doQuantizationDecodeTest(data, quantTable)
+        val qtChoice = 2
+        doQuantizationDecodeTest(data, qtChoice)
     }
 
     it should "correctly undo quantize in2 with qt1" in {
         val data = jpeg.QuantizationDecodeData.in2
-        val quantTable = jpeg.QuantizationTables.qt1
-        doQuantizationDecodeTest(data, quantTable)
+        val qtChoice = 1
+        doQuantizationDecodeTest(data, qtChoice)
     }
 
     it should "correctly undo quantize in2 with qt2" in {
         val data = jpeg.QuantizationDecodeData.in2
-        val quantTable = jpeg.QuantizationTables.qt2
-        doQuantizationDecodeTest(data, quantTable)
+        val qtChoice = 2
+        doQuantizationDecodeTest(data, qtChoice)
     }
 
     it should "correctly undo quantize in3 with qt1" in {
         val data = jpeg.QuantizationDecodeData.in3
-        val quantTable = jpeg.QuantizationTables.qt1
-        doQuantizationDecodeTest(data, quantTable)
+        val qtChoice = 1
+        doQuantizationDecodeTest(data, qtChoice)
     }
 
     it should "correctly quantize in3 with qt2" in {
         val data = jpeg.QuantizationDecodeData.in3
-        val quantTable = jpeg.QuantizationTables.qt2
-        doQuantizationDecodeTest(data, quantTable)
+        val qtChoice = 1
+        doQuantizationDecodeTest(data, qtChoice)
     }
 }
 

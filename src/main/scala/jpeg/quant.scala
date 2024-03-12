@@ -7,20 +7,20 @@ object QuantState extends ChiselEnum {
     val idle, quant = Value
 }
 
-class Quantization extends Module {
+class Quantization(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Decoupled(new Bundle{
-            val data = Input(Vec(8, Vec(8, SInt(12.W))))
-            val quantTable = Input(Vec(8, Vec(8, SInt(12.W))))
+            val data = Input(Vec(p.numRows, Vec(p.numCols, SInt(12.W))))
+            val quantTable = Input(Vec(p.numRows, Vec(p.numCols, SInt(12.W))))
         }))
-        val out = Valid(Vec(8, Vec(8, SInt(8.W))))
+        val out = Valid(Vec(p.numRows, Vec(p.numCols, SInt(p.w8))))
         val state = Output(QuantState())
     })
 
     // registers to hold io
-    val outputReg = RegInit(VecInit(Seq.fill(8)(VecInit(Seq.fill(8)(0.S(12.W))))))
-    val dataReg = RegInit(VecInit(Seq.fill(8)(VecInit(Seq.fill(8)(0.S(12.W))))))
-    val quantTabReg = RegInit(VecInit(Seq.fill(8)(VecInit(Seq.fill(8)(0.S(12.W))))))
+    val outputReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(12.W))))))
+    val dataReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(12.W))))))
+    val quantTabReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(12.W))))))
 
     val stateReg = RegInit(QuantState.idle)
     io.in.ready := stateReg === QuantState.idle
@@ -29,8 +29,8 @@ class Quantization extends Module {
     io.out.bits := outputReg
 
     // row and col counters
-    val rCounter = Counter(8)
-    val cCounter = Counter(8)
+    val rCounter = Counter(p.numRows)
+    val cCounter = Counter(p.numCols)
 
     switch(stateReg){
         is(QuantState.idle){
@@ -65,7 +65,7 @@ class Quantization extends Module {
                 rCounter.inc()
             }
 
-            when(rCounter.value === 7.U && cCounter.value === 7.U) {
+            when(rCounter.value === (p.numRows - 1).U && cCounter.value === (p.numCols - 1).U) {
                 io.out.valid := true.B
                 stateReg := QuantState.idle
             }
@@ -74,20 +74,20 @@ class Quantization extends Module {
 
 }
 
-class QuantizationDecode extends Module {
+class QuantizationDecode(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Decoupled(new Bundle{
-            val data = Input(Vec(8, Vec(8, SInt(12.W))))
-            val quantTable = Input(Vec(8, Vec(8, SInt(12.W))))
+            val data = Input(Vec(p.numRows, Vec(p.numCols, SInt(12.W))))
+            val quantTable = Input(Vec(p.numRows, Vec(p.numCols, SInt(12.W))))
         }))
-        val out = Valid(Vec(8, Vec(8, SInt(12.W))))
+        val out = Valid(Vec(p.numRows, Vec(p.numCols, SInt(12.W))))
         val state = Output(QuantState())
     })
 
     // registers to hold io
-    val outputReg = RegInit(VecInit(Seq.fill(8)(VecInit(Seq.fill(8)(0.S(12.W))))))
-    val dataReg = RegInit(VecInit(Seq.fill(8)(VecInit(Seq.fill(8)(0.S(12.W))))))
-    val quantTabReg = RegInit(VecInit(Seq.fill(8)(VecInit(Seq.fill(8)(0.S(12.W))))))
+    val outputReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(12.W))))))
+    val dataReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(12.W))))))
+    val quantTabReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(12.W))))))
 
     val stateReg = RegInit(QuantState.idle)
     io.in.ready := stateReg === QuantState.idle
@@ -96,8 +96,8 @@ class QuantizationDecode extends Module {
     io.out.bits := outputReg
 
     // row and col counters
-    val rCounter = Counter(8)
-    val cCounter = Counter(8)
+    val rCounter = Counter(p.numRows)
+    val cCounter = Counter(p.numCols)
 
     switch(stateReg){
         is(QuantState.idle){
@@ -115,7 +115,7 @@ class QuantizationDecode extends Module {
                 rCounter.inc()
             }
 
-            when(rCounter.value === 7.U && cCounter.value === 7.U) {
+            when(rCounter.value === (p.numRows - 1).U && cCounter.value === (p.numCols - 1).U) {
                 io.out.valid := true.B
                 stateReg := QuantState.idle
             }
