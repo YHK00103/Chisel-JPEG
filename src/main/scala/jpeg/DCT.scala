@@ -20,12 +20,12 @@ class DCTChisel extends Module {
             val matrixIn = Input(Vec(8, Vec(8, SInt(9.W))))
         }))
         val shiftedOut = Output(Vec(8, Vec(8, SInt(9.W)))) // Test output to check shiftedblock
-        val dctOut = Valid(Vec(8, Vec(8, SInt(16.W))))//FixedPoint(16.W, 8.BP))))
+        val dctOut = Valid(Vec(8, Vec(8, SInt(32.W))))//FixedPoint(16.W, 8.BP))))
     })
 
     val matrixInput  = Reg(Vec(8, Vec(8, SInt(9.W))))
     val shiftedBlock = Reg(Vec(8, Vec(8, SInt(9.W))))
-    val matrixOutput = Reg(Vec(8, Vec(8, SInt(16.W))))//FixedPoint(16.W, 8.BP)))) //SInt(9.W))))//
+    val matrixOutput = Reg(Vec(8, Vec(8, SInt(32.W))))//FixedPoint(16.W, 8.BP)))) //SInt(9.W))))//
     val readyIn   = RegInit(true.B) 
     val validOut  = RegInit(false.B)
 
@@ -146,7 +146,7 @@ class DCTChisel extends Module {
 
 
 def DCT(matrix: Vec[Vec[SInt]]): Vec[Vec[SInt]] = {
-  val dctMatrix = Wire(Vec(8, Vec(8, SInt(16.W))))
+  val dctMatrix = Wire(Vec(8, Vec(8, SInt(32.W))))
 
   // Compute DCT
   for (u <- 0 until 8) {
@@ -155,33 +155,47 @@ def DCT(matrix: Vec[Vec[SInt]]): Vec[Vec[SInt]] = {
       for (i <- 0 until 8) {
         for (j <- 0 until 8) {
           val pixelValue = matrix(i)(j)
+        //   println("pixel val: ", pixelValue)
+
           // Scale the cosine values to preserve precision
           val cosVal = (math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100).toInt.S
-          if ((i == 2) && (j == 2) && (u == 1) && (v == 2)) {
-            //printf("cosval: %f", (math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100))//.toInt.S
-            //printf("cosval: %d.%02d", (math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100).toInt, ((math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100) * 100).toInt % 100.U)
-            //printf("cosval: ")
-            println("cosval: ", cosVal, i, j, u, v, i, j)
-          }
+        //   if ((i == 2) && (j == 2) && (u == 1) && (v == 2)) {
+        //     //printf("cosval: %f", (math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100))//.toInt.S
+        //     //printf("cosval: %d.%02d", (math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100).toInt, ((math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100) * 100).toInt % 100.U)
+        //     //printf("cosval: ")
+        //     println("cosval: ", cosVal, u, v, i, j)
+        //   }
+          
 
-          if ((u == 1) && (v == 2)) {
-            //printf("cosval: %f", (math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100))//.toInt.S
-            //printf("cosval: %d.%02d", (math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100).toInt, ((math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100) * 100).toInt % 100.U)
-            //printf("cosval: ")
-            printf("sum: %d u: %d, v: %d pixelval: %d\n", sum, u.S, v.S, pixelValue)
-          }
+        //   if ((u == 1) && (v == 2)) {
+        //     //printf("cosval: %f", (math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100))//.toInt.S
+        //     //printf("cosval: %d.%02d", (math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100).toInt, ((math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100) * 100).toInt % 100.U)
+        //     //printf("cosval: ")
+        //     printf("sum: %d u: %d, v: %d pixelval: %d\n", sum, u.S, v.S, pixelValue)
+        
+        // }
 
-          sum = sum + pixelValue * cosVal
+          sum = sum +& pixelValue * cosVal
+        //   if ((u == 0) && (v == 0)) {
+        //     printf("sum: %d u: %d, v: %d i: %d j: %d\n", sum, u.S, v.S, i.S, j.S)
+        //   }
+          
         }
       }
-      val alphaU = if (u == 0) 1 else math.sqrt(2) / 2
-      val alphaV = if (v == 0) 1 else math.sqrt(2) / 2
+    //   val alphaU = if (u == 0) 1 / math.sqrt(2) else 1
+    //   val alphaV = if (v == 0) 1 / math.sqrt(2) else 1
+      val alphaU = if (u == 0) (1.0 / math.sqrt(2)) * 100 else 100
+      val alphaV = if (v == 0) (1.0 / math.sqrt(2)) * 100 else 100
+
     //   if (u == 1 && v == 2) {
-    //     println("alphaU: V:", alphaU, alphaV)
-    //     // println("sum:", sum)
-    //     printf("sum: %d\n", sum)
+        // println("alphaU: V:", alphaU.S, alphaV.S, u,v)
+        // printf("alphaU: %d, V: %d, u: %d v: %d\n", alphaU.toInt.S, alphaV.toInt.S, u.S,v.S)
+        // // println("sum:", sum)
+        // printf("sum: %d\n", sum)
     //   }
       val scaledSum = (alphaU.toInt.S * alphaV.toInt.S * sum / 4.S)
+
+    //   printf("scaledSum: %d, u %d ,v %d\n", scaledSum, u.S,v.S)
       dctMatrix(u)(v) := scaledSum
 
     }
