@@ -86,10 +86,10 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
                         
                         // println("cos:", roundedCval, u,v,i,j)
                         sum = sum + pixelValue * roundedCval
-                        if (u == 0 && v == 0) {
-                        //     // println("alphaU: V:", alphaU, alphaV)
-                            println("sum:", sum, u,v,i,j)
-                        }
+                        // if (u == 0 && v == 0) {
+                        // //     // println("alphaU: V:", alphaU, alphaV)
+                        //     println("sum:", sum, u,v,i,j)
+                        // }
                     }
                 }
                 val alphaU = if (u == 0) floor((1.0 / math.sqrt(2)) * 100) else 100
@@ -105,8 +105,8 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
             }
         }
 
-        println("DCT Matrix:")
-        dctMatrix.foreach(row => println(row.map(_.formatted("%.2f")).mkString(" ")))
+        // println("DCT Matrix:")
+        // dctMatrix.foreach(row => println(row.map(_.formatted("%.2f")).mkString(" ")))
         dctMatrix.map(_.toSeq).toSeq
     }
 
