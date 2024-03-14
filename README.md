@@ -28,8 +28,8 @@ You should see a whole bunch of output that ends with something like the followi
          - [ ] Top module
          - [ ] Top modle test
     - [x] Hardware Encoding
-         - [ ] Discrete Cosine Transform (DCT)
-         - [ ] DCT Tests
+         - [x] Discrete Cosine Transform (DCT)
+         - [x] DCT Tests
          - [x] Zig Zag Parsing
          - [x] Zig Zag Parsing Tests
          - [x] Run length Encoding (RLE)
@@ -43,8 +43,8 @@ You should see a whole bunch of output that ends with something like the followi
          - [ ] DCT decoding Tests
          - [x] Zig Zag Reverse
          - [x] Zig Zag Reverse Tests
-         - [] Run length Decoding (RLE)
-         - [] RLE Decoding Tests
+         - [ ] Run length Decoding (RLE)
+         - [ ] RLE Decoding Tests
          - [x] Delta Decoding
          - [x] Delta Decoding Tests
          - [x] Quantization
