@@ -9,7 +9,6 @@ import chisel3.experimental._
 import scala.math.cos
 import scala.math.Pi 
 
-
 object DCTState extends ChiselEnum { 
     val loading, shifting, calculating, waiting = Value 
 }
@@ -61,10 +60,8 @@ class DCTChisel extends Module {
         dctMatrix
     }
 
-
     val state = RegInit(DCTState.waiting)
     when(state === DCTState.waiting) {
-
         // Print content of matrixOutput when it's in the waiting state
         // printf("Content of matrixOutput in waiting state:\n")
         // for (i <- 0 until 8) {
@@ -92,7 +89,7 @@ class DCTChisel extends Module {
     } .elsewhen (state === DCTState.calculating) {
         matrixOutput := DCT(shiftedBlock)
         state := DCTState.waiting
-    }
 
+    }
 }
 

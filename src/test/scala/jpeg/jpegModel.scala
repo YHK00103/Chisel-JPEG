@@ -104,9 +104,6 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
                 dctMatrix(u)(v) = floor(scaledSum)
             }
         }
-
-        // println("DCT Matrix:")
-        // dctMatrix.foreach(row => println(row.map(_.formatted("%.2f")).mkString(" ")))
         dctMatrix.map(_.toSeq).toSeq
     }
 

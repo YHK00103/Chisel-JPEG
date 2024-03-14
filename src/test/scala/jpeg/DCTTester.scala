@@ -103,4 +103,3 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 }
- 
