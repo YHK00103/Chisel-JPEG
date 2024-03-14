@@ -75,7 +75,7 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
                 var sum = 0.0
                 for (i <- 0 until 8) {
                     for (j <- 0 until 8) {
-                        val pixelValue = matrix(i)(j)
+                        val pixelValue = matrix(i)(j) - 128
                         // if (i == 2 && j == 2 && u == 1 && v == 2) {
                         //     println("cos:", floor(cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100))
                         // }
