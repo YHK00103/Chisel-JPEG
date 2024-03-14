@@ -39,20 +39,20 @@ object DCTDataChisel {
 }
 
 class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
-  behavior of "DCTChisel"
-  it should "compute DCT correctly 1" in {
+  def doDCTTest(data: Seq[Seq[Int]]): Unit = {
     test(new DCTChisel) { dut =>
-      val inputMatrix = DCTData.in1
+      // Compute DCT in Scala for comparison
       val jpegEncoder = new jpegEncode(false, List.empty, 0)
-      val dctOut = jpegEncoder.DCT(inputMatrix)
-      val convertedMatrix: Seq[Seq[SInt]] = dctOut.map(row => row.map(value => value.toInt.S))
+      val expectedDCT = jpegEncoder.DCT(data)
+      val convertedMatrix: Seq[Seq[SInt]] = expectedDCT.map(row => row.map(value => value.toInt.S))
 
+      // Set input valid/ready bits
       dut.io.in.valid.poke(true.B)
       dut.io.in.ready.expect(true.B)
-      // Load in input matrix
+      // Load input matrix
       for (i <- 0 until 8) {
         for (j <- 0 until 8) {
-          dut.io.in.bits.matrixIn(i)(j).poke(inputMatrix(i)(j))
+          dut.io.in.bits.matrixIn(i)(j).poke(data(i)(j))
         }
       }
 
@@ -65,7 +65,7 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
       // Take step to go to waiting/load calculation
       dut.clock.step()
 
-      // Verify output
+      // Check DCT output
       for (i <- 0 until 8) {
         for (j <- 0 until 8) {
           dut.io.dctOut.bits(i)(j).expect(convertedMatrix(i)(j))
@@ -74,9 +74,10 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
-  it should "compute DCT correctly 2" in {
+  behavior of "DCTChisel"
+  it should "compute DCT correctly 1 (Baseline & Shifted Block)" in {
     test(new DCTChisel) { dut =>
-      val inputMatrix = DCTData.in2
+      val inputMatrix = DCTData.in1
       val shiftedBlock = DCTDataChisel.shifted
       
       val jpegEncoder = new jpegEncode(false, List.empty, 0)
@@ -116,208 +117,38 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
+  it should "compute DCT correctly 2" in {
+    val inputMatrix = DCTData.in2
+    doDCTTest(inputMatrix)
+  }
+
   it should "compute DCT correctly 3" in {
-    test(new DCTChisel) { dut =>
-      val inputMatrix = DCTData.in3
-      val jpegEncoder = new jpegEncode(false, List.empty, 0)
-      val dctOut = jpegEncoder.DCT(inputMatrix)
-      val convertedMatrix: Seq[Seq[SInt]] = dctOut.map(row => row.map(value => value.toInt.S))
-
-      dut.io.in.valid.poke(true.B)
-      dut.io.in.ready.expect(true.B)
-      // load in input matrix
-      for (i <- 0 until 8) {
-        for (j <- 0 until 8) {
-          dut.io.in.bits.matrixIn(i)(j).poke(inputMatrix(i)(j))
-        }
-      }
-
-      // Take step to load in matrix
-      dut.clock.step()
-
-      // Take step to load shifted block/go to calc state
-      dut.clock.step()
-
-      // Take step to go to waiting/load calculation
-      dut.clock.step()
-
-      // Compare DUT output with expected out
-      for (i <- 0 until 8) {
-        for (j <- 0 until 8) {
-          dut.io.dctOut.bits(i)(j).expect(convertedMatrix(i)(j))
-        }
-      }
-    }
+    val inputMatrix = DCTData.in3
+    doDCTTest(inputMatrix)
   }
 
   it should "compute DCT correctly 4" in {
-    test(new DCTChisel) { dut =>
-      val inputMatrix = DCTData.in4
-      val jpegEncoder = new jpegEncode(false, List.empty, 0)
-      val dctOut = jpegEncoder.DCT(inputMatrix)
-      val convertedMatrix: Seq[Seq[SInt]] = dctOut.map(row => row.map(value => value.toInt.S))
-
-      dut.io.in.valid.poke(true.B)
-      dut.io.in.ready.expect(true.B)
-      // load in input matrix
-      for (i <- 0 until 8) {
-        for (j <- 0 until 8) {
-          dut.io.in.bits.matrixIn(i)(j).poke(inputMatrix(i)(j))
-        }
-      }
-
-      // Take step to load in matrix
-      dut.clock.step()
-
-      // Take step to load shifted block/go to calc state
-      dut.clock.step()
-
-      // Take step to go to waiting/load calculation
-      dut.clock.step()
-
-      // Compare DUT output with expected out
-      for (i <- 0 until 8) {
-        for (j <- 0 until 8) {
-          dut.io.dctOut.bits(i)(j).expect(convertedMatrix(i)(j))
-        }
-      }
-    }
+    val inputMatrix = DCTData.in4
+    doDCTTest(inputMatrix)
   }
 
   it should "compute DCT correctly 5" in {
-    test(new DCTChisel) { dut =>
-      val inputMatrix = DCTData.in5
-      val jpegEncoder = new jpegEncode(false, List.empty, 0)
-      val dctOut = jpegEncoder.DCT(inputMatrix)
-      val convertedMatrix: Seq[Seq[SInt]] = dctOut.map(row => row.map(value => value.toInt.S))
-
-      dut.io.in.valid.poke(true.B)
-      dut.io.in.ready.expect(true.B)
-      // load in input matrix
-      for (i <- 0 until 8) {
-        for (j <- 0 until 8) {
-          dut.io.in.bits.matrixIn(i)(j).poke(inputMatrix(i)(j))
-        }
-      }
-
-      // Take step to load in matrix
-      dut.clock.step()
-
-      // Take step to load shifted block/go to calc state
-      dut.clock.step()
-
-      // Take step to go to waiting/load calculation
-      dut.clock.step()
-
-      // Compare DUT output with expected out
-      for (i <- 0 until 8) {
-        for (j <- 0 until 8) {
-          dut.io.dctOut.bits(i)(j).expect(convertedMatrix(i)(j))
-        }
-      }
-    }
+    val inputMatrix = DCTData.in5
+    doDCTTest(inputMatrix)
   }
 
-
   it should "compute DCT correctly 6" in {
-    test(new DCTChisel) { dut =>
-      val inputMatrix = DCTData.in6
-      val jpegEncoder = new jpegEncode(false, List.empty, 0)
-      val dctOut = jpegEncoder.DCT(inputMatrix)
-      val convertedMatrix: Seq[Seq[SInt]] = dctOut.map(row => row.map(value => value.toInt.S))
-
-      dut.io.in.valid.poke(true.B)
-      dut.io.in.ready.expect(true.B)
-      // load in input matrix
-      for (i <- 0 until 8) {
-        for (j <- 0 until 8) {
-          dut.io.in.bits.matrixIn(i)(j).poke(inputMatrix(i)(j))
-        }
-      }
-
-      // Take step to load in matrix
-      dut.clock.step()
-
-      // Take step to load shifted block/go to calc state
-      dut.clock.step()
-
-      // Take step to go to waiting/load calculation
-      dut.clock.step()
-
-      // Compare DUT output with expected out
-      for (i <- 0 until 8) {
-        for (j <- 0 until 8) {
-          dut.io.dctOut.bits(i)(j).expect(convertedMatrix(i)(j))
-        }
-      }
-    }
+    val inputMatrix = DCTData.in6
+    doDCTTest(inputMatrix)
   }
 
   it should "compute DCT correctly 7" in {
-    test(new DCTChisel) { dut =>
-      val inputMatrix = DCTData.in7
-      val jpegEncoder = new jpegEncode(false, List.empty, 0)
-      val dctOut = jpegEncoder.DCT(inputMatrix)
-      val convertedMatrix: Seq[Seq[SInt]] = dctOut.map(row => row.map(value => value.toInt.S))
-
-      dut.io.in.valid.poke(true.B)
-      dut.io.in.ready.expect(true.B)
-      // load in input matrix
-      for (i <- 0 until 8) {
-        for (j <- 0 until 8) {
-          dut.io.in.bits.matrixIn(i)(j).poke(inputMatrix(i)(j))
-        }
-      }
-
-      // Take step to load in matrix
-      dut.clock.step()
-
-      // Take step to load shifted block/go to calc state
-      dut.clock.step()
-
-      // Take step to go to waiting/load calculation
-      dut.clock.step()
-
-      // Compare DUT output with expected out
-      for (i <- 0 until 8) {
-        for (j <- 0 until 8) {
-          dut.io.dctOut.bits(i)(j).expect(convertedMatrix(i)(j))
-        }
-      }
-    }
+    val inputMatrix = DCTData.in7
+    doDCTTest(inputMatrix)
   }
 
   it should "compute DCT correctly 8" in {
-    test(new DCTChisel) { dut =>
-      val inputMatrix = DCTData.in8
-      val jpegEncoder = new jpegEncode(false, List.empty, 0)
-      val dctOut = jpegEncoder.DCT(inputMatrix)
-      val convertedMatrix: Seq[Seq[SInt]] = dctOut.map(row => row.map(value => value.toInt.S))
-
-      dut.io.in.valid.poke(true.B)
-      dut.io.in.ready.expect(true.B)
-      // load in input matrix
-      for (i <- 0 until 8) {
-        for (j <- 0 until 8) {
-          dut.io.in.bits.matrixIn(i)(j).poke(inputMatrix(i)(j))
-        }
-      }
-
-      // Take step to load in matrix
-      dut.clock.step()
-
-      // Take step to load shifted block/go to calc state
-      dut.clock.step()
-
-      // Take step to go to waiting/load calculation
-      dut.clock.step()
-
-      // Compare DUT output with expected out
-      for (i <- 0 until 8) {
-        for (j <- 0 until 8) {
-          dut.io.dctOut.bits(i)(j).expect(convertedMatrix(i)(j))
-        }
-      }
-    }
+    val inputMatrix = DCTData.in8
+    doDCTTest(inputMatrix)
   }
 }

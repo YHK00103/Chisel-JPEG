@@ -30,7 +30,7 @@ class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
                     dut.clock.step(data(i))
                 }
             }
-            println(sum)
+            // println(sum)
             dut.clock.step(7)
 
             dut.io.state.expect(RLEDecodingState.idle)
