@@ -76,13 +76,32 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
                 for (i <- 0 until 8) {
                     for (j <- 0 until 8) {
                         val pixelValue = matrix(i)(j)
+                        // if (i == 2 && j == 2 && u == 1 && v == 2) {
+                        //     println("cos:", floor(cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100))
+                        // }
+                        
                         val cosVal = cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100
-                        sum += pixelValue * cosVal
+                        
+                        val roundedCval = if (cosVal >= 0) floor(cosVal) else ceil(cosVal)
+                        
+                        // println("cos:", roundedCval, u,v,i,j)
+                        sum = sum + pixelValue * roundedCval
+                        // if (u == 0 && v == 0) {
+                        // //     // println("alphaU: V:", alphaU, alphaV)
+                        //     println("sum:", sum, u,v,i,j)
+                        // }
                     }
                 }
-                val alphaU = if (u == 0) (1.0 / math.sqrt(2)) * 100 else 1.0
-                val alphaV = if (v == 0) (1.0 / math.sqrt(2)) * 100 else 1.0
-                dctMatrix(u)(v) = alphaU * alphaV * sum / 4
+                val alphaU = if (u == 0) floor((1.0 / math.sqrt(2)) * 100) else 100
+                val alphaV = if (v == 0) floor((1.0 / math.sqrt(2)) * 100) else 100
+                // if (u == 0 && v == 0) {
+                //     println("alphaU: V:", alphaU, alphaV, u, v)
+                //     println("sum:", sum)
+                // }
+
+                val scaledSum = alphaU * alphaV * sum / 4
+                // println("scaled sum:", scaledSum)
+                dctMatrix(u)(v) = floor(scaledSum)
             }
         }
         dctMatrix.map(_.toSeq).toSeq

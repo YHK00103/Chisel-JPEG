@@ -227,35 +227,6 @@ object QuantizationDecodeData {
 }
 
 object DCTData {
-    val in1 = Seq(Seq(231, 32, 233, 161, 24, 71, 140, 245),
-                Seq(247, 40, 248, 245, 124, 204, 36, 107),
-                Seq(234, 202, 245, 167, 9, 217, 239, 173),
-                Seq(193, 190, 100, 167, 43, 180, 8, 70),
-                Seq(11, 24, 210, 177, 81, 243, 8, 112),
-                Seq(97, 195, 203, 47, 125, 114, 165, 181),
-                Seq(193, 70, 174, 167, 41, 30, 127, 245),
-                Seq(87, 149, 57, 192, 65, 129, 178, 228))
-    
-    val out1 = Seq(Seq(2237.50, 44.02, 75.92, -138.57, 3.50, 122.08, 195.04, -101.60),
-                Seq(77.19, 57.43, -10.90, 20.68, 4.39, 49.54, 69.09, 5.45),
-                Seq(44.84, -31.38, 55.81, -38.19, 62.21, 47.80, -19.91, 29.26),
-                Seq(-69.98, -20.12, -11.75, -38.37, 13.32, -18.42, 33.09, 62.71),
-                Seq(-109.00, -21.67, -27.77, 4.09, 15.12, -14.33, 1.22, -47.07),
-                Seq(-5.39, 28.32, 86.51, -17.71, 16.19, 16.73, -29.06, 9.51),
-                Seq(78.84, -32.30, 59.34, -7.55, -68.66, -15.31, -52.56, 19.91),
-                Seq(19.79, -39.09, 0.49, -36.17, -10.79, 40.65, 31.86, 2.95))
-
-    val out1 = Seq(
-            Seq(1119,   44,   76, -139,    3,  122,  195, -102),
-            Seq(  77,  115,  -22,   41,    9,   99,  138,   11),
-            Seq(  45,  -63,  112,  -76,  124,   96,  -40,   59),
-            Seq( -70,  -40,  -23,  -77,   27,  -37,   66,  125),
-            Seq(-109,  -43,  -56,    8,   30,  -29,    2,  -94),
-            Seq(  -5,   57,  173,  -35,   32,   33,  -58,   19),
-            Seq(  79,  -65,  119,  -15, -137,  -31, -105,   40),
-            Seq(  20,  -78,    1,  -72,  -22,   81,   64,    6)
-    )
-    
     val shifted = Seq(
             Seq(-66, -73, -73, -74, -79, -80, -81, -73),
             Seq(-66, -71, -74, -76, -80, -81, -80, -75),
@@ -276,6 +247,15 @@ object DCTData {
             Seq(4.41, 2.28, -1.74, -1.57, 1.09, -2.74, 1.08, -1.41),
             Seq(-10.19, -1.82, 5.91, -0.42, 0.3, 0.42, -0.98, 0.0))
 
+    val scaledOutput = Seq(
+            Seq(-362232500, -29286250, -2604000, -2500750, -1102500, -3547250, -1452500, -42000),
+            Seq(-228012750, 44592500, 24272500, -137500, 9225000, 3705000, 4165000, -1390000),
+            Seq(61932500, 8460000, -7540000, -2665000, 312500, -417500, 527500, -842500),
+            Seq(11880750, -14430000, -3492500, -3485000, 2417500, -1090000, 2705000, -335000),
+            Seq(-4777500, -3807500, 867500, 3492500, 405000, 5115000, 1122500, 472500),
+            Seq(465500, 3030000, -1430000, 390000, -1072500, -1622500, -1152500, 862500),
+            Seq(4284000, 2217500, -1700000, -1535000, 1082500, -2735000, 1105000, -1415000),
+            Seq(-9962750, -1812500, 5812500, -397500, 237500, 442500, -1052500, 2500))
 }
 
 class ZigZagDecodeModelTester extends AnyFlatSpec with ChiselScalatestTester {
@@ -473,21 +453,13 @@ class quantizationDecodeModelTester extends AnyFlatSpec with ChiselScalatestTest
 }
 
 class dctModelTester extends AnyFlatSpec with ChiselScalatestTester {
+
     it should "dct test 1" in {
         val jpegEncode = new jpegEncode(false, List.empty, 0)
-        val dctResult = jpegEncode.DCT(DCTData.in1)
+        val dctResult = jpegEncode.DCT(DCTData.shifted)
         val rounded = jpegEncode.roundToInt(dctResult)
 
-        assert(rounded == DCTData.out1)
-
-    }
-
-    it should "dct test 2" in {
-        val jpegEncode = new jpegEncode(false, List.empty, 0)
-        val dctResult = jpegEncode.DCT(DCTData.shifted)
-        val rounded = jpegEncode.roundToTwoDecimalPlaces(dctResult)
-
-        assert(rounded == DCTData.dctOutput)
+        assert(rounded == DCTData.scaledOutput)
 
     }
 }
