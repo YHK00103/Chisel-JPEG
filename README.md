@@ -15,7 +15,7 @@ sbt test
 
 You should see a whole bunch of output that ends with something like the following lines
 ```
-[info] Tests: succeeded 26, failed 0, canceled 0, ignored 0, pending 0
+[info] Tests: succeeded 65, failed 0, canceled 0, ignored 0, pending 0
 [info] All tests passed.
 [success] Total time: 4 s, completed Mar 4, 2024, 3:00:05 PM
 ```
