@@ -3,10 +3,24 @@ package jpeg
 import chisel3._
 import chisel3.util._
 
+/** 
+  * Creates states for decoding in RLE
+  */
 object RLEDecodingState extends ChiselEnum {
     val idle, decode = Value
 }
 
+/** Decodes Run Length Encoding
+  * 
+  * @param p JPEG Paramaters
+  * 
+  * IO
+  * @param data Data to decode
+  * @param length Used space in data
+  * 
+  * @return out Result of decoding RLE
+  * @return state Current state of state machine
+  */
 class decodeRLE extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {
@@ -73,11 +87,23 @@ class decodeRLE extends Module {
     }
 }
 
-
+/** 
+  * Creates states for decoding  Delta Encoding
+  */
 object DecodingState extends ChiselEnum {
     val idle, decode = Value
 }
 
+/** Decodes Delta Encoding
+  * 
+  * @param p JPEG Paramaters
+  * 
+  * IO
+  * @param data Data to decode
+  * 
+  * @return out Result of decoding Delta Encoding
+  * @return state Current state of state machine
+  */
 class decodeDelta(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {

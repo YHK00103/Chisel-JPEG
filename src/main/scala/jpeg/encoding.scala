@@ -3,10 +3,24 @@ package jpeg
 import chisel3._
 import chisel3.util._
 
-
+/** 
+  * Creates states for encoding in RLE and Delta
+  */
 object EncodingState extends ChiselEnum {
     val idle, encode = Value
 }
+
+/** Performs Run Length Encoding
+  * 
+  * @param p JPEG Paramaters
+  * 
+  * IO
+  * @param data Data to perform RLE on
+  * 
+  * @return out Result of performing RLE
+  * @return length Length of RLE output in out since we cannot determine final width dynamically in hardware
+  * @return state Current state of state machine
+  */
 class RLE(p: JpegParams) extends Module{
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle{
@@ -80,6 +94,17 @@ class RLE(p: JpegParams) extends Module{
     }
 }
 
+/** Performs Delta Encoding
+  * 
+  * @param p JPEG Paramaters
+  * 
+  * IO
+  * @param data Data to perform Delta Encoding on
+  * 
+  * @return out Result of performing Delta Encoding
+  * @return state Current state of state machine
+  * 
+  */
 class Delta(p: JpegParams) extends Module{
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle{

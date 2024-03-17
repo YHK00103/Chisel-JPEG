@@ -6,7 +6,15 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import scala.language.experimental
 
-class RLETest extends AnyFlatSpec with ChiselScalatestTester {
+/**
+  * Class to hold RLE Test function
+  */
+class RLEChiselEnc extends AnyFlatSpec with ChiselScalatestTester {
+    /**
+      * Performs RLE Tests
+      * 
+      * @param data Data to encode
+      */
     def doRLETest(data: Seq[Int]): Unit = {
         val p = JpegParams(8, 8, 0)
         test(new RLE(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
@@ -38,7 +46,7 @@ class RLETest extends AnyFlatSpec with ChiselScalatestTester {
         }
     }
 
-    behavior of "RLEChisel"
+    behavior of "RLEChiselEnc"
     it should "encode 5:3, 6:2, 7:5, 8:4, 9:3, 10:2, 11:3, 12:5, 13:4, 14:4, 15:3, 16:5, 17:6, 18:7, 19:5, 20:3" in {
         val test = Seq(
             5, 5, 5, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 10, 10, 11, 
@@ -70,7 +78,15 @@ class RLETest extends AnyFlatSpec with ChiselScalatestTester {
 
 }
 
-class DeltaTest extends AnyFlatSpec with ChiselScalatestTester {
+/**
+  * Class to hold Delta Encoding Test function
+  */
+class DeltaChiselEnc extends AnyFlatSpec with ChiselScalatestTester {
+    /**
+      * Performs Delta Encoding Tests
+      *
+      * @param data Data to encode
+      */
     def doDeltaTest(data: Seq[Int]): Unit = {
         val p = JpegParams(8, 8, 0)
         test(new Delta(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
@@ -94,7 +110,7 @@ class DeltaTest extends AnyFlatSpec with ChiselScalatestTester {
         }
     }
 
-    behavior of "DeltaChisel"
+    behavior of "DeltaChiselEnc"
     it should "encode 1 to 64" in {
         val test = Seq(
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 
