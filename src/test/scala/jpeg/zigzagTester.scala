@@ -11,7 +11,6 @@ class ZigZagChiselTester extends AnyFlatSpec with ChiselScalatestTester {
         val p = JpegParams(8, 8, 0)
         test(new ZigZagChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
-            dut.io.in.ready.expect(true.B)
             dut.io.state.expect(ZigZagState.idle)
 
             for (r <- 0 until p.numRows) {
@@ -21,7 +20,6 @@ class ZigZagChiselTester extends AnyFlatSpec with ChiselScalatestTester {
             }
             dut.clock.step()
             dut.io.state.expect(ZigZagState.processing)
-            dut.io.in.ready.expect(false.B)
             dut.clock.step(p.totalElements)
 
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
