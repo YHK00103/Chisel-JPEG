@@ -114,6 +114,7 @@ class DeltaChiselDecode extends AnyFlatSpec with ChiselScalatestTester {
             dut.io.state.expect(DecodingState.decode)
             dut.io.in.valid.poke(false.B)
             dut.clock.step(p.totalElements)
+            dut.io.out.valid.expect(true.B)
 
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
             val expected = jpegEncoder.decodeDelta(data)

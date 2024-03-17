@@ -12,8 +12,6 @@ object RLEDecodingState extends ChiselEnum {
 
 /** Decodes Run Length Encoding
   * 
-  * @param p JPEG Paramaters
-  * 
   * IO
   * @param data Data to decode
   * @param length Used space in data
@@ -57,7 +55,7 @@ class decodeRLE extends Module {
 
     val pair = RegInit(0.U(log2Ceil(12+1).W))
     val numPairs = RegInit(6.U(log2Ceil(12+1).W))
-    
+
     switch(stateReg){
         is(RLEDecodingState.idle){
             when(io.in.fire){
@@ -123,10 +121,11 @@ class decodeDelta(p: JpegParams) extends Module {
 
     // Initialize output register
     val outputReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(p.w16)))) 
+    val outValid = RegInit(false.B)
 
     // assign output
     io.state := stateReg
-    io.out.valid := false.B
+    io.out.valid := outValid
     io.out.bits := outputReg
 
     switch(stateReg){
@@ -135,6 +134,7 @@ class decodeDelta(p: JpegParams) extends Module {
                 dataReg := io.in.bits.data
                 outputReg(0) := io.in.bits.data(0)
                 stateReg := DecodingState.decode
+                outValid := false.B
             }
         }
 
@@ -145,7 +145,7 @@ class decodeDelta(p: JpegParams) extends Module {
                 dataIndex := dataIndex + 1.U
             }
             .otherwise{
-                io.out.valid := true.B
+                outValid := true.B
                 stateReg := DecodingState.idle
             }
              
