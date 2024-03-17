@@ -11,14 +11,14 @@ class RLETest extends AnyFlatSpec with ChiselScalatestTester {
         val p = JpegParams(8, 8, 0)
         test(new RLE(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
-            dut.io.in.ready.expect(true.B)
             dut.io.state.expect(EncodingState.idle)
             for (i <- 0 until p.totalElements) {
                 dut.io.in.bits.data(i).poke(data(i).S)
             }
+
             dut.clock.step()
+            dut.io.in.valid.poke(false.B)
             dut.io.state.expect(EncodingState.encode)
-            dut.io.in.ready.expect(false.B)
             dut.clock.step(p.totalElements)
             
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
@@ -75,15 +75,14 @@ class DeltaTest extends AnyFlatSpec with ChiselScalatestTester {
         val p = JpegParams(8, 8, 0)
         test(new Delta(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
-            dut.io.in.ready.expect(true.B)
             dut.io.state.expect(EncodingState.idle)
             for (i <- 0 until p.totalElements) {
                 dut.io.in.bits.data(i).poke(data(i).S)
             }
-            dut.clock.step()
 
+            dut.clock.step()
+            dut.io.in.valid.poke(false.B)
             dut.io.state.expect(EncodingState.encode)
-            dut.io.in.ready.expect(false.B)
             dut.clock.step(p.totalElements)
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
             val expected = jpegEncoder.delta(data)

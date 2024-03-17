@@ -10,7 +10,6 @@ class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
     def doDecodeRLETest(data: Seq[Int]): Unit = {
         test(new decodeRLE).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
-            dut.io.in.ready.expect(true.B)
             dut.io.state.expect(RLEDecodingState.idle)
 
             val length = data.length
@@ -19,9 +18,7 @@ class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
                 dut.io.in.bits.data(i).poke(data(i).S)
             }
             dut.clock.step()
-            dut.io.in.ready.expect(false.B)
             dut.io.state.expect(RLEDecodingState.decode)
-            dut.io.in.ready.expect(false.B)
             dut.io.in.valid.poke(false.B)
             var sum = 0
             for (i <- 0 until length){
@@ -91,7 +88,6 @@ class DecodeDeltaTest extends AnyFlatSpec with ChiselScalatestTester {
         val p = JpegParams(8, 8, 0)
         test(new decodeDelta(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
-            dut.io.in.ready.expect(true.B)
             dut.io.state.expect(DecodingState.idle)
 
             for (i <- 0 until p.totalElements) {
@@ -100,7 +96,7 @@ class DecodeDeltaTest extends AnyFlatSpec with ChiselScalatestTester {
 
             dut.clock.step()
             dut.io.state.expect(DecodingState.decode)
-            dut.io.in.ready.expect(false.B)
+            dut.io.in.valid.poke(false.B)
             dut.clock.step(p.totalElements)
 
             val jpegEncoder = new jpegEncode(false, List.empty, 0)

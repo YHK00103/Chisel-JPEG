@@ -9,7 +9,7 @@ object RLEDecodingState extends ChiselEnum {
 
 class decodeRLE extends Module {
     val io = IO(new Bundle {
-        val in = Flipped(Decoupled(new Bundle {
+        val in = Flipped(Valid(new Bundle {
             val data = Vec(12, SInt(8.W))
             val length = UInt(8.W)
         }))
@@ -39,7 +39,6 @@ class decodeRLE extends Module {
     io.state := stateReg
     io.out.valid := false.B
     io.out.bits := outputReg
-    io.in.ready := stateReg === RLEDecodingState.idle
 
     val pair = RegInit(0.U(log2Ceil(12+1).W))
     val numPairs = RegInit(6.U(log2Ceil(12+1).W))
@@ -81,7 +80,7 @@ object DecodingState extends ChiselEnum {
 
 class decodeDelta(p: JpegParams) extends Module {
     val io = IO(new Bundle {
-        val in = Flipped(Decoupled(new Bundle {
+        val in = Flipped(Valid(new Bundle {
             val data = Vec(p.totalElements, SInt(p.w8))
         }))
         val out = Valid(Vec(p.totalElements, SInt(p.w16))) // had to change bit width to 16 to pass tests
@@ -100,7 +99,6 @@ class decodeDelta(p: JpegParams) extends Module {
     io.state := stateReg
     io.out.valid := false.B
     io.out.bits := outputReg
-    io.in.ready := stateReg === DecodingState.idle
 
     switch(stateReg){
         is(DecodingState.idle){

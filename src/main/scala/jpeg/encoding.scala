@@ -9,7 +9,7 @@ object EncodingState extends ChiselEnum {
 }
 class RLE(p: JpegParams) extends Module{
     val io = IO(new Bundle {
-        val in = Flipped(Decoupled(new Bundle{
+        val in = Flipped(Valid(new Bundle{
             val data = Vec(p.totalElements, SInt(p.w8))
         }))
         val out = Valid(Vec(p.maxOutRLE, SInt(p.w8)))
@@ -42,7 +42,6 @@ class RLE(p: JpegParams) extends Module{
     io.length.bits := lenCounter
 
     io.state := stateReg
-    io.in.ready := stateReg === EncodingState.idle
 
     switch(stateReg){
         is(EncodingState.idle){
@@ -83,7 +82,7 @@ class RLE(p: JpegParams) extends Module{
 
 class Delta(p: JpegParams) extends Module{
     val io = IO(new Bundle {
-        val in = Flipped(Decoupled(new Bundle{
+        val in = Flipped(Valid(new Bundle{
             val data = Vec(p.totalElements, SInt(p.w8))
         }))
         val out = Valid(Vec(p.totalElements, SInt(p.w8)))
@@ -102,7 +101,6 @@ class Delta(p: JpegParams) extends Module{
     io.state := stateReg
     io.out.valid := false.B
     io.out.bits := outputReg
-    io.in.ready := stateReg === EncodingState.idle
 
     switch(stateReg){
         is(EncodingState.idle){
