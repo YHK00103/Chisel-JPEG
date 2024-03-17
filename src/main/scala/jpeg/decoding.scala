@@ -50,12 +50,14 @@ class decodeRLE extends Module {
 
     val freqCounter = RegInit(0.S(log2Ceil(25+1).W))
 
+    // assigns output
     io.state := stateReg
     io.out.valid := false.B
     io.out.bits := outputReg
 
     val pair = RegInit(0.U(log2Ceil(12+1).W))
     val numPairs = RegInit(6.U(log2Ceil(12+1).W))
+    
     switch(stateReg){
         is(RLEDecodingState.idle){
             when(io.in.fire){
@@ -117,11 +119,12 @@ class decodeDelta(p: JpegParams) extends Module {
 
     // Initialize to all zeros
     val dataReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(p.w8))))
-    
-    // Initialize output register
-    val outputReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(p.w16)))) 
     val dataIndex = RegInit(1.U(log2Ceil(p.totalElements+1).W))
 
+    // Initialize output register
+    val outputReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(p.w16)))) 
+
+    // assign output
     io.state := stateReg
     io.out.valid := false.B
     io.out.bits := outputReg

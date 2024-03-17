@@ -18,23 +18,36 @@ class RLEChiselEncode extends AnyFlatSpec with ChiselScalatestTester {
     def doRLETest(data: Seq[Int]): Unit = {
         val p = JpegParams(8, 8, 0)
         test(new RLE(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            // tests initial state
             dut.io.in.valid.poke(true.B)
             dut.io.state.expect(EncodingState.idle)
+            dut.io.out.valid.expect(false.B)
+            dut.io.length.valid.expect(false.B)
+
+            // load data in
             for (i <- 0 until p.totalElements) {
                 dut.io.in.bits.data(i).poke(data(i).S)
             }
 
+            // should be in encoding after one cycle
             dut.clock.step()
             dut.io.in.valid.poke(false.B)
             dut.io.state.expect(EncodingState.encode)
+
+            // cycles number of calculations
             dut.clock.step(p.totalElements)
+            dut.io.out.valid.expect(true.B)
+            dut.io.length.valid.expect(true.B)
             
+            // compare with scala model
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
             val expected = jpegEncoder.RLE(data)
             dut.io.length.bits.expect(expected.length)
             for(i <- 0 until expected.length){
                 dut.io.out.bits(i).expect(expected(i).S)
             }
+
+            // return to idle
             dut.io.state.expect(EncodingState.idle)
 
             // Testing purposes
@@ -46,7 +59,7 @@ class RLEChiselEncode extends AnyFlatSpec with ChiselScalatestTester {
         }
     }
 
-    behavior of "RLEChiselEnc"
+    behavior of "RLEChiselEncode"
     it should "encode 5:3, 6:2, 7:5, 8:4, 9:3, 10:2, 11:3, 12:5, 13:4, 14:4, 15:3, 16:5, 17:6, 18:7, 19:5, 20:3" in {
         val test = Seq(
             5, 5, 5, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 10, 10, 11, 
@@ -90,27 +103,38 @@ class DeltaChiselEncode extends AnyFlatSpec with ChiselScalatestTester {
     def doDeltaTest(data: Seq[Int]): Unit = {
         val p = JpegParams(8, 8, 0)
         test(new Delta(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            // tests initial state
             dut.io.in.valid.poke(true.B)
-            dut.io.state.expect(EncodingState.idle)
+            dut.io.state.expect(EncodingState.idle) 
+
+            // load data in
             for (i <- 0 until p.totalElements) {
                 dut.io.in.bits.data(i).poke(data(i).S)
             }
 
+            // should be in encoding after one cycle
             dut.clock.step()
             dut.io.in.valid.poke(false.B)
             dut.io.state.expect(EncodingState.encode)
+
+            // cycles number of calculations
             dut.clock.step(p.totalElements)
+            dut.io.out.valid.expect(true.B)
+
+            // compare with scala model
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
             val expected = jpegEncoder.delta(data)
             for( i <- 0 until p.totalElements){
                 dut.io.out.bits(i).expect(expected(i).S)
             }
+            
+            // return to idle
             dut.io.state.expect(EncodingState.idle)
 
         }
     }
 
-    behavior of "DeltaChiselEnc"
+    behavior of "DeltaChiselEncode"
     it should "encode 1 to 64" in {
         val test = Seq(
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 
