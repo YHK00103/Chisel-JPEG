@@ -6,7 +6,15 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import scala.language.experimental
 
-class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
+/**
+  * Class to hold RLE Decode Test function
+  */
+class RLEChiselDecode extends AnyFlatSpec with ChiselScalatestTester {
+    /**
+      * Performs RlE Decoding Tests
+      *
+      * @param data Data to Decode
+      */
     def doDecodeRLETest(data: Seq[Int]): Unit = {
         test(new decodeRLE).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
@@ -42,7 +50,7 @@ class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
         }
 
     }
-    behavior of "DecodeRLEChisel"
+    behavior of "RLEChiselDecode"
     it should "decode 4:1, 4:2, 4:3, 4:4, 4:5, 5:6" in {
         val test = Seq(4, 1, 4, 2, 4, 3, 4, 4, 4, 5, 5, 6)
         doDecodeRLETest(test)
@@ -83,7 +91,15 @@ class decodeRLETest extends AnyFlatSpec with ChiselScalatestTester {
 
 }
 
-class DecodeDeltaTest extends AnyFlatSpec with ChiselScalatestTester {
+/**
+  * Class to hold delta decoding test function
+  */
+class DeltaChiselDecode extends AnyFlatSpec with ChiselScalatestTester {
+    /**
+      * Performs Delta Decoding Tests
+      *
+      * @param data Data to decode
+      */
     def doDecodeDeltaTest(data: Seq[Int]): Unit = {
         val p = JpegParams(8, 8, 0)
         test(new decodeDelta(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
@@ -115,7 +131,7 @@ class DecodeDeltaTest extends AnyFlatSpec with ChiselScalatestTester {
             dut.io.state.expect(DecodingState.idle)
         }
     }
-    behavior of "DecodeDeltaChisel"
+    behavior of "DeltaChiselDecode"
     it should "decode 1 to 64" in {
         val test = Seq(
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 

@@ -7,9 +7,9 @@ import org.scalatest.flatspec.AnyFlatSpec
 import scala.language.experimental
 
 /**
-  * Class to hold RLE Test function
+  * Class to hold RLE test function
   */
-class RLEChiselEnc extends AnyFlatSpec with ChiselScalatestTester {
+class RLEChiselEncode extends AnyFlatSpec with ChiselScalatestTester {
     /**
       * Performs RLE Tests
       * 
@@ -79,9 +79,9 @@ class RLEChiselEnc extends AnyFlatSpec with ChiselScalatestTester {
 }
 
 /**
-  * Class to hold Delta Encoding Test function
+  * Class to hold delta encoding test function
   */
-class DeltaChiselEnc extends AnyFlatSpec with ChiselScalatestTester {
+class DeltaChiselEncode extends AnyFlatSpec with ChiselScalatestTester {
     /**
       * Performs Delta Encoding Tests
       *
