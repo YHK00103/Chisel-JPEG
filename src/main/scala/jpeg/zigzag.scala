@@ -12,7 +12,7 @@ object ZigZagState extends ChiselEnum {
 
 class ZigZagChisel(p: JpegParams) extends Module {
     val io = IO(new Bundle {
-        val in = Flipped(Decoupled(new Bundle {
+        val in = Flipped(Valid(new Bundle {
             val matrixIn = Vec(p.numRows, Vec(p.numCols, SInt(9.W)))
         }))
         val zigzagOut = Valid(Vec(p.totalElements, SInt(9.W)))
@@ -26,8 +26,7 @@ class ZigZagChisel(p: JpegParams) extends Module {
     val col   = RegInit(0.U(3.W))
     val isUp  = RegInit(true.B) // Keeps track of direction
     
-    // Regs for ready/valid bits
-    val readyIn   = RegInit(true.B) 
+    // Regs for valid bits
     val validOut  = RegInit(false.B)
     
     // FSM
@@ -36,11 +35,10 @@ class ZigZagChisel(p: JpegParams) extends Module {
 
     switch(stateReg) {
         is(ZigZagState.idle) {
-            when (io.in.fire) {
+            when (io.in.valid) {
                 stateReg := ZigZagState.processing
                 inMatrix := io.in.bits.matrixIn
                 validOut := false.B
-                readyIn := false.B
             }
         } 
         
@@ -78,13 +76,11 @@ class ZigZagChisel(p: JpegParams) extends Module {
                 stateReg := ZigZagState.idle
                 count := 0.U
                 validOut := true.B
-                readyIn := true.B
             }
         }
     }
 
     // Outputs
-    io.in.ready := readyIn
     io.zigzagOut.bits := outReg
     io.zigzagOut.valid := validOut
 }
@@ -94,7 +90,7 @@ class ZigZagChisel(p: JpegParams) extends Module {
 
 class ZigZagDecodeChisel(p: JpegParams) extends Module {
     val io = IO(new Bundle {
-        val in = Flipped(Decoupled(new Bundle {
+        val in = Flipped(Valid(new Bundle {
             val zigzagIn = Input(Vec(p.totalElements, SInt(9.W)))
         }))
         val matrixOut = Valid(Vec(p.numRows, Vec(p.numCols, SInt(9.W))))
@@ -108,8 +104,7 @@ class ZigZagDecodeChisel(p: JpegParams) extends Module {
     val col   = RegInit(0.U(3.W))
     val isUp  = RegInit(true.B) // Keeps track of direction
      
-    // Regs for ready/valid bits
-    val readyIn   = RegInit(true.B) 
+    // Regs for valid bits
     val validOut  = RegInit(false.B)
     
     // FSM
@@ -122,7 +117,6 @@ class ZigZagDecodeChisel(p: JpegParams) extends Module {
                 stateReg := ZigZagState.processing
                 inData := io.in.bits.zigzagIn
                 validOut := false.B
-                readyIn := false.B
             }
         } 
         
@@ -160,13 +154,11 @@ class ZigZagDecodeChisel(p: JpegParams) extends Module {
                 stateReg := ZigZagState.idle
                 count := 0.U
                 validOut := true.B
-                readyIn := true.B
             }
         }
     }
 
     // Outputs
-    io.in.ready := readyIn
     io.matrixOut.bits := outMatrix
     io.matrixOut.valid := validOut
 }

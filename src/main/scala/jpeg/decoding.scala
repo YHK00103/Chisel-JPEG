@@ -3,13 +3,25 @@ package jpeg
 import chisel3._
 import chisel3.util._
 
+/** 
+  * Creates states for decoding in RLE
+  */
 object RLEDecodingState extends ChiselEnum {
     val idle, decode = Value
 }
 
+/** Decodes Run Length Encoding
+  * 
+  * IO
+  * @param data Data to decode
+  * @param length Used space in data
+  * 
+  * @return out Result of decoding RLE
+  * @return state Current state of state machine
+  */
 class decodeRLE extends Module {
     val io = IO(new Bundle {
-        val in = Flipped(Decoupled(new Bundle {
+        val in = Flipped(Valid(new Bundle {
             val data = Vec(12, SInt(8.W))
             val length = UInt(8.W)
         }))
@@ -36,13 +48,14 @@ class decodeRLE extends Module {
 
     val freqCounter = RegInit(0.S(log2Ceil(25+1).W))
 
+    // assigns output
     io.state := stateReg
     io.out.valid := false.B
     io.out.bits := outputReg
-    io.in.ready := stateReg === RLEDecodingState.idle
 
     val pair = RegInit(0.U(log2Ceil(12+1).W))
     val numPairs = RegInit(6.U(log2Ceil(12+1).W))
+
     switch(stateReg){
         is(RLEDecodingState.idle){
             when(io.in.fire){
@@ -74,14 +87,26 @@ class decodeRLE extends Module {
     }
 }
 
-
+/** 
+  * Creates states for decoding  Delta Encoding
+  */
 object DecodingState extends ChiselEnum {
     val idle, decode = Value
 }
 
+/** Decodes Delta Encoding
+  * 
+  * @param p JPEG Paramaters
+  * 
+  * IO
+  * @param data Data to decode
+  * 
+  * @return out Result of decoding Delta Encoding
+  * @return state Current state of state machine
+  */
 class decodeDelta(p: JpegParams) extends Module {
     val io = IO(new Bundle {
-        val in = Flipped(Decoupled(new Bundle {
+        val in = Flipped(Valid(new Bundle {
             val data = Vec(p.totalElements, SInt(p.w8))
         }))
         val out = Valid(Vec(p.totalElements, SInt(p.w16))) // had to change bit width to 16 to pass tests
@@ -92,15 +117,16 @@ class decodeDelta(p: JpegParams) extends Module {
 
     // Initialize to all zeros
     val dataReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(p.w8))))
-    
-    // Initialize output register
-    val outputReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(p.w16)))) 
     val dataIndex = RegInit(1.U(log2Ceil(p.totalElements+1).W))
 
+    // Initialize output register
+    val outputReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(p.w16)))) 
+    val outValid = RegInit(false.B)
+
+    // assign output
     io.state := stateReg
-    io.out.valid := false.B
+    io.out.valid := outValid
     io.out.bits := outputReg
-    io.in.ready := stateReg === DecodingState.idle
 
     switch(stateReg){
         is(DecodingState.idle){
@@ -108,6 +134,7 @@ class decodeDelta(p: JpegParams) extends Module {
                 dataReg := io.in.bits.data
                 outputReg(0) := io.in.bits.data(0)
                 stateReg := DecodingState.decode
+                outValid := false.B
             }
         }
 
@@ -118,7 +145,7 @@ class decodeDelta(p: JpegParams) extends Module {
                 dataIndex := dataIndex + 1.U
             }
             .otherwise{
-                io.out.valid := true.B
+                outValid := true.B
                 stateReg := DecodingState.idle
             }
              

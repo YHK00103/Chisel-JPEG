@@ -11,7 +11,6 @@ class ZigZagChiselTester extends AnyFlatSpec with ChiselScalatestTester {
         val p = JpegParams(8, 8, 0)
         test(new ZigZagChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
-            dut.io.in.ready.expect(true.B)
             dut.io.state.expect(ZigZagState.idle)
 
             for (r <- 0 until p.numRows) {
@@ -19,9 +18,10 @@ class ZigZagChiselTester extends AnyFlatSpec with ChiselScalatestTester {
                     dut.io.in.bits.matrixIn(r)(c).poke(data(r)(c).S)
                 }
             }
+            
             dut.clock.step()
+            dut.io.in.valid.poke(false.B)
             dut.io.state.expect(ZigZagState.processing)
-            dut.io.in.ready.expect(false.B)
             dut.clock.step(p.totalElements)
 
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
@@ -55,15 +55,15 @@ class ZigZagChiselDecodeTester extends AnyFlatSpec with ChiselScalatestTester {
         val p = JpegParams(8, 8, 0)
         test(new ZigZagDecodeChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
-            dut.io.in.ready.expect(true.B)
             dut.io.state.expect(ZigZagState.idle)
 
             for(i <- 0 until data.length){
                 dut.io.in.bits.zigzagIn(i).poke(data(i).S)
             }
             dut.clock.step()
+
+            dut.io.in.valid.poke(false.B)
             dut.io.state.expect(ZigZagState.processing)
-            dut.io.in.ready.expect(false.B)
             dut.clock.step(p.totalElements)
 
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
