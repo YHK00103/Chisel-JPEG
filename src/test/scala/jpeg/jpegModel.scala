@@ -125,9 +125,7 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
       * @param matrix Matrix to print
       */
     def printMatrix(matrix: Seq[Seq[Double]]): Unit = {
-        for (row <- matrix) {
-            println(row.mkString(" "))
-        }
+        matrix.foreach(row => println(row.mkString(" ")))
     }
     
     /**
