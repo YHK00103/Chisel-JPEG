@@ -14,7 +14,7 @@ class ZigZagChiselTest extends AnyFlatSpec with ChiselScalatestTester {
       *
       * @param data Input matrix to parse
       */
-    def doZigZagChiselEncodeTest(data: Seq[Seq[Int]]): Unit = {
+    def doZigZagChiselTest(data: Seq[Seq[Int]]): Unit = {
         val p = JpegParams(8, 8, 0)
         test(new ZigZagChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             // Start in idle state and prepare to load in data
@@ -46,35 +46,14 @@ class ZigZagChiselTest extends AnyFlatSpec with ChiselScalatestTester {
         }
     }
 
-    behavior of "ZigZagChisel"
-    it should "zig zag encode ZigZagParseData.in8x8" in {
-        val test = jpeg.ZigZagParseData.in8x8
-        doZigZagChiselEncodeTest(test)
-    }
-
-    it should "zig zag encode QuantizationData.in2" in {
-        val test = jpeg.QuantizationData.in2
-        doZigZagChiselEncodeTest(test)
-    }
-
-    it should "zig zag encode QuantizationData.in3" in {
-        val test = jpeg.QuantizationData.in3
-        doZigZagChiselEncodeTest(test)
-    }
-}
-
-/**
-  * Class to hold ZigZagDecode Test functions
-  */
-class InverseZigZagChisel extends AnyFlatSpec with ChiselScalatestTester {
     /**
       * Performs ZigZag decoding test
       *
       * @param data Input matrix to parse
       */
-    def doZigZagChiselInverseTest(data: Seq[Int]): Unit = {
+    def doInverseZigZagChiselTest(data: Seq[Int]): Unit = {
         val p = JpegParams(8, 8, 0)
-        test(new ZigZagDecodeChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+        test(new InverseZigZagChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             // Start in idle state and prepare to load in data
             dut.io.in.valid.poke(true.B)
             dut.io.state.expect(ZigZagState.idle)
@@ -103,20 +82,37 @@ class InverseZigZagChisel extends AnyFlatSpec with ChiselScalatestTester {
             dut.io.state.expect(ZigZagState.idle)
         }
     }
-    behavior of "ZigZagDecodeChisel"
+
+    behavior of "ZigZagChisel"
+    it should "zig zag encode ZigZagParseData.in8x8" in {
+        val test = jpeg.ZigZagParseData.in8x8
+        doZigZagChiselTest(test)
+    }
+
+    it should "zig zag encode QuantizationData.in2" in {
+        val test = jpeg.QuantizationData.in2
+        doZigZagChiselTest(test)
+    }
+
+    it should "zig zag encode QuantizationData.in3" in {
+        val test = jpeg.QuantizationData.in3
+        doZigZagChiselTest(test)
+    }
+
+    behavior of "InverseZigZagChisel"
     it should "zig zag decode out8x8" in {
         val test = jpeg.ZigZagParseData.out8x8
-        doZigZagChiselInverseTest(test)
+        doInverseZigZagChiselTest(test)
     }
 
     it should "zig zag decode QuantizationData.in2" in {
         val test = jpeg.QuantizationData.in2.flatten
-        doZigZagChiselInverseTest(test)
+        doInverseZigZagChiselTest(test)
     }
 
     it should "zig zag decode QuantizationData.in3" in {
         val test = jpeg.QuantizationData.in3.flatten
-        doZigZagChiselInverseTest(test)
+        doInverseZigZagChiselTest(test)
     }
 }
 

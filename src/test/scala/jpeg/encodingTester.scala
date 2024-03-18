@@ -7,17 +7,17 @@ import org.scalatest.flatspec.AnyFlatSpec
 import scala.language.experimental
 
 /**
-  * Class to hold RLE test function
+  * Class to test Encoding functionality
   */
-class RLEChiselEncode extends AnyFlatSpec with ChiselScalatestTester {
+class EncodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
     /**
       * Performs RLE Test
       * 
       * @param data Data to encode
       */
-    def doRLETest(data: Seq[Int]): Unit = {
+    def doRLEChiselEncodeTest(data: Seq[Int]): Unit = {
         val p = JpegParams(8, 8, 0)
-        test(new RLE(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+        test(new RLEChiselEncode(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             // tests initial state
             dut.io.in.valid.poke(true.B)
             dut.io.state.expect(EncodingState.idle)
@@ -59,50 +59,14 @@ class RLEChiselEncode extends AnyFlatSpec with ChiselScalatestTester {
         }
     }
 
-    behavior of "RLEChiselEncode"
-    it should "encode 5:3, 6:2, 7:5, 8:4, 9:3, 10:2, 11:3, 12:5, 13:4, 14:4, 15:3, 16:5, 17:6, 18:7, 19:5, 20:3" in {
-        val test = Seq(
-            5, 5, 5, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 10, 10, 11, 
-            11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 14, 15, 
-            15, 15, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 18, 18, 18, 
-            18, 18, 18, 18, 19, 19, 19, 19, 19, 20, 20, 20
-        )
-        doRLETest(test)
-    }
-
-    it should "encode 1:8, 2:8, 3:8, 4:8, 5:8, 6:8, 7:8, 8:8" in {
-        val test = Seq(
-            1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 
-            3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 
-            6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8
-        )
-        doRLETest(test)
-    }
-
-    it should "encode no dupes" in {
-        val test = Seq(
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 
-            20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 
-            37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 
-            54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64
-        )
-        doRLETest(test)
-    }
-
-}
-
-/**
-  * Class to hold delta encoding test function
-  */
-class DeltaChiselEncode extends AnyFlatSpec with ChiselScalatestTester {
     /**
       * Performs Delta Encoding Tests
       *
       * @param data Data to encode
       */
-    def doDeltaTest(data: Seq[Int]): Unit = {
+    def doDeltaChiselEncodeTest(data: Seq[Int]): Unit = {
         val p = JpegParams(8, 8, 0)
-        test(new Delta(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+        test(new DeltaChiselEncode(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             // tests initial state
             dut.io.in.valid.poke(true.B)
             dut.io.state.expect(EncodingState.idle) 
@@ -134,6 +98,36 @@ class DeltaChiselEncode extends AnyFlatSpec with ChiselScalatestTester {
         }
     }
 
+    behavior of "RLEChiselEncode"
+    it should "encode 5:3, 6:2, 7:5, 8:4, 9:3, 10:2, 11:3, 12:5, 13:4, 14:4, 15:3, 16:5, 17:6, 18:7, 19:5, 20:3" in {
+        val test = Seq(
+            5, 5, 5, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 10, 10, 11, 
+            11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 14, 15, 
+            15, 15, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 18, 18, 18, 
+            18, 18, 18, 18, 19, 19, 19, 19, 19, 20, 20, 20
+        )
+        doRLEChiselEncodeTest(test)
+    }
+
+    it should "encode 1:8, 2:8, 3:8, 4:8, 5:8, 6:8, 7:8, 8:8" in {
+        val test = Seq(
+            1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 
+            3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 
+            6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8
+        )
+        doRLEChiselEncodeTest(test)
+    }
+
+    it should "encode no dupes" in {
+        val test = Seq(
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 
+            20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 
+            37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 
+            54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64
+        )
+        doRLEChiselEncodeTest(test)
+    }
+
     behavior of "DeltaChiselEncode"
     it should "encode 1 to 64" in {
         val test = Seq(
@@ -142,7 +136,7 @@ class DeltaChiselEncode extends AnyFlatSpec with ChiselScalatestTester {
             35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 
             51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64
         )
-        doDeltaTest(test)
+        doDeltaChiselEncodeTest(test)
     }
     it should "encode 64 to 1" in {
         val test = Seq(
@@ -151,13 +145,13 @@ class DeltaChiselEncode extends AnyFlatSpec with ChiselScalatestTester {
             32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17,
             16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1
         )
-        doDeltaTest(test)
+        doDeltaChiselEncodeTest(test)
     }
 
     it should "encode 64 of the same int(10 and 0)" in {
         val test1 = Seq.fill(64)(10)
-        doDeltaTest(test1)
+        doDeltaChiselEncodeTest(test1)
         val test2 = Seq.fill(64)(0)
-        doDeltaTest(test2)
+        doDeltaChiselEncodeTest(test2)
     }
 }

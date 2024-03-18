@@ -6,8 +6,17 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import scala.language.experimental
 
-class Quantization extends AnyFlatSpec with ChiselScalatestTester {
-    def doQuantizationTest(data: Seq[Seq[Int]], qt: Int): Unit = {
+/**
+  * Test harness for Quantization Modules
+  */
+class QuantizationChiselTest extends AnyFlatSpec with ChiselScalatestTester {
+    /**
+      * Tests the functionality of Quantization in Chisel
+      *
+      * @param data Data to Quantify
+      * @param qt Quantization table to use
+      */
+    def doQuantizationChiselTest(data: Seq[Seq[Int]], qt: Int): Unit = {
         val p = JpegParams(8, 8, qt)
         val quantTable = p.getQuantTable
         test(new QuantizationChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
@@ -66,47 +75,13 @@ class Quantization extends AnyFlatSpec with ChiselScalatestTester {
         }
     }
 
-    behavior of "Quantization"
-    
-    it should "correctly quantize scaled in1 with qt1" in {
-        val data = jpeg.DCTData.scaledOut1 
-        val qtChoice = 1
-        doQuantizationTest(data, qtChoice)
-    }
-
-    it should "correctly quantize scaled in1 with qt2" in {
-        val data = jpeg.DCTData.scaledOut1 
-        val qtChoice = 2
-        doQuantizationTest(data, qtChoice)
-    }
-
-    it should "correctly quantize scaled in2 with qt1" in {
-        val data = jpeg.DCTData.scaledOut2
-        val qtChoice = 1
-        doQuantizationTest(data, qtChoice)
-    }
-
-    it should "correctly quantize scaled in2 with qt2" in {
-        val data = jpeg.DCTData.scaledOut2 
-        val qtChoice = 2
-        doQuantizationTest(data, qtChoice)
-    }
-
-    it should "correctly quantize scaled in3 with qt1" in {
-        val data = jpeg.DCTData.scaledOut3
-        val qtChoice = 1
-        doQuantizationTest(data, qtChoice)
-    }
-
-    it should "correctly quantize scaled in3 with qt2" in {
-        val data = jpeg.DCTData.scaledOut3
-        val qtChoice = 2
-        doQuantizationTest(data, qtChoice)
-    }
-}
-
-class InverseQuantization extends AnyFlatSpec with ChiselScalatestTester {
-    def doInverseQuantizationTest(data: Seq[Seq[Int]], qt: Int): Unit = {
+    /**
+      * Tests the functionality of Inverse Quantization in Chisel
+      *
+      * @param data Data to unQuantify
+      * @param qt Quantization table to use
+      */
+    def doInverseQuantizationChiselTest(data: Seq[Seq[Int]], qt: Int): Unit = {
         val p = JpegParams(8, 8, qt)
         val quantTable = p.getQuantTable
         test(new InverseQuantizationChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
@@ -164,42 +139,79 @@ class InverseQuantization extends AnyFlatSpec with ChiselScalatestTester {
         }
     }
 
-    behavior of "Inverse Quantization"
 
+    behavior of "QuantizationChisel"
+    it should "correctly quantize scaled in1 with qt1" in {
+        val data = jpeg.DCTData.scaledOut1 
+        val qtChoice = 1
+        doQuantizationChiselTest(data, qtChoice)
+    }
+
+    it should "correctly quantize scaled in1 with qt2" in {
+        val data = jpeg.DCTData.scaledOut1 
+        val qtChoice = 2
+        doQuantizationChiselTest(data, qtChoice)
+    }
+
+    it should "correctly quantize scaled in2 with qt1" in {
+        val data = jpeg.DCTData.scaledOut2
+        val qtChoice = 1
+        doQuantizationChiselTest(data, qtChoice)
+    }
+
+    it should "correctly quantize scaled in2 with qt2" in {
+        val data = jpeg.DCTData.scaledOut2 
+        val qtChoice = 2
+        doQuantizationChiselTest(data, qtChoice)
+    }
+
+    it should "correctly quantize scaled in3 with qt1" in {
+        val data = jpeg.DCTData.scaledOut3
+        val qtChoice = 1
+        doQuantizationChiselTest(data, qtChoice)
+    }
+
+    it should "correctly quantize scaled in3 with qt2" in {
+        val data = jpeg.DCTData.scaledOut3
+        val qtChoice = 2
+        doQuantizationChiselTest(data, qtChoice)
+    }
+
+    behavior of "InverseQuantizationChisel"
     it should "correctly undo quantize in1 with qt1" in {
         val data = jpeg.QuantizationDecodeData.in1
         val qtChoice = 1
-        doInverseQuantizationTest(data, qtChoice)
+        doInverseQuantizationChiselTest(data, qtChoice)
     }
 
     it should "correctly undo quantize in1 with qt2" in {
         val data = jpeg.QuantizationDecodeData.in1
         val qtChoice = 2
-        doInverseQuantizationTest(data, qtChoice)
+        doInverseQuantizationChiselTest(data, qtChoice)
     }
 
     it should "correctly undo quantize in2 with qt1" in {
         val data = jpeg.QuantizationDecodeData.in2
         val qtChoice = 1
-        doInverseQuantizationTest(data, qtChoice)
+        doInverseQuantizationChiselTest(data, qtChoice)
     }
 
     it should "correctly undo quantize in2 with qt2" in {
         val data = jpeg.QuantizationDecodeData.in2
         val qtChoice = 2
-        doInverseQuantizationTest(data, qtChoice)
+        doInverseQuantizationChiselTest(data, qtChoice)
     }
 
     it should "correctly undo quantize in3 with qt1" in {
         val data = jpeg.QuantizationDecodeData.in3
         val qtChoice = 1
-        doInverseQuantizationTest(data, qtChoice)
+        doInverseQuantizationChiselTest(data, qtChoice)
     }
 
     it should "correctly quantize in3 with qt2" in {
         val data = jpeg.QuantizationDecodeData.in3
         val qtChoice = 1
-        doInverseQuantizationTest(data, qtChoice)
+        doInverseQuantizationChiselTest(data, qtChoice)
     }
 }
 

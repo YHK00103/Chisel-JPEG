@@ -21,7 +21,7 @@ object EncodingState extends ChiselEnum {
   * @return length Length of RLE output in out since we cannot determine final width dynamically in hardware
   * @return state Current state of state machine
   */
-class RLE(p: JpegParams) extends Module{
+class RLEChiselEncode(p: JpegParams) extends Module{
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle{
             val data = Vec(p.totalElements, SInt(p.w8))
@@ -113,7 +113,7 @@ class RLE(p: JpegParams) extends Module{
   * @return state Current state of state machine
   * 
   */
-class Delta(p: JpegParams) extends Module{
+class DeltaChiselEncode(p: JpegParams) extends Module{
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle{
             val data = Vec(p.totalElements, SInt(p.w8))

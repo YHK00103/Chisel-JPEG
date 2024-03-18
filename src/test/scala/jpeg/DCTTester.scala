@@ -45,13 +45,13 @@ object DCTDataChisel {
 /**
   * Class to hold DCT tests and function
   */
-class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
+class DCTChiselTest extends AnyFlatSpec with ChiselScalatestTester {
   /**
     * Performs DCT Test
     *
     * @param data Input matrix to test DCT implementation on
     */
-  def doDCTTest(data: Seq[Seq[Int]]): Unit = {
+  def doDCTChiselTest(data: Seq[Seq[Int]]): Unit = {
     test(new DCTChisel) { dut =>
       // Compute DCT in Scala for comparison
       val jpegEncoder = new jpegEncode(false, List.empty, 0)
@@ -135,36 +135,36 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
 
   it should "compute DCT correctly 2" in {
     val inputMatrix = DCTData.in2
-    doDCTTest(inputMatrix)
+    doDCTChiselTest(inputMatrix)
   }
 
   it should "compute DCT correctly 3" in {
     val inputMatrix = DCTData.in3
-    doDCTTest(inputMatrix)
+    doDCTChiselTest(inputMatrix)
   }
 
   it should "compute DCT correctly 4" in {
     val inputMatrix = DCTData.in4
-    doDCTTest(inputMatrix)
+    doDCTChiselTest(inputMatrix)
   }
 
   it should "compute DCT correctly 5" in {
     val inputMatrix = DCTData.in5
-    doDCTTest(inputMatrix)
+    doDCTChiselTest(inputMatrix)
   }
 
   it should "compute DCT correctly 6" in {
     val inputMatrix = DCTData.in6
-    doDCTTest(inputMatrix)
+    doDCTChiselTest(inputMatrix)
   }
 
   it should "compute DCT correctly 7" in {
     val inputMatrix = DCTData.in7
-    doDCTTest(inputMatrix)
+    doDCTChiselTest(inputMatrix)
   }
 
   it should "compute DCT correctly 8" in {
     val inputMatrix = DCTData.in8
-    doDCTTest(inputMatrix)
+    doDCTChiselTest(inputMatrix)
   }
 }
