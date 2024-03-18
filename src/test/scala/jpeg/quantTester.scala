@@ -5,11 +5,11 @@ import chisel3.util._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 
-class QuantizationTest extends AnyFlatSpec with ChiselScalatestTester {
+class Quantization extends AnyFlatSpec with ChiselScalatestTester {
     def doQuantizationTest(data: Seq[Seq[Int]], qt: Int): Unit = {
         val p = JpegParams(8, 8, qt)
         val quantTable = p.getQuantTable
-        test(new Quantization(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+        test(new QuantizationChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
             dut.io.in.ready.expect(true.B)
             dut.io.state.expect(QuantState.idle)
@@ -104,11 +104,11 @@ class QuantizationTest extends AnyFlatSpec with ChiselScalatestTester {
     }
 }
 
-class QuantizationDecodeTest extends AnyFlatSpec with ChiselScalatestTester {
-    def doQuantizationDecodeTest(data: Seq[Seq[Int]], qt: Int): Unit = {
+class InverseQuantization extends AnyFlatSpec with ChiselScalatestTester {
+    def doInverseQuantizationTest(data: Seq[Seq[Int]], qt: Int): Unit = {
         val p = JpegParams(8, 8, qt)
         val quantTable = p.getQuantTable
-        test(new QuantizationDecode(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+        test(new InverseQuantizationChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
             dut.io.in.ready.expect(true.B)
             dut.io.state.expect(QuantState.idle)
@@ -164,7 +164,7 @@ class QuantizationDecodeTest extends AnyFlatSpec with ChiselScalatestTester {
         }
     }
 
-    behavior of "QuantizationDecode"
+    behavior of "Inverse Quantization"
 
     it should "correctly undo quantize in1 with qt1" in {
         val data = jpeg.QuantizationDecodeData.in1

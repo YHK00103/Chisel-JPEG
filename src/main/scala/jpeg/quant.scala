@@ -7,7 +7,7 @@ object QuantState extends ChiselEnum {
     val idle, quant = Value
 }
 
-class Quantization(p: JpegParams) extends Module {
+class QuantizationChisel(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Decoupled(new Bundle{
             val data = Input(Vec(p.numRows, Vec(p.numCols, SInt(32.W))))
@@ -78,7 +78,7 @@ class Quantization(p: JpegParams) extends Module {
 
 }
 
-class QuantizationDecode(p: JpegParams) extends Module {
+class InverseQuantizationChisel(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Decoupled(new Bundle{
             val data = Input(Vec(p.numRows, Vec(p.numCols, SInt(12.W))))
