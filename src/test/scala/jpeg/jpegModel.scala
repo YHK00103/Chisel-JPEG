@@ -4,9 +4,23 @@ import scala.math.round
 import scala.math.{cos, Pi}
 import scala.math._
 
+/**
+  * 
+  *
+  * @param decompress
+  * @param quantTable
+  * @param encoding
+  */
 class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int){
-    
-    // Helper func for ZigZag to calculate indicies
+    /**
+      * Helper func for ZigZag to calculate indicies
+      *
+      * @param n
+      * @param isUp
+      * @param i
+      * @param j
+      * @return
+      */
     def updateIndices(n: Int, isUp: Boolean, i: Int, j: Int): (Int, Int, Boolean) = {
         if (isUp) {
             if (j == n - 1) {
@@ -27,6 +41,11 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         }
     }
 
+    /**
+      * 
+      *
+      * @param matrix
+      */
     def zigzagParse(matrix: Seq[Seq[Int]]): Seq[Int] = {
         var result: Seq[Int] = Seq.empty
         var i = 0
@@ -44,6 +63,11 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         result
     }
 
+    /**
+      * 
+      *
+      * @param data
+      */
     def zigzagDecode(data: Seq[Int]): Seq[Seq[Int]] = {
         var i = 0
         var j = 0
@@ -61,7 +85,11 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         result.map(_.toSeq).toSeq
     }
 
-
+    /**
+      * 
+      *
+      * @param matrix
+      */
     def DCT(matrix: Seq[Seq[Int]]): Seq[Seq[Double]] = {
         val rows = matrix.length
         val cols = matrix.headOption.map(_.length).getOrElse(0)
@@ -91,12 +119,22 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         dctMatrix.map(_.toSeq).toSeq
     }
 
+    /**
+      * 
+      *
+      * @param matrix
+      */
     def printMatrix(matrix: Seq[Seq[Double]]): Unit = {
         for (row <- matrix) {
             println(row.mkString(" "))
         }
     }
-
+    
+    /**
+      * 
+      *
+      * @param matrix
+      */
     def roundToTwoDecimalPlaces(matrix: Seq[Seq[Double]]): Seq[Seq[Double]] = {
         matrix.map { row =>
             row.map { element =>
@@ -105,6 +143,11 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         }
     }
 
+    /**
+      * 
+      *
+      * @param matrix
+      */
     def roundToInt(matrix: Seq[Seq[Double]]): Seq[Seq[Double]] = {
         matrix.map { row =>
             row.map { element =>
@@ -113,7 +156,11 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         }
     }    
 
-
+    /**
+      * 
+      *
+      * @param data
+      */
     def RLE(data: Seq[Int]): Seq[Int] = {
         var result = Seq[Int]()
         var current = data.head
@@ -137,6 +184,11 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         result
     }
 
+    /**
+      * Performs Delta Encoding
+      *
+      * @param data Data to be encoded
+      */
     def delta(data: Seq[Int]): Seq[Int] = {
         if (data.isEmpty) {
             Seq.empty[Int] 
@@ -155,6 +207,11 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         }
     }
 
+    /**
+      * Performs Delta Decoding
+      *
+      * @param data Data to be decoded
+      */
     def decodeDelta(data: Seq[Int]): Seq[Int] = {
         if (data.isEmpty) {
             Seq.empty[Int]
@@ -172,6 +229,12 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         }
     }
 
+    /**
+      * Performs Quantization after DCT
+      *
+      * @param data Data that is Quantified
+      * @param quantTable Quantization table used for Quantization
+      */
     def quantization(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Seq[Seq[Int]] = {
         data.zip(quantTable).map { case (dataRow, quantRow) =>
                 dataRow.zip(quantRow).map { case (d, q) =>
@@ -180,7 +243,13 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
             }
         }
     }
-
+    
+    /**
+      * Performs Scaled Quantization for DCT output
+      *
+      * @param data Data that is Quantified
+      * @param quantTable Quantization table used for Quantization
+      */
     def scaledQuantization(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Seq[Seq[Int]] = {
         data.zip(quantTable).map { case (dataRow, quantRow) =>
                 dataRow.zip(quantRow).map { case (d, q) =>
@@ -190,6 +259,12 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         }
     }
 
+    /**
+      * Undos Quantization
+      *
+      * @param data Data that is Quantified
+      * @param quantTable Quantization table used to unQuantify
+      */
     def inverseQuantization(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Seq[Seq[Int]] = {
         data.zip(quantTable).map { case (dataRow, quantRow) =>
             dataRow.zip(quantRow).map { case (d, q) =>
