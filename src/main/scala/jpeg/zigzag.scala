@@ -5,6 +5,33 @@ import chisel3.internal.firrtl.Width
 import chisel3.util._
 import java.util.zip.ZipFile
 
+
+/**
+  * Object for ZigZag
+  */
+object ZigZagChisel {
+    def apply(params: JpegParams, matrixIn: Valid[Vec[Vec[SInt]]], zigzagOut: Valid[Vec[Vec[SInt]]], state: ZigZagState) = {
+        val mod = Module(new ZigZagChisel(params))
+        mod.io.in := matrixIn
+        mod.io.zigzagOut := zigzagOut
+        mod.io.state := state
+        mod
+    }
+}
+
+/**
+  * Object for Inverse-ZigZag
+  */
+object InverseZigZagChisel {
+    def apply(params: JpegParams, zigzagIn: Valid[Vec[SInt]], matrixOut: Valid[Vec[Vec[SInt]]], state: ZigZagState) = {
+        val mod = Module(new InverseZigZagChisel(params))
+        mod.io.in := zigzagIn
+        mod.io.matrixOut := matrixOut
+        mod.io.state := state
+        mod
+    }
+}
+
 /** 
   * Creates states for ZigZag FSM
   */
