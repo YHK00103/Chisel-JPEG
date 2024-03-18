@@ -7,19 +7,19 @@ object QuantState extends ChiselEnum {
     val idle, quant = Value
 }
 
-class Quantization(p: JpegParams) extends Module {
+class QuantizationChisel(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Decoupled(new Bundle{
-            val data = Input(Vec(p.numRows, Vec(p.numCols, SInt(12.W))))
+            val data = Input(Vec(p.numRows, Vec(p.numCols, SInt(32.W))))
             val quantTable = Input(Vec(p.numRows, Vec(p.numCols, SInt(12.W))))
         }))
-        val out = Valid(Vec(p.numRows, Vec(p.numCols, SInt(p.w8))))
+        val out = Valid(Vec(p.numRows, Vec(p.numCols, SInt(32.W))))
         val state = Output(QuantState())
     })
 
     // registers to hold io
-    val outputReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(12.W))))))
-    val dataReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(12.W))))))
+    val outputReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(32.W))))))
+    val dataReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(32.W))))))
     val quantTabReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(12.W))))))
 
     val stateReg = RegInit(QuantState.idle)
@@ -35,7 +35,7 @@ class Quantization(p: JpegParams) extends Module {
     switch(stateReg){
         is(QuantState.idle){
             when(io.in.fire){
-                dataReg := io.in.bits.data
+                dataReg := VecInit(io.in.bits.data.map(row => VecInit(row.map(_ / 1000000.S))))
                 quantTabReg := io.in.bits.quantTable
                 stateReg := QuantState.quant
             }
@@ -45,8 +45,7 @@ class Quantization(p: JpegParams) extends Module {
             when(dataReg(rCounter.value)(cCounter.value) < 0.S){
                 val remainder = dataReg(rCounter.value)(cCounter.value) % quantTabReg(rCounter.value)(cCounter.value)
                 when(remainder <= (quantTabReg(rCounter.value)(cCounter.value) / -2.S)){
-                    outputReg(rCounter.value)(cCounter.value) := (dataReg(rCounter.value)(cCounter.value) / quantTabReg(rCounter.value)(cCounter.value)) - 1.S
-                    
+                    outputReg(rCounter.value)(cCounter.value) := (dataReg(rCounter.value)(cCounter.value) / quantTabReg(rCounter.value)(cCounter.value)) - 1.S  
                 }
                 .otherwise{
                     outputReg(rCounter.value)(cCounter.value) := dataReg(rCounter.value)(cCounter.value) / quantTabReg(rCounter.value)(cCounter.value)
@@ -74,7 +73,7 @@ class Quantization(p: JpegParams) extends Module {
 
 }
 
-class QuantizationDecode(p: JpegParams) extends Module {
+class InverseQuantizationChisel(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Decoupled(new Bundle{
             val data = Input(Vec(p.numRows, Vec(p.numCols, SInt(12.W))))
