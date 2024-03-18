@@ -387,7 +387,29 @@ object DCTData {
 
 }
 
-class ZigZagDecodeModelTester extends AnyFlatSpec with ChiselScalatestTester {
+class ZigZagModelTest extends AnyFlatSpec with ChiselScalatestTester {
+    behavior of "ZigZagModel"
+    it should "Zig Zag 2x2" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.zigzagParse(ZigZagParseData.in2x2) == ZigZagParseData.out2x2)
+    }
+
+    it should "Zig Zag 3x3" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.zigzagParse(ZigZagParseData.in3x3) == ZigZagParseData.out3x3)
+    }
+
+    it should "Zig Zag 4x4" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.zigzagParse(ZigZagParseData.in4x4) == ZigZagParseData.out4x4)
+    }
+
+    it should "Zig Zag 8x8" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.zigzagParse(ZigZagParseData.in8x8) == ZigZagParseData.out8x8)
+    }
+
+    behavior of "InverseZigZagModel"
     it should "Produce out 2x2" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         assert(jpegEncoder.zigzagDecode(ZigZagParseData.out2x2) == ZigZagParseData.in2x2)
@@ -409,30 +431,8 @@ class ZigZagDecodeModelTester extends AnyFlatSpec with ChiselScalatestTester {
     }
 }
 
-class ZigZagParseModelTester extends AnyFlatSpec with ChiselScalatestTester {
-    it should "Zig Zag 2x2" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
-        assert(jpegEncoder.zigzagParse(ZigZagParseData.in2x2) == ZigZagParseData.out2x2)
-    }
 
-    it should "Zig Zag 3x3" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
-        assert(jpegEncoder.zigzagParse(ZigZagParseData.in3x3) == ZigZagParseData.out3x3)
-    }
-
-    it should "Zig Zag 4x4" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
-        assert(jpegEncoder.zigzagParse(ZigZagParseData.in4x4) == ZigZagParseData.out4x4)
-    }
-
-    it should "Zig Zag 8x8" in {
-        val jpegEncoder = new jpegEncode(false, List.empty, 0)
-        assert(jpegEncoder.zigzagParse(ZigZagParseData.in8x8) == ZigZagParseData.out8x8)
-    }
-}
-
-
-class RLEModelTester extends AnyFlatSpec with ChiselScalatestTester {
+class RLEModelEncodeTest extends AnyFlatSpec with ChiselScalatestTester {
     it should "RLE test 1" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         assert(jpegEncoder.RLE(RLEData.in1) == RLEData.out1)
@@ -455,7 +455,8 @@ class RLEModelTester extends AnyFlatSpec with ChiselScalatestTester {
 
 }
 
-class deltaModelTester extends AnyFlatSpec with ChiselScalatestTester {
+class DeltaModelTest extends AnyFlatSpec with ChiselScalatestTester {
+    behavior of "DeltaModelEncode"
     it should "delta test 1" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         assert(jpegEncoder.delta(deltaData.in1) == deltaData.out1)
@@ -481,8 +482,7 @@ class deltaModelTester extends AnyFlatSpec with ChiselScalatestTester {
         assert(jpegEncoder.delta(deltaData.in5) == deltaData.out5)
     }
 
-}
-class deltaDecodeModelTester extends AnyFlatSpec with ChiselScalatestTester {
+    behavior of "DeltaModelDecode"
     it should "delta decode test 1" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         assert(jpegEncoder.decodeDelta(deltaData.out1) == deltaData.in1)
@@ -510,7 +510,8 @@ class deltaDecodeModelTester extends AnyFlatSpec with ChiselScalatestTester {
 
 }
 
-class quantizationModelTester extends AnyFlatSpec with ChiselScalatestTester {
+class QuantizationModelTest extends AnyFlatSpec with ChiselScalatestTester {
+    behavior of "QuantizationModel"
     it should "in1 / quant table 1" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         assert(jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt1) == QuantizationData.out1qt1)
@@ -540,9 +541,8 @@ class quantizationModelTester extends AnyFlatSpec with ChiselScalatestTester {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         assert(jpegEncoder.quantization(QuantizationData.in3, QuantizationTables.qt2) == QuantizationData.out3qt2)
     }
-}
 
-class quantizationDecodeModelTester extends AnyFlatSpec with ChiselScalatestTester {
+    behavior of "InverseQuantizationModel"
     it should "in1 / qt1 * qt1" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         val data = jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt1)
@@ -580,7 +580,7 @@ class quantizationDecodeModelTester extends AnyFlatSpec with ChiselScalatestTest
     }
 }
 
-class dctModelTester extends AnyFlatSpec with ChiselScalatestTester {
+class DCTModelTest extends AnyFlatSpec with ChiselScalatestTester {
 
     it should "dct test 1" in {
         val jpegEncode = new jpegEncode(false, List.empty, 0)

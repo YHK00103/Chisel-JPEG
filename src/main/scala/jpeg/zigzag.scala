@@ -114,7 +114,7 @@ class ZigZagChisel(p: JpegParams) extends Module {
   * @return zigzagOut Resulting 1d array
   * @return state Current state of FSM
   */
-class ZigZagDecodeChisel(p: JpegParams) extends Module {
+class InverseZigZagChisel(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {
             val zigzagIn = Input(Vec(p.totalElements, SInt(9.W)))

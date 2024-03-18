@@ -19,7 +19,7 @@ object RLEDecodingState extends ChiselEnum {
   * @return out Result of decoding RLE
   * @return state Current state of state machine
   */
-class decodeRLE extends Module {
+class RLEChiselDecode extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {
             val data = Vec(12, SInt(8.W))
@@ -104,7 +104,7 @@ object DecodingState extends ChiselEnum {
   * @return out Result of decoding Delta Encoding
   * @return state Current state of state machine
   */
-class decodeDelta(p: JpegParams) extends Module {
+class DeltaChiselDecode(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {
             val data = Vec(p.totalElements, SInt(p.w8))
