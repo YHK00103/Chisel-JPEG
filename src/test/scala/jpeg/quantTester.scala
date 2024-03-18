@@ -169,37 +169,37 @@ class InverseQuantization extends AnyFlatSpec with ChiselScalatestTester {
     it should "correctly undo quantize in1 with qt1" in {
         val data = jpeg.QuantizationDecodeData.in1
         val qtChoice = 1
-        doQuantizationDecodeTest(data, qtChoice)
+        doInverseQuantizationTest(data, qtChoice)
     }
 
     it should "correctly undo quantize in1 with qt2" in {
         val data = jpeg.QuantizationDecodeData.in1
         val qtChoice = 2
-        doQuantizationDecodeTest(data, qtChoice)
+        doInverseQuantizationTest(data, qtChoice)
     }
 
     it should "correctly undo quantize in2 with qt1" in {
         val data = jpeg.QuantizationDecodeData.in2
         val qtChoice = 1
-        doQuantizationDecodeTest(data, qtChoice)
+        doInverseQuantizationTest(data, qtChoice)
     }
 
     it should "correctly undo quantize in2 with qt2" in {
         val data = jpeg.QuantizationDecodeData.in2
         val qtChoice = 2
-        doQuantizationDecodeTest(data, qtChoice)
+        doInverseQuantizationTest(data, qtChoice)
     }
 
     it should "correctly undo quantize in3 with qt1" in {
         val data = jpeg.QuantizationDecodeData.in3
         val qtChoice = 1
-        doQuantizationDecodeTest(data, qtChoice)
+        doInverseQuantizationTest(data, qtChoice)
     }
 
     it should "correctly quantize in3 with qt2" in {
         val data = jpeg.QuantizationDecodeData.in3
         val qtChoice = 1
-        doQuantizationDecodeTest(data, qtChoice)
+        doInverseQuantizationTest(data, qtChoice)
     }
 }
 
