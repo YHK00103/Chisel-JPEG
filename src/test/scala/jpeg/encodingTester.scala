@@ -11,7 +11,7 @@ import scala.language.experimental
   */
 class RLEChiselEncode extends AnyFlatSpec with ChiselScalatestTester {
     /**
-      * Performs RLE Tests
+      * Performs RLE Test
       * 
       * @param data Data to encode
       */

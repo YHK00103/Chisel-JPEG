@@ -5,11 +5,23 @@ import chisel3.internal.firrtl.Width
 import chisel3.util._
 import java.util.zip.ZipFile
 
-// Defines the stateRegs
+/** 
+  * Creates states for ZigZag FSM
+  */
 object ZigZagState extends ChiselEnum {
     val idle, processing = Value
 }
 
+/** Persorms ZigZag parsing on 8x8 matrix converting it to 1D array
+  *
+  * @param p JPEG Paramaters
+  * 
+  * IO
+  * @param matrixIn Input matrix to perform ZigZag parsing on 
+  * 
+  * @return zigzagOut Resulting 1d array
+  * @return state Current state of FSM
+  */
 class ZigZagChisel(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {
@@ -19,6 +31,7 @@ class ZigZagChisel(p: JpegParams) extends Module {
         val state = Output(ZigZagState())
     })
 
+    // Initializes Counters and Registers
     val inMatrix = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(9.W))))))
     val outReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(9.W))))
     val count = RegInit(0.U(6.W)) // Keeps track of how many elements are processed
@@ -44,8 +57,10 @@ class ZigZagChisel(p: JpegParams) extends Module {
         
         is(ZigZagState.processing) {
             count := count + 1.U
-
+            
+            // Conditions increment row/col according to ZigZag pattern
             when(count < p.totalElements.U) {
+                // For 8x8 to 1D array input is assigned to output array
                 outReg(count) := inMatrix(row)(col)
                 when(isUp) {
                     when(col === 7.U) {
@@ -72,6 +87,7 @@ class ZigZagChisel(p: JpegParams) extends Module {
                 }
             } 
             
+            // When parsing complete return to idle
             when (count === (p.totalElements.U - 1.U)) {
                 stateReg := ZigZagState.idle
                 count := 0.U
@@ -87,7 +103,17 @@ class ZigZagChisel(p: JpegParams) extends Module {
 
 
 
-
+/** Persorms Inverse ZigZag parsing on 1D array converting it 
+  * back to an 8x8 matrix
+  *
+  * @param p JPEG Paramaters
+  * 
+  * IO
+  * @param matrixIn Input matrix to perform ZigZag parsing on 
+  * 
+  * @return zigzagOut Resulting 1d array
+  * @return state Current state of FSM
+  */
 class ZigZagDecodeChisel(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {
@@ -97,6 +123,7 @@ class ZigZagDecodeChisel(p: JpegParams) extends Module {
         val state = Output(ZigZagState())
     })
 
+    // Initializes Counters and Registers
     val inData = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(9.W))))
     val outMatrix = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(9.W))))))
     val count = RegInit(0.U(6.W)) // Keeps track of how many elements are processed
@@ -124,6 +151,7 @@ class ZigZagDecodeChisel(p: JpegParams) extends Module {
             count := count + 1.U
 
             when(count < p.totalElements.U) {
+                // For inverse the order is fliped and the matrix is assigned to the array
                 outMatrix(row)(col) := inData(count)
                 when(isUp) {
                     when(col === 7.U) {

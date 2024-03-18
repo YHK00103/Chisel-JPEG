@@ -9,31 +9,43 @@ import chisel3.experimental._
 import scala.math.cos
 import scala.math.Pi 
 
+/**
+  * Creates FSM states for DCT
+  */
 object DCTState extends ChiselEnum { 
     val loading, shifting, calculating, waiting = Value 
 }
 
+/** Performs DCT on 8x8 Matrix with scaling
+  * 
+  * IO
+  * @param matrixIn Input matrix to perform DCT on
+  * 
+  * @return shiftedOut Shifted version of input matrix by -128
+  * @return dctOut Resulting scaled output of DCT
+  */
 class DCTChisel extends Module {
     val io = IO(new Bundle {
-        val in = Flipped(Decoupled(new Bundle {
+        val in = Flipped(Valid(new Bundle {
             val matrixIn = Input(Vec(8, Vec(8, SInt(9.W))))
         }))
         val shiftedOut = Output(Vec(8, Vec(8, SInt(9.W)))) // Test output to check shiftedblock
         val dctOut = Valid(Vec(8, Vec(8, SInt(32.W))))
     })
 
+    // Initializes registers for matrixs and Valid bit 
     val matrixInput  = Reg(Vec(8, Vec(8, SInt(9.W))))
     val shiftedBlock = Reg(Vec(8, Vec(8, SInt(9.W))))
     val matrixOutput = Reg(Vec(8, Vec(8, SInt(32.W))))
-    val readyIn   = RegInit(true.B) 
     val validOut  = RegInit(false.B)
 
-    io.in.ready  := readyIn
+    // Assignes outputs
     io.dctOut.valid := validOut
-
     io.dctOut.bits := matrixOutput
     io.shiftedOut := DontCare
 
+
+    // Function to compute DCT values for each element of input matrix
     def DCT(matrix: Vec[Vec[SInt]]): Vec[Vec[SInt]] = {
         val dctMatrix = Wire(Vec(8, Vec(8, SInt(32.W))))
 
@@ -50,6 +62,7 @@ class DCTChisel extends Module {
                     }
                 }
   
+                // Scale alphaU/V to perserve percision
                 val alphaU = if (u == 0) (1.0 / math.sqrt(2)) * 100 else 100
                 val alphaV = if (v == 0) (1.0 / math.sqrt(2)) * 100 else 100
                 val scaledSum = (alphaU.toInt.S * alphaV.toInt.S * sum / 4.S)
@@ -60,36 +73,32 @@ class DCTChisel extends Module {
         dctMatrix
     }
 
+    // Initilizes state and defines FSM
     val state = RegInit(DCTState.waiting)
-    when(state === DCTState.waiting) {
-        // Print content of matrixOutput when it's in the waiting state
-        // printf("Content of matrixOutput in waiting state:\n")
-        // for (i <- 0 until 8) {
-        //     for (j <- 0 until 8) {
-        //         printf("%d ", matrixOutput(i)(j))
-        //     }
-        //     printf("\n")
-        // }
-        // printf("\n")
-
-        when (io.in.fire) {
-            matrixInput := io.in.bits.matrixIn
-            state := DCTState.shifting
-            validOut := false.B
-            readyIn := false.B
-        }
-    } .elsewhen (state === DCTState.shifting) {
-        for (i <- 0 until 8) {
-            for (j <- 0 until 8) {
-                shiftedBlock(i)(j) := io.in.bits.matrixIn(i)(j) -& 128.S
+    switch(state) {
+        is(DCTState.waiting) {
+            when(io.in.valid) {
+                matrixInput := io.in.bits.matrixIn
+                state := DCTState.shifting
+                validOut := false.B
             }
         }
-        io.shiftedOut := shiftedBlock
-        state := DCTState.calculating
-    } .elsewhen (state === DCTState.calculating) {
-        matrixOutput := DCT(shiftedBlock)
-        state := DCTState.waiting
-
+        is(DCTState.shifting) {
+            // Performs shift on input matrix to normalize it before computing DCT  
+            for (i <- 0 until 8) {
+                for (j <- 0 until 8) {
+                    shiftedBlock(i)(j) := io.in.bits.matrixIn(i)(j) -& 128.S
+                }
+            }
+            io.shiftedOut := shiftedBlock
+            state := DCTState.calculating
+        }
+        is(DCTState.calculating) {
+            // Assignes output matrix to calculated DCT values
+            matrixOutput := DCT(shiftedBlock)
+            state := DCTState.waiting
+            validOut := true.B
+        }
     }
 }
 

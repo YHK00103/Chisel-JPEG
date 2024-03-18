@@ -19,7 +19,7 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
       * @param isUp
       * @param i
       * @param j
-      * @return
+      * @return 
       */
     def updateIndices(n: Int, isUp: Boolean, i: Int, j: Int): (Int, Int, Boolean) = {
         if (isUp) {
@@ -42,9 +42,9 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     }
 
     /**
-      * 
+      * Performs ZigZag parsing on 8x8 matrix 
       *
-      * @param matrix
+      * @param matrix Matrix to perform parsing on
       */
     def zigzagParse(matrix: Seq[Seq[Int]]): Seq[Int] = {
         var result: Seq[Int] = Seq.empty
@@ -64,9 +64,9 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     }
 
     /**
-      * 
+      * Performs inverse ZigZag on 1d array to return it to 8x8 matrix
       *
-      * @param data
+      * @param data Input 1d array
       */
     def zigzagDecode(data: Seq[Int]): Seq[Seq[Int]] = {
         var i = 0
@@ -86,9 +86,9 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     }
 
     /**
-      * 
+      * Computes DCT matrix output from input matrix 
       *
-      * @param matrix
+      * @param matrix 8x8 matrix input of pixel values 
       */
     def DCT(matrix: Seq[Seq[Int]]): Seq[Seq[Double]] = {
         val rows = matrix.length
@@ -120,9 +120,9 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     }
 
     /**
-      * 
+      * Prints given matrix to terminal
       *
-      * @param matrix
+      * @param matrix Matrix to print
       */
     def printMatrix(matrix: Seq[Seq[Double]]): Unit = {
         for (row <- matrix) {
@@ -131,9 +131,9 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     }
     
     /**
-      * 
+      * Takes a matrix and rounds its elements to two decimal places 
       *
-      * @param matrix
+      * @param matrix Matrix to be rounded
       */
     def roundToTwoDecimalPlaces(matrix: Seq[Seq[Double]]): Seq[Seq[Double]] = {
         matrix.map { row =>
@@ -144,9 +144,9 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     }
 
     /**
-      * 
+      * Takes a matrix and rounds its elements to Int
       *
-      * @param matrix
+      * @param matrix Matrix to be rounded
       */
     def roundToInt(matrix: Seq[Seq[Double]]): Seq[Seq[Double]] = {
         matrix.map { row =>

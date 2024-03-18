@@ -5,8 +5,11 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import scala.math.round
 
-
+/**
+  * Test data used for verifying parts of Chisel DCT Implementation 
+  */
 object DCTDataChisel {
+  // Resulting matrix of DCTData.in1 after normalization shift of -128
   val shifted = Seq(
     Seq(-66.S, -73.S, -73.S, -74.S, -79.S, -80.S, -81.S, -73.S),
     Seq(-66.S, -71.S, -74.S, -76.S, -80.S, -81.S, -80.S, -75.S),
@@ -38,7 +41,16 @@ object DCTDataChisel {
     Seq(-10.19, -1.82, 5.91, -0.42, 0.3, 0.42, -0.98, 0.0))
 }
 
+
+/**
+  * Class to hold DCT tests and function
+  */
 class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
+  /**
+    * Performs DCT Test
+    *
+    * @param data Input matrix to test DCT implementation on
+    */
   def doDCTTest(data: Seq[Seq[Int]]): Unit = {
     test(new DCTChisel) { dut =>
       // Compute DCT in Scala for comparison
@@ -48,7 +60,7 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
 
       // Set input valid/ready bits
       dut.io.in.valid.poke(true.B)
-      dut.io.in.ready.expect(true.B)
+      // dut.io.in.ready.expect(true.B)
       // Load input matrix
       for (i <- 0 until 8) {
         for (j <- 0 until 8) {
@@ -66,6 +78,7 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
       dut.clock.step()
 
       // Check DCT output
+      dut.io.dctOut.valid.expect(true.B)
       for (i <- 0 until 8) {
         for (j <- 0 until 8) {
           dut.io.dctOut.bits(i)(j).expect(convertedMatrix(i)(j))
@@ -77,23 +90,26 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
   behavior of "DCTChisel"
   it should "compute DCT correctly 1 (Baseline & Shifted Block)" in {
     test(new DCTChisel) { dut =>
+      // Define input and special test for shifted matrix
       val inputMatrix = DCTData.in1
       val shiftedBlock = DCTDataChisel.shifted
       
+      // Use model to create expected valid output
       val jpegEncoder = new jpegEncode(false, List.empty, 0)
       val dctOut = jpegEncoder.DCT(inputMatrix)
+      // DCT Scala model returns values with precision, performing conversion to Int for Chisel
       val convertedMatrix: Seq[Seq[SInt]] = dctOut.map(row => row.map(value => value.toInt.S))
 
+
       dut.io.in.valid.poke(true.B)
-      dut.io.in.ready.expect(true.B)
-      // load in input matrix
+      // Load in input matrix
       for (i <- 0 until 8) {
         for (j <- 0 until 8) {
           dut.io.in.bits.matrixIn(i)(j).poke(inputMatrix(i)(j))
         }
       }
 
-      // Take step to load in matrix
+      // Take step to load in input matrix
       dut.clock.step()
 
       // Take step to load shifted block/go to calc state
@@ -108,7 +124,7 @@ class DCTTester extends AnyFlatSpec with ChiselScalatestTester {
 
       // Take step to go to waiting/load calculation
       dut.clock.step()
-
+      dut.io.dctOut.valid.expect(true.B)
       for (i <- 0 until 8) {
         for (j <- 0 until 8) {
           dut.io.dctOut.bits(i)(j).expect(convertedMatrix(i)(j))

@@ -5,25 +5,38 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import java.beans.beancontext.BeanContextChildSupport
 
-
-class ZigZagChiselTester extends AnyFlatSpec with ChiselScalatestTester {
+/**
+  * Class to hold ZigZag Test functions
+  */
+class ZigZagChiselTest extends AnyFlatSpec with ChiselScalatestTester {
+    /**
+      * Performs ZigZag encoding test
+      *
+      * @param data Input matrix to parse
+      */
     def doZigZagChiselEncodeTest(data: Seq[Seq[Int]]): Unit = {
         val p = JpegParams(8, 8, 0)
         test(new ZigZagChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            // Start in idle state and prepare to load in data
             dut.io.in.valid.poke(true.B)
             dut.io.state.expect(ZigZagState.idle)
 
+            // Input matix 
             for (r <- 0 until p.numRows) {
                 for (c <- 0 until p.numCols) {
                     dut.io.in.bits.matrixIn(r)(c).poke(data(r)(c).S)
                 }
             }
             
+            // Step to load in matrix and transition to processing state
             dut.clock.step()
             dut.io.in.valid.poke(false.B)
             dut.io.state.expect(ZigZagState.processing)
+            
+            // Allow parsing to complete
             dut.clock.step(p.totalElements)
 
+            // Use Scala model to create expected output then verify
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
             val expected = jpegEncoder.zigzagParse(data)
             for(i <- 0 until expected.length){
@@ -50,22 +63,36 @@ class ZigZagChiselTester extends AnyFlatSpec with ChiselScalatestTester {
     }
 }
 
-class ZigZagChiselDecodeTester extends AnyFlatSpec with ChiselScalatestTester {
-    def doZigZagChiselDecodeTest(data: Seq[Int]): Unit = {
+/**
+  * Class to hold ZigZagDecode Test functions
+  */
+class InverseZigZagChisel extends AnyFlatSpec with ChiselScalatestTester {
+    /**
+      * Performs ZigZag decoding test
+      *
+      * @param data Input matrix to parse
+      */
+    def doZigZagChiselInverseTest(data: Seq[Int]): Unit = {
         val p = JpegParams(8, 8, 0)
         test(new ZigZagDecodeChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            // Start in idle state and prepare to load in data
             dut.io.in.valid.poke(true.B)
             dut.io.state.expect(ZigZagState.idle)
 
+            // Input 1d array 
             for(i <- 0 until data.length){
                 dut.io.in.bits.zigzagIn(i).poke(data(i).S)
             }
-            dut.clock.step()
 
+            // Transition to procesing state 
+            dut.clock.step()
             dut.io.in.valid.poke(false.B)
             dut.io.state.expect(ZigZagState.processing)
+
+            // Allow parsing to complete
             dut.clock.step(p.totalElements)
 
+            // Use Scala model to create expected output then verify
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
             val expected = jpegEncoder.zigzagDecode(data)
             for (r <- 0 until p.numRows) {
@@ -79,17 +106,17 @@ class ZigZagChiselDecodeTester extends AnyFlatSpec with ChiselScalatestTester {
     behavior of "ZigZagDecodeChisel"
     it should "zig zag decode out8x8" in {
         val test = jpeg.ZigZagParseData.out8x8
-        doZigZagChiselDecodeTest(test)
+        doZigZagChiselInverseTest(test)
     }
 
     it should "zig zag decode QuantizationData.in2" in {
         val test = jpeg.QuantizationData.in2.flatten
-        doZigZagChiselDecodeTest(test)
+        doZigZagChiselInverseTest(test)
     }
 
     it should "zig zag decode QuantizationData.in3" in {
         val test = jpeg.QuantizationData.in3.flatten
-        doZigZagChiselDecodeTest(test)
+        doZigZagChiselInverseTest(test)
     }
 }
 
