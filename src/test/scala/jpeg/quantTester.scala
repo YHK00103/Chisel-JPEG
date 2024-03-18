@@ -37,23 +37,23 @@ class QuantizationTest extends AnyFlatSpec with ChiselScalatestTester {
             /* 
                 For Testing purposes, prints out both the expected and actual results
              */
-            // println("scala expected:")
-            // val expectedArray: Seq[Seq[Int]] = expected
-            // for {
-            // row <- expectedArray
-            // } {
-            // val rowString = row.mkString("\t")
-            // println(rowString)
-            // }
+            println("scala expected:")
+            val expectedArray: Seq[Seq[Int]] = expected
+            for {
+            row <- expectedArray
+            } {
+            val rowString = row.mkString("\t")
+            println(rowString)
+            }
 
-            // println("Chisel actual:")
-            // val bitsArray: Vec[Vec[SInt]] = dut.io.out.bits
-            // for {
-            // row <- bitsArray
-            // } {
-            // val rowString = row.map(_.peek()).mkString("\t")
-            // println(rowString)
-            // }
+            println("Chisel actual:")
+            val bitsArray: Vec[Vec[SInt]] = dut.io.out.bits
+            for {
+            row <- bitsArray
+            } {
+            val rowString = row.map(_.peek()).mkString("\t")
+            println(rowString)
+            }
 
 
             for (r <- 0 until p.numRows) {
@@ -67,38 +67,38 @@ class QuantizationTest extends AnyFlatSpec with ChiselScalatestTester {
 
     behavior of "Quantization"
     
-    it should "correctly quantize in1 with qt1" in {
-        val data = jpeg.QuantizationData.in1
+    it should "correctly quantize scaled in1 with qt1" in {
+        val data = jpeg.DCTData.scaledOut1 
         val qtChoice = 1
         doQuantizationTest(data, qtChoice)
     }
 
-    it should "correctly quantize in1 with qt2" in {
-        val data = jpeg.QuantizationData.in1
+    it should "correctly quantize scaled in1 with qt2" in {
+        val data = jpeg.DCTData.scaledOut1 
         val qtChoice = 2
         doQuantizationTest(data, qtChoice)
     }
 
-    it should "correctly quantize in2 with qt1" in {
-        val data = jpeg.QuantizationData.in2
+    it should "correctly quantize scaled in2 with qt1" in {
+        val data = jpeg.DCTData.scaledOut2
         val qtChoice = 1
         doQuantizationTest(data, qtChoice)
     }
 
-    it should "correctly quantize in2 with qt2" in {
-        val data = jpeg.QuantizationData.in2
+    it should "correctly quantize scaled in2 with qt2" in {
+        val data = jpeg.DCTData.scaledOut2 
         val qtChoice = 2
         doQuantizationTest(data, qtChoice)
     }
 
-    it should "correctly quantize in3 with qt1" in {
-        val data = jpeg.QuantizationData.in3
+    it should "correctly quantize scaled in3 with qt1" in {
+        val data = jpeg.DCTData.scaledOut3
         val qtChoice = 1
         doQuantizationTest(data, qtChoice)
     }
 
-    it should "correctly quantize in3 with qt2" in {
-        val data = jpeg.QuantizationData.in3
+    it should "correctly quantize scaled in3 with qt2" in {
+        val data = jpeg.DCTData.scaledOut3
         val qtChoice = 2
         doQuantizationTest(data, qtChoice)
     }

@@ -10,7 +10,7 @@ object QuantState extends ChiselEnum {
 class Quantization(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Decoupled(new Bundle{
-            val data = Input(Vec(p.numRows, Vec(p.numCols, SInt(12.W))))
+            val data = Input(Vec(p.numRows, Vec(p.numCols, SInt(32.W))))
             val quantTable = Input(Vec(p.numRows, Vec(p.numCols, SInt(12.W))))
         }))
         val out = Valid(Vec(p.numRows, Vec(p.numCols, SInt(p.w8))))
@@ -19,7 +19,7 @@ class Quantization(p: JpegParams) extends Module {
 
     // registers to hold io
     val outputReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(12.W))))))
-    val dataReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(12.W))))))
+    val dataReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(32.W))))))
     val quantTabReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(12.W))))))
 
     val stateReg = RegInit(QuantState.idle)
@@ -35,7 +35,7 @@ class Quantization(p: JpegParams) extends Module {
     switch(stateReg){
         is(QuantState.idle){
             when(io.in.fire){
-                dataReg := io.in.bits.data
+                dataReg := VecInit(io.in.bits.data.map(row => VecInit(row.map(_ / 1000000.S))))
                 quantTabReg := io.in.bits.quantTable
                 stateReg := QuantState.quant
             }
@@ -44,6 +44,10 @@ class Quantization(p: JpegParams) extends Module {
         is(QuantState.quant){
             when(dataReg(rCounter.value)(cCounter.value) < 0.S){
                 val remainder = dataReg(rCounter.value)(cCounter.value) % quantTabReg(rCounter.value)(cCounter.value)
+                when(rCounter.value === 4.U && cCounter.value === 2.U) {
+                    printf("remainder: %d data: %d QT: %d\n", remainder, dataReg(rCounter.value)(cCounter.value), quantTabReg(rCounter.value)(cCounter.value))
+                    printf("Test: %d\n", (-55 % 37).S)
+                }
                 when(remainder <= (quantTabReg(rCounter.value)(cCounter.value) / -2.S)){
                     outputReg(rCounter.value)(cCounter.value) := (dataReg(rCounter.value)(cCounter.value) / quantTabReg(rCounter.value)(cCounter.value)) - 1.S
                     

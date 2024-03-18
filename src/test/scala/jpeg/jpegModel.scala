@@ -76,31 +76,15 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
                 for (i <- 0 until 8) {
                     for (j <- 0 until 8) {
                         val pixelValue = matrix(i)(j) - 128
-                        // if (i == 2 && j == 2 && u == 1 && v == 2) {
-                        //     println("cos:", floor(cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100))
-                        // }
-                        
                         val cosVal = cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100
                         
                         val roundedCval = if (cosVal >= 0) floor(cosVal) else ceil(cosVal)
-                        
-                        // println("cos:", roundedCval, u,v,i,j)
                         sum = sum + pixelValue * roundedCval
-                        // if (u == 0 && v == 0) {
-                        // //     // println("alphaU: V:", alphaU, alphaV)
-                        //     println("sum:", sum, u,v,i,j)
-                        // }
                     }
                 }
                 val alphaU = if (u == 0) floor((1.0 / math.sqrt(2)) * 100) else 100
                 val alphaV = if (v == 0) floor((1.0 / math.sqrt(2)) * 100) else 100
-                // if (u == 0 && v == 0) {
-                //     println("alphaU: V:", alphaU, alphaV, u, v)
-                //     println("sum:", sum)
-                // }
-
                 val scaledSum = alphaU * alphaV * sum / 4
-                // println("scaled sum:", scaledSum)
                 dctMatrix(u)(v) = floor(scaledSum)
             }
         }
@@ -191,7 +175,7 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     def quantization(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Seq[Seq[Int]] = {
         data.zip(quantTable).map { case (dataRow, quantRow) =>
                 dataRow.zip(quantRow).map { case (d, q) =>
-                val result = d.toDouble / q.toDouble
+                val result = d.toDouble / 1000000.0 / q.toDouble
                 if (result < 0) (round(-result) * -1).toInt else round(result).toInt
             }
         }
