@@ -255,7 +255,7 @@ object DCTData {
         Seq(247, 40, 248, 245, 124, 204, 36, 107),
         Seq(234, 202, 245, 167, 9, 217, 239, 173),
         Seq(193, 190, 100, 167, 43, 180, 8, 70),
-        Seq(11, 24, 220, 177, 81, 243, 8, 112),
+        Seq(11, 24, 210, 177, 81, 243, 8, 112),
         Seq(97, 195, 203, 47, 125, 114, 165, 181),
         Seq(193, 70, 174, 167, 41, 30, 127, 245),
         Seq(87, 149, 57, 192, 65, 129, 178, 228))
@@ -547,38 +547,37 @@ class quantizationDecodeModelTester extends AnyFlatSpec with ChiselScalatestTest
     it should "in1 / qt1 * qt1" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         val data = jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt1)
-        assert(jpegEncoder.quantizationDecode(data, QuantizationTables.qt1) == QuantizationDecodeData.out1qt1)
+        assert(jpegEncoder.inverseQuantization(data, QuantizationTables.qt1) == QuantizationDecodeData.out1qt1)
     }
   
     it should "in1 / qt2 * qt2" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         val data = jpegEncoder.quantization(QuantizationData.in1, QuantizationTables.qt2)
-
-        assert(jpegEncoder.quantizationDecode(data, QuantizationTables.qt2) == QuantizationDecodeData.out1qt2)
+        assert(jpegEncoder.inverseQuantization(data, QuantizationTables.qt2) == QuantizationDecodeData.out1qt2)
     }
 
     it should "in2 / qt1 * qt1" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         val data = jpegEncoder.quantization(QuantizationData.in2, QuantizationTables.qt1)
-        assert(jpegEncoder.quantizationDecode(data, QuantizationTables.qt1) == QuantizationDecodeData.out2qt1)
+        assert(jpegEncoder.inverseQuantization(data, QuantizationTables.qt1) == QuantizationDecodeData.out2qt1)
     }
 
     it should "in2 / qt2 * qt2" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         val data = jpegEncoder.quantization(QuantizationData.in2, QuantizationTables.qt2)
-        assert(jpegEncoder.quantizationDecode(data, QuantizationTables.qt2) == QuantizationDecodeData.out2qt2)
+        assert(jpegEncoder.inverseQuantization(data, QuantizationTables.qt2) == QuantizationDecodeData.out2qt2)
     }
 
     it should "in3 / qt1 * qt1" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         val data = jpegEncoder.quantization(QuantizationData.in3, QuantizationTables.qt1)
-        assert(jpegEncoder.quantizationDecode(data, QuantizationTables.qt1) == QuantizationDecodeData.out3qt1)
+        assert(jpegEncoder.inverseQuantization(data, QuantizationTables.qt1) == QuantizationDecodeData.out3qt1)
     }
 
     it should "in3 / qt2 * qt2" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         val data = jpegEncoder.quantization(QuantizationData.in3, QuantizationTables.qt2)
-        assert(jpegEncoder.quantizationDecode(data, QuantizationTables.qt2) == QuantizationDecodeData.out3qt2)
+        assert(jpegEncoder.inverseQuantization(data, QuantizationTables.qt2) == QuantizationDecodeData.out3qt2)
     }
 }
 
@@ -646,8 +645,7 @@ class dctModelTester extends AnyFlatSpec with ChiselScalatestTester {
         val jpegEncode = new jpegEncode(false, List.empty, 0)
         val dctResult = jpegEncode.DCT(DCTData.in8)
         val rounded = jpegEncode.roundToInt(dctResult)
-        
-        jpegEncode.printMatrix(rounded)
+
         assert(rounded == DCTData.scaledOut8)
     }
 }

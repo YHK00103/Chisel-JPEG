@@ -175,13 +175,22 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     def quantization(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Seq[Seq[Int]] = {
         data.zip(quantTable).map { case (dataRow, quantRow) =>
                 dataRow.zip(quantRow).map { case (d, q) =>
+                val result = d.toDouble / q.toDouble
+                if (result < 0) (round(-result) * -1).toInt else round(result).toInt
+            }
+        }
+    }
+
+    def scaledQuantization(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Seq[Seq[Int]] = {
+        data.zip(quantTable).map { case (dataRow, quantRow) =>
+                dataRow.zip(quantRow).map { case (d, q) =>
                 val result = d.toDouble / 1000000.0 / q.toDouble
                 if (result < 0) (round(-result) * -1).toInt else round(result).toInt
             }
         }
     }
 
-    def quantizationDecode(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Seq[Seq[Int]] = {
+    def inverseQuantization(data: Seq[Seq[Int]], quantTable: Seq[Seq[Int]]): Seq[Seq[Int]] = {
         data.zip(quantTable).map { case (dataRow, quantRow) =>
             dataRow.zip(quantRow).map { case (d, q) =>
                 (d.toDouble * q.toDouble).toInt
