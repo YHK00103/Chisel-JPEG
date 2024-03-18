@@ -3,13 +3,6 @@ package jpeg
 import chisel3._
 import chisel3.util._
 
-/** 
-  * Creates states for encoding in RLE and Delta
-  */
-object EncodingState extends ChiselEnum {
-    val idle, encode = Value
-}
-
 /**
   * Object for RLE
   */
@@ -33,6 +26,13 @@ object Delta {
         mod.io.out := out
         mod
     }
+}
+
+/** 
+  * Creates states for encoding in RLE and Delta
+  */
+object EncodingState extends ChiselEnum {
+    val idle, encode = Value
 }
 
 /** Performs Run Length Encoding

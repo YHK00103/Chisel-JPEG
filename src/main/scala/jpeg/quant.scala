@@ -4,6 +4,32 @@ import chisel3._
 import chisel3.util._
 
 /**
+  * Object for Quantization
+  */
+object QuantizationChisel {
+    def apply(params: JpegParams, data: Valid[Vec[Vec[SInt]]], quantTable: Vec[Vec[SInt]], out: Valid[Vec[Vec[SInt]]]) = {
+        val mod = Module(new QuantizationChisel(params))
+        mod.io.in := data
+        mod.io.out := out
+        mod.io.quantTable := quantTable
+        mod
+    }
+}
+
+/**
+  * Object for Inverse Quantization
+  */
+object InverseQuantizationChisel {
+    def apply(params: JpegParams, data: Valid[Vec[Vec[SInt]]], quantTable: Vec[Vec[SInt]], out: Valid[Vec[Vec[SInt]]]) = {
+        val mod = Module(new InverseQuantizationChisel(params))
+        mod.io.in := data
+        mod.io.out := out
+        mod.io.quantTable := quantTable
+        mod
+    }
+}
+
+/**
   * Creates states for Quantization and Inverse Quantization
   */
 object QuantState extends ChiselEnum {
