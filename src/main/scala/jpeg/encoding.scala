@@ -4,11 +4,11 @@ import chisel3._
 import chisel3.util._
 
 /**
-  * Object for RLE
+  * Object for RLEChiselEncode
   */
-object RLE {
+object RLEChiselEncode {
     def apply(params: JpegParams, data: Valid[Vec[SInt]], out: Valid[Vec[SInt]], length: Valid[UInt]) = {
-        val mod = Module(new RLE(params))
+        val mod = Module(new RLEChiselEncode(params))
         mod.io.in := data
         mod.io.out := out
         mod.io.length := length
@@ -17,11 +17,11 @@ object RLE {
 }
 
 /**
-  * Object for Delta
+  * Object for DeltaChiselEncode
   */
-object Delta {
+object DeltaChiselEncode {
     def apply(params: JpegParams, data: Valid[Vec[SInt]], out: Valid[Vec[SInt]]) = {
-        val mod = Module(new RLE(params))
+        val mod = Module(new DeltaChiselEncode(params))
         mod.io.in := data
         mod.io.out := out
         mod
