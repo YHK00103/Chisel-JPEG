@@ -12,7 +12,6 @@ class Quantization extends AnyFlatSpec with ChiselScalatestTester {
         val quantTable = p.getQuantTable
         test(new QuantizationChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
-            dut.io.in.ready.expect(true.B)
             dut.io.state.expect(QuantState.idle)
 
             for (r <- 0 until p.numRows) {
@@ -23,13 +22,13 @@ class Quantization extends AnyFlatSpec with ChiselScalatestTester {
 
             for (r <- 0 until p.numRows) {
                 for (c <- 0 until p.numCols) {
-                    dut.io.in.bits.quantTable(r)(c).poke(quantTable(r)(c).S)
+                    dut.io.quantTable(r)(c).poke(quantTable(r)(c).S)
                 }
             }
+
             dut.clock.step()
-            dut.io.in.ready.expect(false.B)
-            dut.io.out.valid.expect(false.B)
             dut.clock.step(64)
+            dut.io.out.valid.expect(true.B)
 
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
             val expected = jpegEncoder.scaledQuantization(data, quantTable)
@@ -111,7 +110,6 @@ class InverseQuantization extends AnyFlatSpec with ChiselScalatestTester {
         val quantTable = p.getQuantTable
         test(new InverseQuantizationChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
-            dut.io.in.ready.expect(true.B)
             dut.io.state.expect(QuantState.idle)
 
             for (r <- 0 until p.numRows) {
@@ -122,11 +120,10 @@ class InverseQuantization extends AnyFlatSpec with ChiselScalatestTester {
 
             for (r <- 0 until p.numRows) {
                 for (c <- 0 until p.numCols) {
-                    dut.io.in.bits.quantTable(r)(c).poke(quantTable(r)(c).S)
+                    dut.io.quantTable(r)(c).poke(quantTable(r)(c).S)
                 }
             }
             dut.clock.step()
-            dut.io.in.ready.expect(false.B)
             dut.io.out.valid.expect(false.B)
             dut.clock.step(64)
 

@@ -10,6 +10,31 @@ object EncodingState extends ChiselEnum {
     val idle, encode = Value
 }
 
+/**
+  * Object for RLE
+  */
+object RLE {
+    def apply(params: JpegParams, data: Valid[Vec[SInt]], out: Valid[Vec[SInt]], length: Valid[UInt]) = {
+        val mod = Module(new RLE(params))
+        mod.io.in := data
+        mod.io.out := out
+        mod.io.length := length
+        mod
+    }
+}
+
+/**
+  * Object for Delta
+  */
+object Delta {
+    def apply(params: JpegParams, data: Valid[Vec[SInt]], out: Valid[Vec[SInt]]) = {
+        val mod = Module(new RLE(params))
+        mod.io.in := data
+        mod.io.out := out
+        mod
+    }
+}
+
 /** Performs Run Length Encoding
   * 
   * @param p JPEG Paramaters
