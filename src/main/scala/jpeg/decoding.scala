@@ -22,10 +22,10 @@ object RLEDecodingState extends ChiselEnum {
 class RLEChiselDecode extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {
-            val data = Vec(20, SInt(8.W))
+            val data = Vec(128, SInt(9.W))
         }))
-        val length = Input(UInt(8.W))
-        val out = Valid(Vec(10, SInt(8.W)))
+        val length = Input(UInt(9.W))
+        val out = Valid(Vec(64, SInt(9.W)))
         val state = Output(RLEDecodingState())
         val lengtho = Output(UInt())
     })
@@ -33,21 +33,21 @@ class RLEChiselDecode extends Module {
     val stateReg = RegInit(RLEDecodingState.idle)
 
     // Initialize to all zeros
-    val dataReg = RegInit(VecInit(Seq.fill(20)(0.S(8.W))))
+    val dataReg = RegInit(VecInit(Seq.fill(128)(0.S(8.W))))
     
     // Initialize output register
-    val outputReg = RegInit(VecInit(Seq.fill(10)(0.S(8.W))))
-    val outputIndexCounter = RegInit(0.U(log2Ceil(10+1).W))
+    val outputReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W))))
+    val outputIndexCounter = RegInit(0.U(log2Ceil(64+1).W))
     val outValid = RegInit(false.B)
 
     // to keep track of the values from io.in.bits.data
     val freq = RegInit(0.S(8.W))
     val value = RegInit(0.S(8.W))
-    val freqIndex = RegInit(0.U(log2Ceil(20+1).W))
-    val valueIndex = RegInit(1.U(log2Ceil(20+1).W))
+    val freqIndex = RegInit(0.U(log2Ceil(128+1).W))
+    val valueIndex = RegInit(1.U(log2Ceil(128+1).W))
 
-    val freqCounter = RegInit(0.S(log2Ceil(10+1).W))
-    val lengthCounter = RegInit(0.U(log2Ceil(20+1).W))
+    val freqCounter = RegInit(0.S(log2Ceil(64+1).W))
+    val lengthCounter = RegInit(0.U(log2Ceil(128+1).W))
 
     // assigns output
     io.state := stateReg

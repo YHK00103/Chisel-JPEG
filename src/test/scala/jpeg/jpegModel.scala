@@ -155,7 +155,7 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
     }    
 
     /**
-      * 
+      * Performs RLE Encoding
       *
       * @param data
       */
@@ -182,6 +182,11 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         result
     }
 
+    /**
+      * Performs RLE Decoding
+      *
+      * @param data
+      */
     def decodeRLE(data: Seq[Int]): Seq[Int] = {
         var result = Seq[Int]()
         

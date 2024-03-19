@@ -18,7 +18,6 @@ class DecodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
     def doRLEChiselDecodeTest(data: Seq[Int], length: Int): Unit = {
         test(new RLEChiselDecode).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             val freq = data.zipWithIndex.filter { case (_, index) => index % 2 == 0 }.map(_._1)
-            println(freq)
             dut.io.in.valid.poke(true.B)
             dut.io.length.poke(length.asUInt)
             dut.io.state.expect(RLEDecodingState.idle)
@@ -97,50 +96,49 @@ class DecodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
     }
 
     behavior of "RLEChiselDecode"
-    it should "decode 4:1, 4:2, 4:3, 4:4, 4:5, 5:6" in {
-        val test = Seq(1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 1, 8, 1, 9, 1, 10)
+    it should "decode 3:1, 7:2, 3:3, 3:4, 9:5, 2:6, 4:7, 3:8, 23:9, 4:10" in {
+        val test1 = Seq(3, 1, 7, 2, 3, 3, 3, 4, 9, 5, 2, 6, 4, 7, 3, 8, 23, 9, 4, 10)
+        val sumFreq: Int = test1.zipWithIndex.collect {
+            case (value, index) if index % 2 == 0 => value
+        }.sum
+        val test2 = Seq.fill(0)(sumFreq)
+        val test = test1 ++ test2
         doRLEChiselDecodeTest(test, 20)
     }
 
-    it should "decode 4:1, 4:2 4:3, 4:4, 4:5, 5:6" in {
-        val test = Seq(1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-        doRLEChiselDecodeTest(test, 4)
+    it should "decode 3:1, 5:2, 2:3, 6:4, 1:5, 8:6" in {
+        val test1 = Seq(3, 1, 5, 2, 2, 3, 6, 4, 1, 5, 8, 6)
+        val sumFreq: Int = test1.zipWithIndex.collect {
+            case (value, index) if index % 2 == 0 => value
+        }.sum
+        val test2 = Seq.fill(0)(sumFreq)
+        val test = test1 ++ test2
+        doRLEChiselDecodeTest(test, 12)
     }
 
-    // it should "decode 3:1, 5:2, 2:3, 6:4, 1:5, 8:6" in {
-    //     val test = Seq(3, 1, 5, 2, 2, 3, 6, 4, 1, 5, 8, 6)
-    //     doRLEChiselDecodeTest(test)
-    // }
-
-    // it should "decode 4:1, 4:2, 4:3, 4:4, 4:5, 5:6, 5:7, 3:8, 2:9, 5:10" in {
-    //     val test = Seq(
-    //         4, 1, 
-    //         4, 2, 
-    //         4, 3, 
-    //         4, 4, 
-    //         4, 5, 
-    //         5, 6, 
-    //         5, 7, 
-    //         3, 8, 
-    //         2, 9, 
-    //         5, 10)
-    //     doRLEChiselDecodeTest(test)
-    // }
-    // it should "decode 3:1, 5:2, 2:3, 6:4, 1:5, 8:6, 2:8, 1:10, 5:4, 7:3" in {
-    //     val test = Seq(
-    //         3, 1, 
-    //         5, 2, 
-    //         2, 3, 
-    //         6, 4, 
-    //         1, 5, 
-    //         8, 6, 
-    //         2, 8, 
-    //         1, 10, 
-    //         5, 4, 
-    //         7, 3)
-    //     doRLEChiselDecodeTest(test)
-    // }
-
+    it should "decode 4:1, 4:2, 4:3, 4:4, 4:5, 5:6, 5:7, 3:8, 2:9, 5:10" in {
+        val test1 = Seq(4, 1, 4, 2, 4, 3, 4, 4, 4, 5, 5, 6, 5, 7, 3, 8, 2, 9, 5, 10)
+        val sumFreq: Int = test1.zipWithIndex.collect {
+            case (value, index) if index % 2 == 0 => value
+        }.sum
+        val test2 = Seq.fill(0)(sumFreq)
+        val test = test1 ++ test2
+        doRLEChiselDecodeTest(test, 20)
+    }
+    it should "decode 3:1, 5:2, 2:3, 6:4, 1:5, 8:6, 2:8, 1:10, 5:4, 7:3" in {
+        val test1 = Seq(3, 1, 5, 2, 2, 3, 6, 4, 1, 5, 8, 6, 2, 8, 1, 10, 5, 4, 7, 3)
+        val sumFreq: Int = test1.zipWithIndex.collect {
+            case (value, index) if index % 2 == 0 => value
+        }.sum
+        val test2 = Seq.fill(0)(sumFreq)
+        val test = test1 ++ test2
+        doRLEChiselDecodeTest(test, 20)
+    }
+    
+    it should "decode no dupes" in {
+        val test: Seq[Int] = (1 to 64).flatMap(i => Seq(1, i))
+        doRLEChiselDecodeTest(test, 128)
+    }
     
     behavior of "DeltaChiselDecode"
     it should "decode 1 to 64" in {
