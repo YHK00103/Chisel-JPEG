@@ -22,36 +22,39 @@ object RLEDecodingState extends ChiselEnum {
 class RLEChiselDecode extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {
-            val data = Vec(128, SInt(8.W))
+            val data = Vec(20, SInt(8.W))
         }))
         val length = Input(UInt(8.W))
-        val out = Valid(Vec(64, SInt(8.W)))
+        val out = Valid(Vec(10, SInt(8.W)))
         val state = Output(RLEDecodingState())
+        val lengtho = Output(UInt())
     })
 
     val stateReg = RegInit(RLEDecodingState.idle)
 
     // Initialize to all zeros
-    val dataReg = RegInit(VecInit(Seq.fill(128)(0.S(8.W))))
+    val dataReg = RegInit(VecInit(Seq.fill(20)(0.S(8.W))))
     
     // Initialize output register
-    val outputReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W))))
-    val outputIndexCounter = RegInit(0.U(log2Ceil(64+1).W))
+    val outputReg = RegInit(VecInit(Seq.fill(10)(0.S(8.W))))
+    val outputIndexCounter = RegInit(0.U(log2Ceil(10+1).W))
     val outValid = RegInit(false.B)
 
     // to keep track of the values from io.in.bits.data
     val freq = RegInit(0.S(8.W))
     val value = RegInit(0.S(8.W))
-    val freqIndex = RegInit(0.U(log2Ceil(128+1).W))
-    val valueIndex = RegInit(1.U(log2Ceil(128+1).W))
+    val freqIndex = RegInit(0.U(log2Ceil(20+1).W))
+    val valueIndex = RegInit(1.U(log2Ceil(20+1).W))
 
-    val freqCounter = RegInit(0.S(log2Ceil(64+1).W))
-    val lengthCounter = RegInit(0.U(log2Ceil(128+1).W))
+    val freqCounter = RegInit(0.S(log2Ceil(10+1).W))
+    val lengthCounter = RegInit(0.U(log2Ceil(20+1).W))
 
     // assigns output
     io.state := stateReg
     io.out.valid := outValid
     io.out.bits := outputReg
+    io.lengtho := lengthCounter
+
 
     switch(stateReg){
         is(RLEDecodingState.idle){
@@ -67,13 +70,22 @@ class RLEChiselDecode extends Module {
 
         is(RLEDecodingState.load){
             when(lengthCounter === io.length){
-                outValid := true.B
-                stateReg := RLEDecodingState.idle
+                when(freqCounter < freq){
+                    outputReg(outputIndexCounter) := value
+                    outputIndexCounter := outputIndexCounter + 1.U
+                    freqCounter := freqCounter + 1.S 
+                }
+                when(freqCounter === freq){
+                    outValid := true.B
+                    stateReg := RLEDecodingState.idle
+                }
             }
-            freq := dataReg(freqIndex)
-            value := dataReg(valueIndex)
-            freqCounter := 0.S
-            stateReg := RLEDecodingState.decode
+            .otherwise{
+                freq := dataReg(freqIndex)
+                value := dataReg(valueIndex)
+                freqCounter := 0.S
+                stateReg := RLEDecodingState.decode
+            }
         }
 
         is(RLEDecodingState.decode){
@@ -86,6 +98,7 @@ class RLEChiselDecode extends Module {
                 freqIndex := freqIndex + 2.U
                 valueIndex := valueIndex + 2.U
                 stateReg := RLEDecodingState.load
+                lengthCounter := lengthCounter + 2.U
             }
         }
     }

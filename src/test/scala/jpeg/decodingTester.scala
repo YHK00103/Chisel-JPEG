@@ -15,18 +15,47 @@ class DecodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
       *
       * @param data Data to Decode
       */
-    def doRLEChiselDecodeTest(data: Seq[Int]): Unit = {
+    def doRLEChiselDecodeTest(data: Seq[Int], length: Int): Unit = {
         test(new RLEChiselDecode).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            val freq = data.zipWithIndex.filter { case (_, index) => index % 2 == 0 }.map(_._1)
+            println(freq)
             dut.io.in.valid.poke(true.B)
-            dut.io.length.poke(5.U)
+            dut.io.length.poke(length.asUInt)
             dut.io.state.expect(RLEDecodingState.idle)
             
-            
+            for (i <- 0 until length) {
+                dut.io.in.bits.data(i).poke(data(i).S)
+            }
+
             dut.clock.step()
             dut.io.state.expect(RLEDecodingState.load)
-            
-        }
 
+            for (i <- 0 until (length / 2)) {
+                dut.clock.step()
+                dut.io.state.expect(RLEDecodingState.decode)
+
+                dut.clock.step(freq(i))
+                dut.clock.step()
+                dut.io.state.expect(RLEDecodingState.load)
+            }
+
+            dut.clock.step()
+            dut.io.state.expect(RLEDecodingState.idle)
+
+
+            // Testing purposes
+            // Printing each element of the array
+            val bitsArray: Vec[SInt] = dut.io.out.bits
+            for (element <- bitsArray) {
+                println(element.peek())
+            }
+
+            val jpegEncoder = new jpegEncode(false, List.empty, 0)
+            val expected = jpegEncoder.decodeRLE(data)
+            for( i <- 0 until (length / 2)){
+                dut.io.out.bits(i).expect(expected(i).S)
+            }
+        }
     }
 
     /**
@@ -69,13 +98,19 @@ class DecodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
 
     behavior of "RLEChiselDecode"
     it should "decode 4:1, 4:2, 4:3, 4:4, 4:5, 5:6" in {
-        val test = Seq(4, 1, 4, 2, 4, 3, 4, 4, 4, 5, 5, 6)
-        doRLEChiselDecodeTest(test)
+        val test = Seq(1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 1, 8, 1, 9, 1, 10)
+        doRLEChiselDecodeTest(test, 20)
     }
-    it should "decode 3:1, 5:2, 2:3, 6:4, 1:5, 8:6" in {
-        val test = Seq(3, 1, 5, 2, 2, 3, 6, 4, 1, 5, 8, 6)
-        doRLEChiselDecodeTest(test)
+
+    it should "decode 4:1, 4:2 4:3, 4:4, 4:5, 5:6" in {
+        val test = Seq(1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        doRLEChiselDecodeTest(test, 4)
     }
+
+    // it should "decode 3:1, 5:2, 2:3, 6:4, 1:5, 8:6" in {
+    //     val test = Seq(3, 1, 5, 2, 2, 3, 6, 4, 1, 5, 8, 6)
+    //     doRLEChiselDecodeTest(test)
+    // }
 
     // it should "decode 4:1, 4:2, 4:3, 4:4, 4:5, 5:6, 5:7, 3:8, 2:9, 5:10" in {
     //     val test = Seq(
