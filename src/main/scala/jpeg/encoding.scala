@@ -3,6 +3,31 @@ package jpeg
 import chisel3._
 import chisel3.util._
 
+/**
+  * Object for RLEChiselEncode
+  */
+object RLEChiselEncode {
+    def apply(params: JpegParams, data: Valid[Vec[SInt]], out: Valid[Vec[SInt]], length: Valid[UInt]) = {
+        val mod = Module(new RLEChiselEncode(params))
+        mod.io.in := data
+        mod.io.out := out
+        mod.io.length := length
+        mod
+    }
+}
+
+/**
+  * Object for DeltaChiselEncode
+  */
+object DeltaChiselEncode {
+    def apply(params: JpegParams, data: Valid[Vec[SInt]], out: Valid[Vec[SInt]]) = {
+        val mod = Module(new DeltaChiselEncode(params))
+        mod.io.in := data
+        mod.io.out := out
+        mod
+    }
+}
+
 /** 
   * Creates states for encoding in RLE and Delta
   */
