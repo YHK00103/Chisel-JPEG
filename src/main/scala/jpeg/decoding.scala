@@ -19,42 +19,39 @@ object RLEDecodingState extends ChiselEnum {
   * @return out Result of decoding RLE
   * @return state Current state of state machine
   */
-class RLEChiselDecode extends Module {
+class RLEChiselDecode(p: JpegParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {
-            val data = Vec(128, SInt(9.W))
+            val data = Vec(p.maxOutRLE, SInt(9.W))
         }))
         val length = Input(UInt(9.W))
-        val out = Valid(Vec(64, SInt(9.W)))
+        val out = Valid(Vec(p.totalElements, SInt(9.W)))
         val state = Output(RLEDecodingState())
-        val lengtho = Output(UInt())
     })
 
     val stateReg = RegInit(RLEDecodingState.idle)
 
     // Initialize to all zeros
-    val dataReg = RegInit(VecInit(Seq.fill(128)(0.S(8.W))))
+    val dataReg = RegInit(VecInit(Seq.fill(p.maxOutRLE)(0.S(p.w8))))
     
     // Initialize output register
-    val outputReg = RegInit(VecInit(Seq.fill(64)(0.S(8.W))))
-    val outputIndexCounter = RegInit(0.U(log2Ceil(64+1).W))
+    val outputReg = RegInit(VecInit(Seq.fill(p.totalElements)(0.S(p.w8))))
+    val outputIndexCounter = RegInit(0.U(log2Ceil(p.totalElements+1).W))
     val outValid = RegInit(false.B)
 
     // to keep track of the values from io.in.bits.data
-    val freq = RegInit(0.S(8.W))
-    val value = RegInit(0.S(8.W))
-    val freqIndex = RegInit(0.U(log2Ceil(128+1).W))
-    val valueIndex = RegInit(1.U(log2Ceil(128+1).W))
+    val freq = RegInit(0.S(p.w8))
+    val value = RegInit(0.S(p.w8))
+    val freqIndex = RegInit(0.U(log2Ceil(p.maxOutRLE+1).W))
+    val valueIndex = RegInit(1.U(log2Ceil(p.maxOutRLE+1).W))
 
-    val freqCounter = RegInit(0.S(log2Ceil(64+1).W))
-    val lengthCounter = RegInit(0.U(log2Ceil(128+1).W))
+    val freqCounter = RegInit(0.S(log2Ceil(p.totalElements+1).W))
+    val lengthCounter = RegInit(0.U(log2Ceil(p.maxOutRLE+1).W))
 
     // assigns output
     io.state := stateReg
     io.out.valid := outValid
     io.out.bits := outputReg
-    io.lengtho := lengthCounter
-
 
     switch(stateReg){
         is(RLEDecodingState.idle){
