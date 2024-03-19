@@ -14,5 +14,12 @@ class jpegEncodeChisel(p: JpegParams) extends Module {
         // val decoded = Output(Vec(p.givenRows, Vec(p.givenCols, SInt(8.W))))
     })
 
+
+    val dctModule = DCTChisel(io.pixelDataIn, ???, ???)
+    val quantizationModule = QuantizationChisel(p, ???, ???, ???)
+    val zigzagModule = ZigZagChisel(p, ???, ???)
+    val rleModule = RLEChiselEncode(p, ???, ???, ???)
+    
+    io.encoded = ???
     
 }
