@@ -14,6 +14,7 @@ class DecodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
       * Performs RlE Decoding Test
       *
       * @param data Data to Decode
+      * @param length Length of used indices for data since we pad wiht 0s
       */
     def doRLEChiselDecodeTest(data: Seq[Int], length: Int): Unit = {
         val p = JpegParams(8, 8, 0)
