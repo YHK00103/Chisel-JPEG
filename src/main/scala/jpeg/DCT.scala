@@ -10,6 +10,19 @@ import scala.math.cos
 import scala.math.Pi 
 
 /**
+  * Object for DCT
+  */
+object DCTChisel {
+    def apply(matrixIn: Valid[Vec[Vec[SInt]]], shiftedOut: Vec[Vec[SInt]], dctOut: Valid[Vec[Vec[SInt]]]) = {
+        val mod = Module(new DCTChisel)
+        mod.io.in := matrixIn
+        mod.io.shiftedOut := shiftedOut
+        mod.io.dctOut := dctOut
+        mod
+    }
+}
+
+/**
   * Creates FSM states for DCT
   */
 object DCTState extends ChiselEnum { 
