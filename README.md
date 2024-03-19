@@ -43,8 +43,8 @@ You should see a whole bunch of output that ends with something like the followi
          - [ ] DCT decoding Tests
          - [x] Zig Zag Reverse
          - [x] Zig Zag Reverse Tests
-         - [ ] Run length Decoding (RLE)
-         - [ ] RLE Decoding Tests
+         - [x] Run length Decoding (RLE)
+         - [x] RLE Decoding Tests
          - [x] Delta Decoding
          - [x] Delta Decoding Tests
          - [x] Quantization
