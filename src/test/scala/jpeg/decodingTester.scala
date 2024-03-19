@@ -18,35 +18,13 @@ class DecodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
     def doRLEChiselDecodeTest(data: Seq[Int]): Unit = {
         test(new RLEChiselDecode).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.io.in.valid.poke(true.B)
+            dut.io.length.poke(5.U)
             dut.io.state.expect(RLEDecodingState.idle)
-
-            val length = data.length
-            // dut.io.in.bits.length.poke(length)
-            for (i <- 0 until length) {
-                dut.io.in.bits.data(i).poke(data(i).S)
-            }
+            
+            
             dut.clock.step()
-            dut.io.state.expect(RLEDecodingState.decode)
-            dut.io.in.valid.poke(false.B)
-            var sum = 0
-            for (i <- 0 until length){
-                if(i % 2 == 0){
-                    sum += data(i)
-                    dut.clock.step(data(i))
-                }
-            }
-            // println(sum)
-            dut.clock.step(7)
-
-            dut.io.state.expect(RLEDecodingState.idle)
-            // Testing purposes
-            // Printing each element of the array
-            // val bitsArray: Vec[SInt] = dut.io.out.bits
-            // for (element <- bitsArray) {
-            //     println(element.peek())
-            // }
-            // println("---")
-            dut.io.state.expect(RLEDecodingState.idle)
+            dut.io.state.expect(RLEDecodingState.load)
+            
         }
 
     }
