@@ -14,41 +14,60 @@ class DecodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
       * Performs RlE Decoding Test
       *
       * @param data Data to Decode
+      * @param length Length of used indices for data since we pad wiht 0s
       */
-    def doRLEChiselDecodeTest(data: Seq[Int]): Unit = {
-        test(new RLEChiselDecode).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-            dut.io.in.valid.poke(true.B)
-            dut.io.state.expect(RLEDecodingState.idle)
+    def doRLEChiselDecodeTest(data: Seq[Int], length: Int): Unit = {
+        val p = JpegParams(8, 8, 0)
+        test(new RLEChiselDecode(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
-            val length = data.length
-            // dut.io.in.bits.length.poke(length)
+            // Grab the frequencies
+            val freq = data.zipWithIndex.filter { case (_, index) => index % 2 == 0 }.map(_._1)
+
+            // tests initial state
+            dut.io.in.valid.poke(true.B)
+            dut.io.length.poke(length.asUInt)
+            dut.io.state.expect(RLEDecodingState.idle)
+            
+            // load data in
             for (i <- 0 until length) {
                 dut.io.in.bits.data(i).poke(data(i).S)
             }
-            dut.clock.step()
-            dut.io.state.expect(RLEDecodingState.decode)
-            dut.io.in.valid.poke(false.B)
-            var sum = 0
-            for (i <- 0 until length){
-                if(i % 2 == 0){
-                    sum += data(i)
-                    dut.clock.step(data(i))
-                }
-            }
-            // println(sum)
-            dut.clock.step(7)
 
+            // should be in load state
+            dut.clock.step()
+            dut.io.state.expect(RLEDecodingState.load)
+
+            // goes between load and decode and stays in decode for freq(i)
+            for (i <- 0 until (length / 2)) {
+                dut.clock.step()
+                dut.io.state.expect(RLEDecodingState.decode)
+
+                dut.clock.step(freq(i))
+                dut.clock.step()
+                dut.io.state.expect(RLEDecodingState.load)
+            }
+
+            // done decoding valid out and back to idle
+            dut.io.in.valid.poke(false.B)
+            dut.clock.step()
+            dut.io.out.valid.expect(true.B)
             dut.io.state.expect(RLEDecodingState.idle)
+            
+
             // Testing purposes
             // Printing each element of the array
             // val bitsArray: Vec[SInt] = dut.io.out.bits
             // for (element <- bitsArray) {
             //     println(element.peek())
             // }
-            // println("---")
-            dut.io.state.expect(RLEDecodingState.idle)
+            
+            // compares output to expected
+            val jpegEncoder = new jpegEncode(false, List.empty, 0)
+            val expected = jpegEncoder.decodeRLE(data)
+            for( i <- 0 until (length / 2)){
+                dut.io.out.bits(i).expect(expected(i).S)
+            }
         }
-
     }
 
     /**
@@ -59,21 +78,24 @@ class DecodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
     def doDeltaChiselDecodeTest(data: Seq[Int]): Unit = {
         val p = JpegParams(8, 8, 0)
         test(new DeltaChiselDecode(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            // tests initial state
             dut.io.in.valid.poke(true.B)
             dut.io.state.expect(DecodingState.idle)
 
+            // load data in
             for (i <- 0 until p.totalElements) {
                 dut.io.in.bits.data(i).poke(data(i).S)
             }
 
+            // should be in encoding after one cycle
             dut.clock.step()
             dut.io.state.expect(DecodingState.decode)
+
+            // cycles number of calculations
             dut.io.in.valid.poke(false.B)
             dut.clock.step(p.totalElements)
             dut.io.out.valid.expect(true.B)
-
-            val jpegEncoder = new jpegEncode(false, List.empty, 0)
-            val expected = jpegEncoder.decodeDelta(data)
+            dut.io.state.expect(DecodingState.idle)
 
             // Testing purposes
             // Printing each element of the array
@@ -81,53 +103,61 @@ class DecodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
             // for (element <- bitsArray) {
             //     println(element.peek())
             // }
-
+                
+            // compare with scala model
+            val jpegEncoder = new jpegEncode(false, List.empty, 0)
+            val expected = jpegEncoder.decodeDelta(data)
             for( i <- 0 until p.totalElements){
                 dut.io.out.bits(i).expect(expected(i).S)
             }
-            dut.io.state.expect(DecodingState.idle)
         }
     }
 
     behavior of "RLEChiselDecode"
-    it should "decode 4:1, 4:2, 4:3, 4:4, 4:5, 5:6" in {
-        val test = Seq(4, 1, 4, 2, 4, 3, 4, 4, 4, 5, 5, 6)
-        doRLEChiselDecodeTest(test)
+    it should "decode 3:1, 7:2, 3:3, 3:4, 9:5, 2:6, 4:7, 3:8, 23:9, 4:10" in {
+        val test1 = Seq(3, 1, 7, 2, 3, 3, 3, 4, 9, 5, 2, 6, 4, 7, 3, 8, 23, 9, 4, 10)
+        val sumFreq: Int = test1.zipWithIndex.collect {
+            case (value, index) if index % 2 == 0 => value
+        }.sum
+        val test2 = Seq.fill(0)(sumFreq)
+        val test = test1 ++ test2
+        doRLEChiselDecodeTest(test, 20)
     }
+
     it should "decode 3:1, 5:2, 2:3, 6:4, 1:5, 8:6" in {
-        val test = Seq(3, 1, 5, 2, 2, 3, 6, 4, 1, 5, 8, 6)
-        doRLEChiselDecodeTest(test)
+        val test1 = Seq(3, 1, 5, 2, 2, 3, 6, 4, 1, 5, 8, 6)
+        val sumFreq: Int = test1.zipWithIndex.collect {
+            case (value, index) if index % 2 == 0 => value
+        }.sum
+        val test2 = Seq.fill(0)(sumFreq)
+        val test = test1 ++ test2
+        doRLEChiselDecodeTest(test, 12)
     }
 
-    // it should "decode 4:1, 4:2, 4:3, 4:4, 4:5, 5:6, 5:7, 3:8, 2:9, 5:10" in {
-    //     val test = Seq(
-    //         4, 1, 
-    //         4, 2, 
-    //         4, 3, 
-    //         4, 4, 
-    //         4, 5, 
-    //         5, 6, 
-    //         5, 7, 
-    //         3, 8, 
-    //         2, 9, 
-    //         5, 10)
-    //     doRLEChiselDecodeTest(test)
-    // }
-    // it should "decode 3:1, 5:2, 2:3, 6:4, 1:5, 8:6, 2:8, 1:10, 5:4, 7:3" in {
-    //     val test = Seq(
-    //         3, 1, 
-    //         5, 2, 
-    //         2, 3, 
-    //         6, 4, 
-    //         1, 5, 
-    //         8, 6, 
-    //         2, 8, 
-    //         1, 10, 
-    //         5, 4, 
-    //         7, 3)
-    //     doRLEChiselDecodeTest(test)
-    // }
+    it should "decode 4:1, 4:2, 4:3, 4:4, 4:5, 5:6, 5:7, 3:8, 2:9, 5:10" in {
+        val test1 = Seq(4, 1, 4, 2, 4, 3, 4, 4, 4, 5, 5, 6, 5, 7, 3, 8, 2, 9, 5, 10)
+        val sumFreq: Int = test1.zipWithIndex.collect {
+            case (value, index) if index % 2 == 0 => value
+        }.sum
+        val test2 = Seq.fill(0)(sumFreq)
+        val test = test1 ++ test2
+        doRLEChiselDecodeTest(test, 20)
+    }
 
+    it should "decode 3:1, 5:2, 2:3, 6:4, 1:5, 8:6, 2:8, 1:10, 5:4, 7:3" in {
+        val test1 = Seq(3, 1, 5, 2, 2, 3, 6, 4, 1, 5, 8, 6, 2, 8, 1, 10, 5, 4, 7, 3)
+        val sumFreq: Int = test1.zipWithIndex.collect {
+            case (value, index) if index % 2 == 0 => value
+        }.sum
+        val test2 = Seq.fill(0)(sumFreq)
+        val test = test1 ++ test2
+        doRLEChiselDecodeTest(test, 20)
+    }
+
+    it should "decode no dupes" in {
+        val test: Seq[Int] = (1 to 64).flatMap(i => Seq(1, i))
+        doRLEChiselDecodeTest(test, 128)
+    }
     
     behavior of "DeltaChiselDecode"
     it should "decode 1 to 64" in {

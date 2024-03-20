@@ -433,6 +433,7 @@ class ZigZagModelTest extends AnyFlatSpec with ChiselScalatestTester {
 
 
 class RLEModelEncodeTest extends AnyFlatSpec with ChiselScalatestTester {
+    behavior of "RLEModelEncode"
     it should "RLE test 1" in {
         val jpegEncoder = new jpegEncode(false, List.empty, 0)
         assert(jpegEncoder.RLE(RLEData.in1) == RLEData.out1)
@@ -453,6 +454,26 @@ class RLEModelEncodeTest extends AnyFlatSpec with ChiselScalatestTester {
         assert(jpegEncoder.RLE(RLEData.in4) == RLEData.out4)
     }
 
+    behavior of "RLEModelDecode"
+    it should "decode RLE test 1" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.decodeRLE(RLEData.out1) == RLEData.in1)
+    }
+
+    it should "decode RLE test 2" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.decodeRLE(RLEData.out2) == RLEData.in2)
+    }
+
+    it should "decode RLE test 3" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.decodeRLE(RLEData.out3) == RLEData.in3)
+    }
+
+    it should "decode RLE test no dupes" in {
+        val jpegEncoder = new jpegEncode(false, List.empty, 0)
+        assert(jpegEncoder.decodeRLE(RLEData.out4) == RLEData.in4)
+    }
 }
 
 class DeltaModelTest extends AnyFlatSpec with ChiselScalatestTester {
