@@ -31,7 +31,6 @@ case class JPEGParams(val givenRows: Int, val givenCols: Int, val qtChoice: Int,
         case 2 => QuantizationTables.qt2
         case _ => throw new IllegalArgumentException("Invalid qtChoice, input 0, 1, or 2")
     }
-
 }
 
 object QuantizationTables {

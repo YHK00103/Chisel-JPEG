@@ -51,9 +51,9 @@ class JPEGEncodeChisel(p: JPEGParams) extends Module {
     io.quantOut := quantModule.io.out.bits
 
     // Converts Quantization Table to SInt
-    for (i <- 0 until 8) {
-        for (j <- 0 until 8) {
-            quantModule.io.quantTable(i)(j) := p.getQuantTable(i)(j).S
+    quantModule.io.quantTable.zipWithIndex.foreach { case (row, i) =>
+        row.zipWithIndex.foreach { case (element, j) =>
+            element := p.getQuantTable(i)(j).S
         }
     }
 
