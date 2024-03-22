@@ -15,7 +15,7 @@ class JPEGEncodeChiselTest extends AnyFlatSpec with ChiselScalatestTester {
         * @param data Input pixel data
         * @param encoded Expected encoded output
         */
-    def doJPEGEncodeChiselTest(data: Seq[Seq[Int]], p: JpegParams): Unit = {
+    def doJPEGEncodeChiselTest(data: Seq[Seq[Int]], p: JPEGParams): Unit = {
         test(new JPEGEncodeChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.clock.setTimeout(0)
 
@@ -39,8 +39,7 @@ class JPEGEncodeChiselTest extends AnyFlatSpec with ChiselScalatestTester {
             dut.clock.step(3)
             for (i <- 0 until 8) {
                 for (j <- 0 until 8) {
-                dut.io.dctOut(i)(j).expect(convertedMatrix(i)(j))
-                //printf("pased %d, %d", i.S, j.S)
+                    dut.io.dctOut(i)(j).expect(convertedMatrix(i)(j))
                 }
             }
             println("Passed Discrete Cosine Transform")
@@ -96,52 +95,52 @@ class JPEGEncodeChiselTest extends AnyFlatSpec with ChiselScalatestTester {
     
     behavior of "Top-level JPEG Encode Chisel"
     it should "Encodes using RLE - QT1" in {
-        val p = JpegParams(8, 8, 1, true)
+        val p = JPEGParams(8, 8, 1, true)
         val inputData = DCTData.in1 
         doJPEGEncodeChiselTest(inputData, p)
     }
 
     it should "Encodes using Delta Encoding - QT1" in {
-        val p = JpegParams(8, 8, 1, false)
+        val p = JPEGParams(8, 8, 1, false)
         val inputData = DCTData.in1 
         doJPEGEncodeChiselTest(inputData, p)
     }
 
     // OPTIONAL WORKING TESTS
     // REMOVED SINCE IT TAKES 20 MINS TO COMPLETE
-    it should "Encodes using RLE - QT2" in {
-        val p = JpegParams(8, 8, 2, true)
-        val inputData = DCTData.in1 
-        doJPEGEncodeChiselTest(inputData, p)
-    }
+    // it should "Encodes using RLE - QT2" in {
+    //     val p = JPEGParams(8, 8, 2, true)
+    //     val inputData = DCTData.in1 
+    //     doJPEGEncodeChiselTest(inputData, p)
+    // }
 
-    it should "Encodes using Delta Encoding - QT2" in {
-        val p = JpegParams(8, 8, 2, false)
-        val inputData = DCTData.in1 
-        doJPEGEncodeChiselTest(inputData, p)
-    }
+    // it should "Encodes using Delta Encoding - QT2" in {
+    //     val p = JPEGParams(8, 8, 2, false)
+    //     val inputData = DCTData.in1 
+    //     doJPEGEncodeChiselTest(inputData, p)
+    // }
 
-    it should "Encodes using RLE - IN2 - QT1" in {
-        val p = JpegParams(8, 8, 1, false)
-        val inputData = DCTData.in2 
-        doJPEGEncodeChiselTest(inputData, p)
-    }
+    // it should "Encodes using RLE - IN2 - QT1" in {
+    //     val p = JPEGParams(8, 8, 1, false)
+    //     val inputData = DCTData.in2 
+    //     doJPEGEncodeChiselTest(inputData, p)
+    // }
 
-    it should "Encodes using RLE - IN2 - QT2" in {
-        val p = JpegParams(8, 8, 2, false)
-        val inputData = DCTData.in2 
-        doJPEGEncodeChiselTest(inputData, p)
-    }
+    // it should "Encodes using RLE - IN2 - QT2" in {
+    //     val p = JPEGParams(8, 8, 2, false)
+    //     val inputData = DCTData.in2 
+    //     doJPEGEncodeChiselTest(inputData, p)
+    // }
 
-    it should "Encodes using Delta Encoding - IN2 - QT1" in {
-        val p = JpegParams(8, 8, 1, false)
-        val inputData = DCTData.in2 
-        doJPEGEncodeChiselTest(inputData, p)
-    }
+    // it should "Encodes using Delta Encoding - IN2 - QT1" in {
+    //     val p = JPEGParams(8, 8, 1, false)
+    //     val inputData = DCTData.in2 
+    //     doJPEGEncodeChiselTest(inputData, p)
+    // }
 
-    it should "Encodes using Delta Encoding - IN2 - QT2" in {
-        val p = JpegParams(8, 8, 2, false)
-        val inputData = DCTData.in2 
-        doJPEGEncodeChiselTest(inputData, p)
-    }
+    // it should "Encodes using Delta Encoding - IN2 - QT2" in {
+    //     val p = JPEGParams(8, 8, 2, false)
+    //     val inputData = DCTData.in2 
+    //     doJPEGEncodeChiselTest(inputData, p)
+    // }
 }

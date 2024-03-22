@@ -18,7 +18,7 @@ import chisel3.util._
   * @return encoded Encoded pixel data
   * 
   */
-class JPEGEncodeChisel(p: JpegParams) extends Module {
+class JPEGEncodeChisel(p: JPEGParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {
             val pixelDataIn = Input(Vec(p.givenRows, Vec(p.givenCols, SInt(9.W))))

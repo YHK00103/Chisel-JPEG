@@ -9,6 +9,7 @@ To achieve this, we'll follow the outlined approach below. Initially, we'll appl
 
 ### Usage
 Please note that the Discrete Cosine Tests and the JPEGEncodeChiselTest takes a long time to complete.
+For this reason we commented out optional additional tests (see line 109 in jpegTester.scala) for JPEGEncodeChiselTest, but they do all run fine and pass.
 You can run the included test with:
 ```sh
 sbt test

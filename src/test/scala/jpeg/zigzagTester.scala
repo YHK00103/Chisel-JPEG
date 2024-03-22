@@ -15,7 +15,7 @@ class ZigZagChiselTest extends AnyFlatSpec with ChiselScalatestTester {
       * @param data Input matrix to parse
       */
     def doZigZagChiselTest(data: Seq[Seq[Int]]): Unit = {
-        val p = JpegParams(8, 8, 0)
+        val p = JPEGParams(8, 8, 0)
         test(new ZigZagChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             // Start in idle state and prepare to load in data
             dut.io.in.valid.poke(true.B)
@@ -52,7 +52,7 @@ class ZigZagChiselTest extends AnyFlatSpec with ChiselScalatestTester {
       * @param data Input matrix to parse
       */
     def doInverseZigZagChiselTest(data: Seq[Int]): Unit = {
-        val p = JpegParams(8, 8, 0)
+        val p = JPEGParams(8, 8, 0)
         test(new InverseZigZagChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             // Start in idle state and prepare to load in data
             dut.io.in.valid.poke(true.B)

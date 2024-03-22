@@ -22,7 +22,7 @@ object RLEDecodingState extends ChiselEnum {
   * @return out Result of decoding RLE
   * @return state Current state of state machine
   */
-class RLEChiselDecode(p: JpegParams) extends Module {
+class RLEChiselDecode(p: JPEGParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {
             val data = Vec(p.maxOutRLE, SInt(9.W))
@@ -123,7 +123,7 @@ object DecodingState extends ChiselEnum {
   * @return state Current state of state machine
   * 
   */
-class DeltaChiselDecode(p: JpegParams) extends Module {
+class DeltaChiselDecode(p: JPEGParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {
             val data = Vec(p.totalElements, SInt(p.w8))

@@ -16,7 +16,7 @@ object ZigZagState extends ChiselEnum {
   * Object for ZigZag
   */
 object ZigZagChisel {
-    def apply(params: JpegParams, matrixIn: Valid[Vec[Vec[SInt]]], zigzagOut: Valid[Vec[Vec[SInt]]]) = {
+    def apply(params: JPEGParams, matrixIn: Valid[Vec[Vec[SInt]]], zigzagOut: Valid[Vec[Vec[SInt]]]) = {
         val mod = Module(new ZigZagChisel(params))
         mod.io.in := matrixIn
         mod.io.zigzagOut := zigzagOut
@@ -28,7 +28,7 @@ object ZigZagChisel {
   * Object for Inverse-ZigZag
   */
 object InverseZigZagChisel {
-    def apply(params: JpegParams, zigzagIn: Valid[Vec[SInt]], matrixOut: Valid[Vec[Vec[SInt]]]) = {
+    def apply(params: JPEGParams, zigzagIn: Valid[Vec[SInt]], matrixOut: Valid[Vec[Vec[SInt]]]) = {
         val mod = Module(new InverseZigZagChisel(params))
         mod.io.in := zigzagIn
         mod.io.matrixOut := matrixOut
@@ -46,7 +46,7 @@ object InverseZigZagChisel {
   * @return zigzagOut Resulting 1d array
   * @return state Current state of FSM
   */
-class ZigZagChisel(p: JpegParams) extends Module {
+class ZigZagChisel(p: JPEGParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {
             val matrixIn = Vec(p.numRows, Vec(p.numCols, SInt(9.W)))
@@ -138,7 +138,7 @@ class ZigZagChisel(p: JpegParams) extends Module {
   * @return zigzagOut Resulting 1d array
   * @return state Current state of FSM
   */
-class InverseZigZagChisel(p: JpegParams) extends Module {
+class InverseZigZagChisel(p: JPEGParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle {
             val zigzagIn = Input(Vec(p.totalElements, SInt(9.W)))

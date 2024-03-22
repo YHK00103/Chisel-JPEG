@@ -12,7 +12,7 @@ import chisel3.util._
   * @param qtChoice Quantization Table Choice, 0 for empty, 1 for Luminance, 2 for Chrominance
   * @param encodingChoice True for Run Length Encoding, False for Delta Encoding
   */
-case class JpegParams(val givenRows: Int, val givenCols: Int, val qtChoice: Int, val encodingChoice: Boolean = true){
+case class JPEGParams(val givenRows: Int, val givenCols: Int, val qtChoice: Int, val encodingChoice: Boolean = true){
     val numRows = 8
     val numCols = 8
     val totalElements = numRows * numCols

@@ -16,7 +16,7 @@ class EncodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
       * @param data Data to encode
       */
     def doRLEChiselEncodeTest(data: Seq[Int]): Unit = {
-        val p = JpegParams(8, 8, 0)
+        val p = JPEGParams(8, 8, 0)
         test(new RLEChiselEncode(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             // tests initial state
             dut.io.in.valid.poke(true.B)
@@ -58,7 +58,7 @@ class EncodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
       * @param data Data to encode
       */
     def doDeltaChiselEncodeTest(data: Seq[Int]): Unit = {
-        val p = JpegParams(8, 8, 0)
+        val p = JPEGParams(8, 8, 0)
         test(new DeltaChiselEncode(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             // tests initial state
             dut.io.in.valid.poke(true.B)

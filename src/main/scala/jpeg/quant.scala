@@ -7,7 +7,7 @@ import chisel3.util._
   * Object for Quantization
   */
 object QuantizationChisel {
-    def apply(params: JpegParams, data: Valid[Vec[Vec[SInt]]], quantTable: Vec[Vec[SInt]], out: Valid[Vec[Vec[SInt]]]) = {
+    def apply(params: JPEGParams, data: Valid[Vec[Vec[SInt]]], quantTable: Vec[Vec[SInt]], out: Valid[Vec[Vec[SInt]]]) = {
         val mod = Module(new QuantizationChisel(params))
         mod.io.in := data
         mod.io.out := out
@@ -20,7 +20,7 @@ object QuantizationChisel {
   * Object for Inverse Quantization
   */
 object InverseQuantizationChisel {
-    def apply(params: JpegParams, data: Valid[Vec[Vec[SInt]]], quantTable: Vec[Vec[SInt]], out: Valid[Vec[Vec[SInt]]]) = {
+    def apply(params: JPEGParams, data: Valid[Vec[Vec[SInt]]], quantTable: Vec[Vec[SInt]], out: Valid[Vec[Vec[SInt]]]) = {
         val mod = Module(new InverseQuantizationChisel(params))
         mod.io.in := data
         mod.io.out := out
@@ -48,7 +48,7 @@ object QuantState extends ChiselEnum {
   * @return out Result of Quantization using quantTable and data
   * @return state Current state of state machine
   */
-class QuantizationChisel(p: JpegParams) extends Module {
+class QuantizationChisel(p: JPEGParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle{
             val data = Input(Vec(p.numRows, Vec(p.numCols, SInt(32.W))))
@@ -131,7 +131,7 @@ class QuantizationChisel(p: JpegParams) extends Module {
   * @return out Result of Inverse Quantization using quantTable and data
   * @return state Current state of state machine
   */
-class InverseQuantizationChisel(p: JpegParams) extends Module {
+class InverseQuantizationChisel(p: JPEGParams) extends Module {
     val io = IO(new Bundle {
         val in = Flipped(Valid(new Bundle{
             val data = Input(Vec(p.numRows, Vec(p.numCols, SInt(12.W))))

@@ -17,7 +17,7 @@ class DecodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
       * @param length Length of used indices for data since we pad wiht 0s
       */
     def doRLEChiselDecodeTest(data: Seq[Int], length: Int): Unit = {
-        val p = JpegParams(8, 8, 0)
+        val p = JPEGParams(8, 8, 0)
         test(new RLEChiselDecode(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
             // Grab the frequencies
@@ -68,7 +68,7 @@ class DecodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
       * @param data Data to decode
       */
     def doDeltaChiselDecodeTest(data: Seq[Int]): Unit = {
-        val p = JpegParams(8, 8, 0)
+        val p = JPEGParams(8, 8, 0)
         test(new DeltaChiselDecode(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             // tests initial state
             dut.io.in.valid.poke(true.B)
