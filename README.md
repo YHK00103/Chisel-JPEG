@@ -19,6 +19,14 @@ You should see a whole bunch of output that ends with something like the followi
 [info] All tests passed.
 [success] Total time: 4 s, completed Mar 4, 2024, 3:00:05 PM
 ```
+## What are we currently working on?
+ - [] Multi-Cycle computation for Discrete Cosine Transform
+ - [] Inversing Discrete Cosine Transform 
+ - [] JPEG Decompression in Top Level Module
+ - [] Fix Quantizatiuon bug
+
+## Known Issues
+- [] Quantization has a small bug that will round remainder results of -1.49 to -2 when it should be -1 because Quantization rounds to the nearest integer.
 
 ## Progress
 - [ ] Jpeg Compression
@@ -40,7 +48,7 @@ You should see a whole bunch of output that ends with something like the followi
          - [x] Quantization Encoding Tests
     - [x] Hardware Decoding
          - [ ] Discrete Cosine Transform (DCT)
-         - [ ] DCT decoding Tests
+         - [ ] Inverse DCT Tests
          - [x] Zig Zag Reverse
          - [x] Zig Zag Reverse Tests
          - [x] Run length Decoding (RLE)
