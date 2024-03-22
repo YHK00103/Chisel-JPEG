@@ -8,17 +8,18 @@ import java.beans.beancontext.BeanContextChildSupport
 /**
   * Top level test harness
   */
-class jpegEncodeChiselTester extends AnyFlatSpec with ChiselScalatestTester {
+class JPEGEncodeChiselTest extends AnyFlatSpec with ChiselScalatestTester {
     /**
         * Tests the functionality of jpegEncodeChisel
         *
         * @param data Input pixel data
         * @param encoded Expected encoded output
         */
-    def doJpegEncodeChiselTest(data: Seq[Seq[Int]], encoded: Seq[Int], p: JpegParams): Unit = {
+    def doJPEGEncodeChiselTest(data: Seq[Seq[Int]], p: JpegParams): Unit = {
         test(new JpegEncodeChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-            dut.clock.setTimeout(800)
+            dut.clock.setTimeout(0)
 
+            println("Starting Encode")
             // Testing DCT
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
             val expectedDCT = jpegEncoder.DCT(DCTData.in1)
@@ -41,7 +42,7 @@ class jpegEncodeChiselTester extends AnyFlatSpec with ChiselScalatestTester {
                 //printf("pased %d, %d", i.S, j.S)
                 }
             }
-            println("passed DCT")
+            println("Passed Discrete Cosine Transform")
             
             // Testing Quant
             val expectedQuant = jpegEncoder.scaledQuantization(DCTData.scaledOut1, p.getQuantTable)
@@ -52,7 +53,7 @@ class jpegEncodeChiselTester extends AnyFlatSpec with ChiselScalatestTester {
                     dut.io.quantOut(r)(c).expect(expectedQuant(r)(c).S)
                 }
             }
-            println("passed Quant")
+            println("Passed Quantization")
 
             // Testing Zigzag
             val expectedZigzag = jpegEncoder.zigzagParse(expectedQuant)
@@ -62,30 +63,84 @@ class jpegEncodeChiselTester extends AnyFlatSpec with ChiselScalatestTester {
             for(i <- 0 until expectedZigzag.length){
                 dut.io.zigzagOut(i).expect(expectedZigzag(i).S)
             }
-            println("passed Zigzag")
+            println("Passed Zigzag")
 
             // Testing Encode
-            val expectedEncode = jpegEncoder.RLE(expectedZigzag)
-            dut.clock.step()
-            dut.clock.step(p.totalElements)
-            // println(expectedEncode)
+            if(p.encodingChoice){
+                val expectedEncode = jpegEncoder.RLE(expectedZigzag)
+                dut.clock.step()
+                dut.clock.step(p.totalElements)
 
-            // Check the output
-            for (i <- 0 until expectedEncode.length) {
-                dut.io.encoded(i).expect(expectedEncode(i).S)
+                // Check the output
+                for (i <- 0 until expectedEncode.length) {
+                    dut.io.encodedRLE(i).expect(expectedEncode(i).S)
+                }
+                println("Passed Run Length Encoding")
             }
-            println("passed Encode")
+            else{
+                val expectedEncode = jpegEncoder.delta(expectedZigzag)
+                dut.clock.step()
+                dut.clock.step(p.totalElements)
 
-
+                // Check the output
+                for (i <- 0 until p.totalElements) {
+                    dut.io.encodedDelta(i).expect(expectedEncode(i).S)
+                }
+                println("Passed Delta Encoding")
+            }
+            println("Completed Encoding\n")
         }
     }
 
     
-    behavior of "Top-level Chisel"
-    it should "perform encoding correctly" in {
-        val p = JpegParams(8, 8, 1)
+    behavior of "Top-level JPEG Encode Chisel"
+    it should "Encodes using RLE - QT1" in {
+        val p = JpegParams(8, 8, 1, true)
         val inputData = DCTData.in1 
-        val expectedEncoded = Seq.fill(p.maxOutRLE)(1)
-        doJpegEncodeChiselTest(inputData, expectedEncoded, p)
+        doJpegEncodeChiselTest(inputData, p)
+    }
+
+    it should "Encodes using Delta Encoding - QT1" in {
+        val p = JpegParams(8, 8, 1, false)
+        val inputData = DCTData.in1 
+        doJpegEncodeChiselTest(inputData, p)
+    }
+
+    // OPTIONAL WORKING TESTS
+    // REMOVED SINCE IT TAKES 20 MINS TO COMPLETE
+    it should "Encodes using RLE - QT2" in {
+        val p = JpegParams(8, 8, 2, true)
+        val inputData = DCTData.in1 
+        doJpegEncodeChiselTest(inputData, p)
+    }
+
+    it should "Encodes using Delta Encoding - QT2" in {
+        val p = JpegParams(8, 8, 2, false)
+        val inputData = DCTData.in1 
+        doJpegEncodeChiselTest(inputData, p)
+    }
+
+    it should "Encodes using RLE - IN2 - QT1" in {
+        val p = JpegParams(8, 8, 1, false)
+        val inputData = DCTData.in2 
+        doJpegEncodeChiselTest(inputData, p)
+    }
+
+    it should "Encodes using RLE - IN2 - QT2" in {
+        val p = JpegParams(8, 8, 2, false)
+        val inputData = DCTData.in2 
+        doJpegEncodeChiselTest(inputData, p)
+    }
+
+    it should "Encodes using Delta Encoding - IN2 - QT1" in {
+        val p = JpegParams(8, 8, 1, false)
+        val inputData = DCTData.in2 
+        doJpegEncodeChiselTest(inputData, p)
+    }
+
+    it should "Encodes using Delta Encoding - IN2 - QT2" in {
+        val p = JpegParams(8, 8, 2, false)
+        val inputData = DCTData.in2 
+        doJpegEncodeChiselTest(inputData, p)
     }
 }

@@ -37,7 +37,7 @@ object EncodingState extends ChiselEnum {
 
 /** Performs Run Length Encoding
   * 
-  * @param p JPEG Paramaters
+  * @param p JPEG Parameters
   * 
   * IO
   * @param data Data to perform RLE on
@@ -129,7 +129,7 @@ class RLEChiselEncode(p: JpegParams) extends Module{
 
 /** Performs Delta Encoding
   * 
-  * @param p JPEG Paramaters
+  * @param p JPEG Parameters
   * 
   * IO
   * @param data Data to perform Delta Encoding on

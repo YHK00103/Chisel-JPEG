@@ -38,7 +38,7 @@ object InverseZigZagChisel {
 
 /** Persorms ZigZag parsing on 8x8 matrix converting it to 1D array
   *
-  * @param p JPEG Paramaters
+  * @param p JPEG Parameters
   * 
   * IO
   * @param matrixIn Input matrix to perform ZigZag parsing on 
@@ -130,7 +130,7 @@ class ZigZagChisel(p: JpegParams) extends Module {
 /** Persorms Inverse ZigZag parsing on 1D array converting it 
   * back to an 8x8 matrix
   *
-  * @param p JPEG Paramaters
+  * @param p JPEG Parameters
   * 
   * IO
   * @param matrixIn Input matrix to perform ZigZag parsing on 

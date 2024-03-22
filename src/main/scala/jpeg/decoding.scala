@@ -10,7 +10,10 @@ object RLEDecodingState extends ChiselEnum {
     val idle, load, decode = Value
 }
 
-/** Decodes Run Length Encoding
+/**
+  * Performs RLE Decoding
+  *
+  * @param p JPEG Parameters
   * 
   * IO
   * @param data Data to decode
@@ -110,13 +113,14 @@ object DecodingState extends ChiselEnum {
 
 /** Decodes Delta Encoding
   * 
-  * @param p JPEG Paramaters
+  * @param p JPEG Parameters
   * 
   * IO
   * @param data Data to decode
   * 
   * @return out Result of decoding Delta Encoding
   * @return state Current state of state machine
+  * 
   */
 class DeltaChiselDecode(p: JpegParams) extends Module {
     val io = IO(new Bundle {

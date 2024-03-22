@@ -39,7 +39,7 @@ object QuantState extends ChiselEnum {
 /**
   * Performs Quantization
   *
-  * @param p JPEG Paramaters
+  * @param p JPEG Parameters
   * 
   * IO
   * @param data Data to be use for Quantization
@@ -62,7 +62,6 @@ class QuantizationChisel(p: JpegParams) extends Module {
     val outputReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(32.W))))))
     val dataReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(32.W))))))
     val quantTabReg = RegInit(VecInit(Seq.fill(p.numRows)(VecInit(Seq.fill(p.numCols)(0.S(12.W))))))
-
     val outValid = RegInit(false.B)
 
     // assigns outputs
@@ -122,7 +121,7 @@ class QuantizationChisel(p: JpegParams) extends Module {
 /**
   * Performs Inverse Quantization
   *
-  * @param p JPEG Paramaters
+  * @param p JPEG Parameters
   * 
   * IO
   * @param data Data to be use for Inverse Quantization

@@ -8,6 +8,7 @@ To achieve this, we'll follow the outlined approach below. Initially, we'll appl
 ![Jpeg Compression](https://github.com/Darren-lin/Chisel-JPEG/blob/main/resources/JPEGCompressionOverview.png)
 
 ### Usage
+Please note that the Discrete Cosine Tests and the JPEGEncodeChiselTest takes a long time to complete.
 You can run the included test with:
 ```sh
 sbt test
@@ -21,9 +22,14 @@ You should see a whole bunch of output that ends with something like the followi
 ```
 ## What are we currently working on?
  - [ ] Multi-Cycle computation for Discrete Cosine Transform
- - [ ] Inversing Discrete Cosine Transform 
+ - [ ] Fix Quantizatiuon rounding bug
+
+## TODO
+ - [ ] Inversing Discrete Cosine Transform
  - [ ] JPEG Decompression in Top Level Module
- - [ ] Fix Quantizatiuon bug
+ - [ ] Reformat ZigZag to remove redundant code
+
+
 
 ## Known Issues
 - [ ] Quantization has a small bug that will round remainder results of -1.49 to -2 when it should be -1 because Quantization rounds to the nearest integer.
