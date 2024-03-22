@@ -4,7 +4,14 @@ import chisel3._
 import chisel3.internal.firrtl.Width
 import chisel3.util._
 
-// case class JpegParams(val givenRows: Int, val givenCols: Int, val qtChoice: Int, val encoding: Int){
+/**
+  * JPEG Parameters for Chisel Modules
+  *
+  * @param givenRows Pixel Data in row dimensions
+  * @param givenCols Pixel Data in col dimensions
+  * @param qtChoice Quantization Table Choice, 0 for empty, 1 for Luminance, 2 for Chrominance
+  * @param encodingChoice True for Run Length Encoding, False for Delta Encoding
+  */
 case class JpegParams(val givenRows: Int, val givenCols: Int, val qtChoice: Int, val encodingChoice: Boolean = true){
     val numRows = 8
     val numCols = 8
@@ -15,6 +22,9 @@ case class JpegParams(val givenRows: Int, val givenCols: Int, val qtChoice: Int,
     val w16: Width = 16.W
     val w8: Width = 8.W
 
+    /**
+      * Helper function to return Quant table
+      */
     def getQuantTable: Seq[Seq[Int]] = qtChoice match {
         case 0 => QuantizationTables.qEmpty
         case 1 => QuantizationTables.qt1

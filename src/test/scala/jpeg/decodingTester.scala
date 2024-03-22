@@ -51,15 +51,7 @@ class DecodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
             dut.io.in.valid.poke(false.B)
             dut.clock.step()
             dut.io.out.valid.expect(true.B)
-            dut.io.state.expect(RLEDecodingState.idle)
-            
-
-            // Testing purposes
-            // Printing each element of the array
-            // val bitsArray: Vec[SInt] = dut.io.out.bits
-            // for (element <- bitsArray) {
-            //     println(element.peek())
-            // }
+            dut.io.state.expect(RLEDecodingState.idle)            
             
             // compares output to expected
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
@@ -96,13 +88,6 @@ class DecodingChiselTest extends AnyFlatSpec with ChiselScalatestTester {
             dut.clock.step(p.totalElements)
             dut.io.out.valid.expect(true.B)
             dut.io.state.expect(DecodingState.idle)
-
-            // Testing purposes
-            // Printing each element of the array
-            // val bitsArray: Vec[SInt] = dut.io.out.bits
-            // for (element <- bitsArray) {
-            //     println(element.peek())
-            // }
                 
             // compare with scala model
             val jpegEncoder = new jpegEncode(false, List.empty, 0)

@@ -56,6 +56,7 @@ class RLEChiselDecode(p: JpegParams) extends Module {
     io.out.valid := outValid
     io.out.bits := outputReg
 
+    // Statemachine logic
     switch(stateReg){
         is(RLEDecodingState.idle){
             when(io.in.fire){
@@ -105,7 +106,7 @@ class RLEChiselDecode(p: JpegParams) extends Module {
 }
 
 /** 
-  * Creates states for decoding  Delta Encoding
+  * Creates states for decoding Delta Encoding
   */
 object DecodingState extends ChiselEnum {
     val idle, decode = Value
@@ -146,6 +147,7 @@ class DeltaChiselDecode(p: JpegParams) extends Module {
     io.out.valid := outValid
     io.out.bits := outputReg
 
+    // Statemachine logic
     switch(stateReg){
         is(DecodingState.idle){
             when(io.in.fire){
@@ -157,7 +159,6 @@ class DeltaChiselDecode(p: JpegParams) extends Module {
         }
 
         is(DecodingState.decode){
-            
             when (dataIndex < p.totalElements.U) {
                 outputReg(dataIndex) := outputReg(dataIndex - 1.U) + dataReg(dataIndex)
                 dataIndex := dataIndex + 1.U

@@ -133,37 +133,37 @@ class DCTChiselTest extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 
-  it should "compute DCT correctly 2" in {
+  it should "compute DCT correctly in2" in {
     val inputMatrix = DCTData.in2
     doDCTChiselTest(inputMatrix)
   }
 
-  it should "compute DCT correctly 3" in {
+  it should "compute DCT correctly in3" in {
     val inputMatrix = DCTData.in3
     doDCTChiselTest(inputMatrix)
   }
 
-  it should "compute DCT correctly 4" in {
+  it should "compute DCT correctly in4" in {
     val inputMatrix = DCTData.in4
     doDCTChiselTest(inputMatrix)
   }
 
-  it should "compute DCT correctly 5" in {
+  it should "compute DCT correctly in5" in {
     val inputMatrix = DCTData.in5
     doDCTChiselTest(inputMatrix)
   }
 
-  it should "compute DCT correctly 6" in {
+  it should "compute DCT correctly in6" in {
     val inputMatrix = DCTData.in6
     doDCTChiselTest(inputMatrix)
   }
 
-  it should "compute DCT correctly 7" in {
+  it should "compute DCT correctly in7" in {
     val inputMatrix = DCTData.in7
     doDCTChiselTest(inputMatrix)
   }
 
-  it should "compute DCT correctly 8" in {
+  it should "compute DCT correctly in8" in {
     val inputMatrix = DCTData.in8
     doDCTChiselTest(inputMatrix)
   }

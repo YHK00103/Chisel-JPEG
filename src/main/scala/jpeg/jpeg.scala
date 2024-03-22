@@ -16,6 +16,7 @@ import chisel3.util._
   * @return quantOut Quantization output used in testing
   * @return zigzagOut Zigzag output used in testing
   * @return encoded Encoded pixel data
+  * 
   */
 class JPEGEncodeChisel(p: JpegParams) extends Module {
     val io = IO(new Bundle {

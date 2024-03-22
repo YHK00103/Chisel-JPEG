@@ -22,7 +22,8 @@ class JPEGEncodeChiselTest extends AnyFlatSpec with ChiselScalatestTester {
             println("Starting Encode")
             // Testing DCT
             val jpegEncoder = new jpegEncode(false, List.empty, 0)
-            val expectedDCT = jpegEncoder.DCT(DCTData.in1)
+            val expectedDCT = jpegEncoder.DCT(data)
+            val expectedDCTInt: Seq[Seq[Int]] = expectedDCT.map(_.map(_.toInt))
             val convertedMatrix: Seq[Seq[SInt]] = expectedDCT.map(row => row.map(value => value.toInt.S))
 
             // Initialize input
@@ -45,7 +46,7 @@ class JPEGEncodeChiselTest extends AnyFlatSpec with ChiselScalatestTester {
             println("Passed Discrete Cosine Transform")
             
             // Testing Quant
-            val expectedQuant = jpegEncoder.scaledQuantization(DCTData.scaledOut1, p.getQuantTable)
+            val expectedQuant = jpegEncoder.scaledQuantization(expectedDCTInt, p.getQuantTable)
             dut.clock.step()
             dut.clock.step(64)
             for (r <- 0 until p.numRows) {

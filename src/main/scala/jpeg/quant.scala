@@ -74,6 +74,7 @@ class QuantizationChisel(p: JpegParams) extends Module {
     val rCounter = Counter(p.numRows)
     val cCounter = Counter(p.numCols)
 
+    // Statemachine logic
     switch(stateReg){
         is(QuantState.idle){
             when(io.in.fire){
@@ -86,7 +87,7 @@ class QuantizationChisel(p: JpegParams) extends Module {
 
         is(QuantState.quant){
             // performs round to the nearest integer, -.5 -> -1, .49 -> 0.
-            // TODO fix .49 rounding up to 1 in Chisel
+            // TODO fix -1.49 rounding up to -2 in Chisel
             when(dataReg(rCounter.value)(cCounter.value) < 0.S){
                 val remainder = dataReg(rCounter.value)(cCounter.value) % quantTabReg(rCounter.value)(cCounter.value)
                 when(remainder <= (quantTabReg(rCounter.value)(cCounter.value) / -2.S)){
@@ -155,6 +156,7 @@ class InverseQuantizationChisel(p: JpegParams) extends Module {
     val rCounter = Counter(p.numRows)
     val cCounter = Counter(p.numCols)
 
+    // Statemachine logic
     switch(stateReg){
         is(QuantState.idle){
             when(io.in.fire){

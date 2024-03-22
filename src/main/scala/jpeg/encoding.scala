@@ -73,7 +73,6 @@ class RLEChiselEncode(p: JpegParams) extends Module{
     val consecutive = RegInit(1.S(log2Ceil(p.totalElements+1).W))
 
     val lenCounter = RegInit(0.U(log2Ceil(p.maxOutRLE+1).W))
-
     val current = RegInit(0.S(p.w8))
 
     // assign output 
@@ -83,9 +82,9 @@ class RLEChiselEncode(p: JpegParams) extends Module{
     // to keep track of how many elements in out are used and assign length output
     io.length.valid := lenValid
     io.length.bits := lenCounter
-
     io.state := stateReg
 
+    // Statemachine logic
     switch(stateReg){
         is(EncodingState.idle){
             when(io.in.fire){
@@ -162,6 +161,7 @@ class DeltaChiselEncode(p: JpegParams) extends Module{
     io.out.valid := outValid
     io.out.bits := outputReg
 
+    // Statemachine logic
     switch(stateReg){
         is(EncodingState.idle){
             when(io.in.fire){
