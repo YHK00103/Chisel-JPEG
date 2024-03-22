@@ -1,12 +1,11 @@
 # Chisel Jpeg
 This project implements Jpeg compression for raw pixel data values.
-
+More information can be found in our presentation: https://docs.google.com/presentation/d/1uGHCBY0pUD06bBndzRFlM-fH3voTCw0arw5I-TWHsZk/edit?usp=sharing
 ## Jpeg Compression
 JPEG compression attempts to create patterns in the color values in order to reduce the amount of data that needs to be recorded, thereby reducing the file size.
 
 To achieve this, we'll follow the outlined approach below. Initially, we'll apply the Discrete Cosine Transform (DCT), followed by quantization of the DCT coefficients. Subsequently, we'll perform zig-zag parsing and then reduce the resulting 2D array into a 1D array using either run-length encoding or delta encoding. Finally, we'll apply either Huffman or arithmetic encoding to complete the compression process.
 
-More information can be found in our presentation: https://docs.google.com/presentation/d/1uGHCBY0pUD06bBndzRFlM-fH3voTCw0arw5I-TWHsZk/edit?usp=sharing
 ![Jpeg Compression](https://github.com/Darren-lin/Chisel-JPEG/blob/main/resources/JPEGCompressionOverview.png)
 
 ### Usage
