@@ -90,6 +90,16 @@ class DCTChisel extends Module {
     val state = RegInit(DCTState.waiting)
     switch(state) {
         is(DCTState.waiting) {
+
+            // printf("Content of matrixOutput in waiting state:\n")
+            // for (i <- 0 until 8) {
+            //     for (j <- 0 until 8) {
+            //         printf("%d ", matrixOutput(i)(j))
+            //     }
+            //     printf("\n")
+            // }
+            // printf("\n")
+
             when(io.in.valid) {
                 matrixInput := io.in.bits.matrixIn
                 state := DCTState.shifting
