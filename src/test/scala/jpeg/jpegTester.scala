@@ -16,7 +16,7 @@ class JPEGEncodeChiselTest extends AnyFlatSpec with ChiselScalatestTester {
         * @param encoded Expected encoded output
         */
     def doJPEGEncodeChiselTest(data: Seq[Seq[Int]], p: JpegParams): Unit = {
-        test(new JpegEncodeChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+        test(new JPEGEncodeChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.clock.setTimeout(0)
 
             println("Starting Encode")
@@ -97,13 +97,13 @@ class JPEGEncodeChiselTest extends AnyFlatSpec with ChiselScalatestTester {
     it should "Encodes using RLE - QT1" in {
         val p = JpegParams(8, 8, 1, true)
         val inputData = DCTData.in1 
-        doJpegEncodeChiselTest(inputData, p)
+        doJPEGEncodeChiselTest(inputData, p)
     }
 
     it should "Encodes using Delta Encoding - QT1" in {
         val p = JpegParams(8, 8, 1, false)
         val inputData = DCTData.in1 
-        doJpegEncodeChiselTest(inputData, p)
+        doJPEGEncodeChiselTest(inputData, p)
     }
 
     // OPTIONAL WORKING TESTS
@@ -111,36 +111,36 @@ class JPEGEncodeChiselTest extends AnyFlatSpec with ChiselScalatestTester {
     it should "Encodes using RLE - QT2" in {
         val p = JpegParams(8, 8, 2, true)
         val inputData = DCTData.in1 
-        doJpegEncodeChiselTest(inputData, p)
+        doJPEGEncodeChiselTest(inputData, p)
     }
 
     it should "Encodes using Delta Encoding - QT2" in {
         val p = JpegParams(8, 8, 2, false)
         val inputData = DCTData.in1 
-        doJpegEncodeChiselTest(inputData, p)
+        doJPEGEncodeChiselTest(inputData, p)
     }
 
     it should "Encodes using RLE - IN2 - QT1" in {
         val p = JpegParams(8, 8, 1, false)
         val inputData = DCTData.in2 
-        doJpegEncodeChiselTest(inputData, p)
+        doJPEGEncodeChiselTest(inputData, p)
     }
 
     it should "Encodes using RLE - IN2 - QT2" in {
         val p = JpegParams(8, 8, 2, false)
         val inputData = DCTData.in2 
-        doJpegEncodeChiselTest(inputData, p)
+        doJPEGEncodeChiselTest(inputData, p)
     }
 
     it should "Encodes using Delta Encoding - IN2 - QT1" in {
         val p = JpegParams(8, 8, 1, false)
         val inputData = DCTData.in2 
-        doJpegEncodeChiselTest(inputData, p)
+        doJPEGEncodeChiselTest(inputData, p)
     }
 
     it should "Encodes using Delta Encoding - IN2 - QT2" in {
         val p = JpegParams(8, 8, 2, false)
         val inputData = DCTData.in2 
-        doJpegEncodeChiselTest(inputData, p)
+        doJPEGEncodeChiselTest(inputData, p)
     }
 }
