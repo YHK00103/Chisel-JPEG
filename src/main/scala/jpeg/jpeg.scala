@@ -11,10 +11,13 @@ class JpegEncodeChisel(p: JpegParams) extends Module {
             val pixelDataIn = Input(Vec(p.givenRows, Vec(p.givenCols, SInt(9.W))))
         }))
         
+        // Testing Outputs
         val dctOut = Output(Vec(8, Vec(8, SInt(32.W))))
         val quantOut = Output(Vec(p.numRows, Vec(p.numCols, SInt(32.W))))
         val zigzagOut = Output(Vec(p.totalElements, SInt(9.W)))
-        val encoded = Output(Vec(p.maxOutRLE, SInt(8.W)))
+
+        // Final Encoded Output
+        val encoded = Output(Vec(p.maxOutRLE, SInt(p.w8)))
 
         // val encodedDataIn = Input(Vec(64, SInt(8.W)))
         // val decoded = Output(Vec(p.givenRows, Vec(p.givenCols, SInt(8.W))))

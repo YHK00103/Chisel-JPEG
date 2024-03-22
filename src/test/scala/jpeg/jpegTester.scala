@@ -16,10 +16,6 @@ class jpegEncodeChiselTester extends AnyFlatSpec with ChiselScalatestTester {
         * @param encoded Expected encoded output
         */
     def doJpegEncodeChiselTest(data: Seq[Seq[Int]], encoded: Seq[Int], p: JpegParams): Unit = {
-        // Define your parameters
-        
-
-        // Initialize your test module with the specified parameters
         test(new JpegEncodeChisel(p)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             dut.clock.setTimeout(800)
 
@@ -28,8 +24,7 @@ class jpegEncodeChiselTester extends AnyFlatSpec with ChiselScalatestTester {
             val expectedDCT = jpegEncoder.DCT(DCTData.in1)
             val convertedMatrix: Seq[Seq[SInt]] = expectedDCT.map(row => row.map(value => value.toInt.S))
 
-
-            // Initialize inputs
+            // Initialize input
             dut.io.in.valid.poke(true.B)
             // Set input pixel data
             for (i <- 0 until p.givenRows) {
@@ -69,19 +64,28 @@ class jpegEncodeChiselTester extends AnyFlatSpec with ChiselScalatestTester {
             }
             println("passed Zigzag")
 
+            // Testing Encode
+            val expectedEncode = jpegEncoder.RLE(expectedZigzag)
+            dut.clock.step()
+            dut.clock.step(p.totalElements)
+            // println(expectedEncode)
+
             // Check the output
-            for (i <- 0 until p.maxOutRLE) {
-                dut.io.encoded(i).expect(encoded(i).S)
+            for (i <- 0 until expectedEncode.length) {
+                dut.io.encoded(i).expect(expectedEncode(i).S)
             }
+            println("passed Encode")
+
+
         }
     }
 
     
     behavior of "Top-level Chisel"
-    val p = JpegParams(8, 8, 1)
-    val inputData = DCTData.in1 //Seq(Seq.fill(8)(0), Seq.fill(8)(0), Seq.fill(8)(0), Seq.fill(8)(0), Seq.fill(8)(0), Seq.fill(8)(0), Seq.fill(8)(0), Seq.fill(8)(0))
-    val expectedEncoded = Seq.fill(p.maxOutRLE)(1) // Modify this to match your expected output
     it should "perform encoding correctly" in {
+        val p = JpegParams(8, 8, 1)
+        val inputData = DCTData.in1 
+        val expectedEncoded = Seq.fill(p.maxOutRLE)(1)
         doJpegEncodeChiselTest(inputData, expectedEncoded, p)
     }
 }
