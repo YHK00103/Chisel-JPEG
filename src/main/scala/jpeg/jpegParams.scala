@@ -5,7 +5,7 @@ import chisel3.internal.firrtl.Width
 import chisel3.util._
 
 // case class JpegParams(val givenRows: Int, val givenCols: Int, val qtChoice: Int, val encoding: Int){
-case class JpegParams(val givenRows: Int, val givenCols: Int, val qtChoice: Int){
+case class JpegParams(val givenRows: Int, val givenCols: Int, val qtChoice: Int, val encodingChoice: Boolean = true){
     val numRows = 8
     val numCols = 8
     val totalElements = numRows * numCols
