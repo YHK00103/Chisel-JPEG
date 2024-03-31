@@ -14,7 +14,8 @@ Please note that the Discrete Cosine Tests and the JPEGEncodeChiselTest takes a 
 For this reason we commented out optional additional tests (see line 109 in jpegTester.scala) for JPEGEncodeChiselTest, but they do all run fine and pass.
 </b></p>
 You can run the included test with:
-```sh
+
+```
 sbt test
 ```
 
