@@ -24,6 +24,7 @@ class JPEGDecodeChisel(p: JPEGParams) extends Module {
             val encodedRLE = Vec(p.maxOutRLE, SInt(p.w8))
             val encodedDelta = Vec(p.totalElements, SInt(p.w8))
             val encodingChoice = Bool()
+            val rleLength = UInt(9.W) 
         }))
         
         // Testing Outputs
@@ -50,10 +51,11 @@ class JPEGDecodeChisel(p: JPEGParams) extends Module {
             // RLE Path
             rleDecoder.io.in.valid := true.B
             rleDecoder.io.in.bits.data := io.in.bits.encodedRLE
-            rleDecoder.io.length := io.in.bits.encodedRLE.length.U
+            rleDecoder.io.length := io.in.bits.rleLength
 
             deltaDecoder.io.in.bits.valid := false.B
         }.otherwise{
+            // Delta Path
             deltaDecoder.io.in.bits.valid := true.B
             deltaDecoder.io.in.bits.data := io.in.bits.encodedDelta
             rleDecoder.io.in.valid := false.B
