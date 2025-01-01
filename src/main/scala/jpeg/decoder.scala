@@ -46,15 +46,15 @@ class JPEGDecodeChisel(p: JPEGParams) extends Module {
 
     // Connect entropy decoders based on encoding choice
     when(io.in.valid) {
-        when(io.in.bits.encodingChoice) {
-            // RLE path
+        when(io.in.bits.encodingChoice){
+            // RLE Path
             rleDecoder.io.in.valid := true.B
             rleDecoder.io.in.bits.data := io.in.bits.encodedRLE
-            rleDecoder.io.length := ??? // Need to handle length for RLE
-            deltaDecoder.io.in.valid := false.B
-        } .otherwise {
-            // Delta path
-            deltaDecoder.io.in.valid := true.B
+            rleDecoder.io.length := io.in.bits.encodedRLE.length.U
+
+            deltaDecoder.io.in.bits.valid := false.B
+        }.otherwise{
+            deltaDecoder.io.in.bits.valid := true.B
             deltaDecoder.io.in.bits.data := io.in.bits.encodedDelta
             rleDecoder.io.in.valid := false.B
         }
