@@ -55,7 +55,7 @@ class RLEChiselDecode(p: JPEGParams) extends Module {
     io.state := stateReg
     io.out.valid := outValid
     io.out.bits := outputReg
-
+// a
     // Statemachine logic
     switch(stateReg){
         is(RLEDecodingState.idle){
