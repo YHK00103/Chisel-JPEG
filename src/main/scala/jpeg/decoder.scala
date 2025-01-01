@@ -60,6 +60,10 @@ class JPEGDecodeChisel(p: JPEGParams) extends Module {
             deltaDecoder.io.in.bits.data := io.in.bits.encodedDelta
             rleDecoder.io.in.valid := false.B
         }
+    }.otherwise{
+        rleDecoder.io.in.valid := false.B
+        deltaDecoder.io.in.valid := false.B
+        rleDecoder.io.length := 0.U
     }
 
     // Second stage: Inverse Zigzag
