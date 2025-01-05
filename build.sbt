@@ -11,7 +11,8 @@ lazy val root = (project in file("."))
     name := "Chisel-JPEG",
     libraryDependencies ++= Seq(
       "edu.berkeley.cs" %% "chisel3" % chiselVersion,
-      "edu.berkeley.cs" %% "chiseltest" % "0.6.0" % "test"
+      "edu.berkeley.cs" %% "chiseltest" % "0.6.0" % "test",
+      "com.typesafe.play" %% "play-json" % "2.10.0-RC5"
     ),
     scalacOptions ++= Seq(
       "-language:reflectiveCalls",
@@ -23,3 +24,4 @@ lazy val root = (project in file("."))
   )
 
 libraryDependencies += "org.scalatestplus" %% "junit-4-13" % "3.2.15.0" % "test"
+libraryDependencies += "org.json4s" %% "json4s-jackson" % "4.0.6"
