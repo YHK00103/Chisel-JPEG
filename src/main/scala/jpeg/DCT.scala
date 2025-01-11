@@ -71,7 +71,7 @@ class DCTChisel extends Module {
                         val pixelValue = matrix(i)(j)
                         // Scale the cosine values to preserve precision
                         val cosVal = (math.cos((2 * i + 1) * u * Pi / 16) * math.cos((2 * j + 1) * v * Pi / 16) * 100).toInt.S
-                        sum = sum +& pixelValue * cosVal
+                        sum = sum +& pixelValue * cosVal 
                     }
                 }
   

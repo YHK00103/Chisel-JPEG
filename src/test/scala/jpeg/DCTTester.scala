@@ -81,6 +81,8 @@ class DCTChiselTest extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.dctOut.valid.expect(true.B)
       for (i <- 0 until 8) {
         for (j <- 0 until 8) {
+          val actual = dut.io.dctOut.bits(i)(j).peek()
+          println(s"Expected: ${convertedMatrix(i)(j)} Actual: $actual")
           dut.io.dctOut.bits(i)(j).expect(convertedMatrix(i)(j))
         }
       }

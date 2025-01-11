@@ -11,6 +11,33 @@ object RLEDecodingState extends ChiselEnum {
 }
 
 /**
+  * Object for RLEChiselDecode
+  */
+object RLEChiselDecode {
+    def apply(params: JPEGParams, data: Valid[Vec[SInt]], out: Valid[Vec[SInt]], length: Valid[UInt]) = {
+        val mod = Module(new RLEChiselDecode(params))
+        mod.io.in := data
+        mod.io.out := out
+        mod.io.length := length
+        mod
+    }
+}
+
+/**
+  * Object for DeltaChiselDecode
+  */
+object DeltaChiselDecode {
+    def apply(params: JPEGParams, data: Valid[Vec[SInt]], out: Valid[Vec[SInt]]) = {
+        val mod = Module(new DeltaChiselDecode(params))
+        mod.io.in := data
+        mod.io.out := out
+        mod
+    }
+}
+
+
+
+/**
   * Performs RLE Decoding
   *
   * @param p JPEG Parameters

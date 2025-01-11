@@ -107,7 +107,7 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
                         val cosVal = cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100
                         
                         val roundedCval = if (cosVal >= 0) floor(cosVal) else ceil(cosVal)
-                        sum = sum + pixelValue * roundedCval
+                        sum = sum + pixelValue * roundedCval 
                     }
                 }
                 val alphaU = if (u == 0) floor((1.0 / math.sqrt(2)) * 100) else 100
@@ -118,6 +118,48 @@ class jpegEncode(decompress: Boolean, quantTable: List[List[Int]], encoding: Int
         }
         dctMatrix.map(_.toSeq).toSeq
     }
+
+    /**
+      * Computes IDCT matrix output from input matrix 
+      *
+      * @param matrix 8x8 matrix input of pixel values 
+      */
+    def IDCT(matrix: Seq[Seq[Int]]): Seq[Seq[Int]] = {
+        val rows = matrix.length
+        val cols = matrix.headOption.map(_.length).getOrElse(0)
+
+        require(rows == 8 && cols == 8, "Input matrix must be 8x8")
+
+        val idctMatrix = Array.ofDim[Int](8, 8)
+
+        for (i <- 0 until 8) {
+            for (j <- 0 until 8) {
+                var sum = 0.0
+                for (u <- 0 until 8) {
+                    for (v <- 0 until 8) {
+                        val pixelValue = matrix(u)(v)
+                        val alphaU = if (u == 0) floor((1.0 / math.sqrt(2)) * 100) else 100
+                        val alphaV = if (v == 0) floor((1.0 / math.sqrt(2)) * 100) else 100
+
+                        val cosVal = cos((2 * i + 1) * u * Pi / 16) * cos((2 * j + 1) * v * Pi / 16) * 100
+                        val roundedCval = if (cosVal >= 0) floor(cosVal).toInt else ceil(cosVal).toInt
+                        val divSum = alphaU * alphaV * pixelValue * roundedCval / 1000000
+                        val roundedDiv = if(divSum >= 0) floor(divSum) else ceil(divSum)
+                        val divSum2 = roundedDiv / 1000000
+                        val roundedDiv2 = if(divSum2 >= 0) floor(divSum2) else ceil(divSum2)
+                        sum = sum + roundedDiv2
+                        //if(i == 1 && j == 1)
+                            //println(s" pixelValue: $pixelValue, roundedCval, $roundedCval, divSum2, $divSum2, rounedDiv2, $roundedDiv2, sum:, $sum")
+                    }
+                } 
+                val scaledSum = if(sum >= 0) floor(sum / 4).toInt else ceil(sum / 4).toInt
+                //println(s"scaledSum: $scaledSum")
+                idctMatrix(i)(j) = scaledSum + 128
+            }
+        }
+        idctMatrix.map(_.toSeq).toSeq
+    }
+
 
     /**
       * Prints given matrix to terminal
