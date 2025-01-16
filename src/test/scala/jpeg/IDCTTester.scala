@@ -37,7 +37,6 @@ class IDCTChiselTest extends AnyFlatSpec with ChiselScalatestTester {
           val actual = dut.io.idctOut.bits(i)(j).peek()
           //println(s"Expected: ${convertedMatrix(i)(j)} Actual: $actual")
           dut.io.idctOut.bits(i)(j).expect(convertedMatrix(i)(j))
-          //println("%d, %d", dut.io.idctOut.bits(i)(j), convertedMatrix(i)(j))
         }
       }
     }

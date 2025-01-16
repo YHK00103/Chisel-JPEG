@@ -40,6 +40,8 @@ class JPEGEncodeChiselTest extends AnyFlatSpec with ChiselScalatestTester {
             for (i <- 0 until 8) {
                 for (j <- 0 until 8) {
                     dut.io.dctOut(i)(j).expect(convertedMatrix(i)(j))
+                    val actual = dut.io.dctOut(i)(j).peek()
+                    println(s"DCT Expected: ${convertedMatrix(i)(j)} Actual: $actual")
                 }
             }
             println("Passed Discrete Cosine Transform")
@@ -51,6 +53,8 @@ class JPEGEncodeChiselTest extends AnyFlatSpec with ChiselScalatestTester {
             for (r <- 0 until p.numRows) {
                 for (c <- 0 until p.numCols) {
                     dut.io.quantOut(r)(c).expect(expectedQuant(r)(c).S)
+                    val actual = dut.io.quantOut(r)(c).peek()
+                    println(s"Quant Expected: ${expectedQuant(r)(c).S} Actual: $actual")
                 }
             }
             println("Passed Quantization")
@@ -62,6 +66,8 @@ class JPEGEncodeChiselTest extends AnyFlatSpec with ChiselScalatestTester {
 
             for(i <- 0 until expectedZigzag.length){
                 dut.io.zigzagOut(i).expect(expectedZigzag(i).S)
+                val actual = dut.io.zigzagOut(i).peek()
+                println(s"Zigzag Expected: ${expectedZigzag(i).S} Actual: $actual")
             }
             println("Passed Zigzag")
 
@@ -74,6 +80,8 @@ class JPEGEncodeChiselTest extends AnyFlatSpec with ChiselScalatestTester {
                 // Check the output
                 for (i <- 0 until expectedEncode.length) {
                     dut.io.encodedRLE(i).expect(expectedEncode(i).S)
+                    val actual = dut.io.encodedRLE(i).peek()
+                    println(s"encodedRLE Actual: $actual")
                 }
                 println("Passed Run Length Encoding")
             }
@@ -85,6 +93,8 @@ class JPEGEncodeChiselTest extends AnyFlatSpec with ChiselScalatestTester {
                 // Check the output
                 for (i <- 0 until p.totalElements) {
                     dut.io.encodedDelta(i).expect(expectedEncode(i).S)
+                    val actual = dut.io.encodedDelta(i).peek()
+                    println(s"encodedDelta Actual: $actual")
                 }
                 println("Passed Delta Encoding")
             }
